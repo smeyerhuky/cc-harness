@@ -11,6 +11,7 @@ The playground is a structured development environment for experimentation and m
 ## Table of Contents
 
 * [Getting Started](./getting-started/index.md) - Quick introduction and setup guides
+* [AI-SDLC](./ai-sdlc/index.md) - Spec-driven development and the AI-SDLC workflow
 * [Additive Engineering](./additive-engineering/index.md) - Root knowledge base for 3D modeling and agentic software
 * [Architecture](./architecture/index.md) - Repository structure, KB organization, and project templates
 * [Development](./development/index.md) - Development workflows and shared code management

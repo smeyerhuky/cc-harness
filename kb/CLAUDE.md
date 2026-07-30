@@ -56,7 +56,7 @@ To add content to this bundle:
 - **Frontmatter:** Every file has type, title, description, resource, tags, timestamp
 - **okf_version:** Declared only in root `index.md`
 - **File types:** Common types include "Concept", "Reference", "Workflow", "Guide"
-- **Linking:** Use relative markdown links (e.g., `[text](../other-dir/file.md)`)
+- **Linking:** Use relative markdown links (e.g., `[text](../other-dir/file)`).
 - **Markdown:** Plain markdown with OKF frontmatter; no special tooling required
 
 ## Related Knowledge Bases

@@ -19,4 +19,4 @@ When simple extrusions and cuts are insufficient for capturing organic or comple
 - **Loft:** Generates a solid by interpolating a surface between two or more distinct cross-sectional profiles on different planes (e.g., airplane fuselages, boat hulls).
 - **Wrap / Engraving:** Projects a 2D sketch onto a curved or non-planar surface to create embossed or debossed features.
 
-Mastering these features relies heavily on [Feature Mapping](../design_methodology/feature_mapping.md), as the designer must correctly identify which physical [geometry](../mathematics/geometry.md) corresponds to a sweep versus a loft.
+Mastering these features relies heavily on [Feature Mapping](../design-methodology/feature-mapping.md), as the designer must correctly identify which physical [geometry](../mathematics/geometry.md) corresponds to a sweep versus a loft.
