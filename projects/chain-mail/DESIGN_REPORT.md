@@ -62,6 +62,12 @@ without fusing.
 all 3 `fit_checks.json` pairs within tolerance. Independent linkage pass: all three pairs
 **Lk +1.000**. Fit spec: [`spec/fit_checks.json`](spec/fit_checks.json).
 
+### M1 PHYSICAL RESULT — PASSED (2026-07-30)
+All three pairs printed on the P1S (0.4 nozzle / 0.2 layer): **every pair released and
+articulated freely, none fused.** User selected the tightest, **GAP = 0.30 mm (dx 3.7)**, as
+the locked design clearance. Recorded in `config.scad` as `GAP`, `LINK_TILT`, `LINK_DX/DY`.
+The fusing floor is at or below 0.30 mm for this machine/material/profile.
+
 ### Finding carried to M2 (weave tiling)
 While validating the pair I confirmed the **diagonal** neighbor (dx 4, dy 3) links cleanly, but
 naïvely tiling a full grid **collides on same-column neighbors** (offset (0,3) → 9 mm³, (0,6) →

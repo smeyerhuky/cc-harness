@@ -10,12 +10,19 @@ AR = 5.0;              // aspect ratio ID/WD
 ID = AR * WD;          // inner diameter = 8.0
 OD = ID + 2 * WD;      // outer diameter = 11.2
 
-// ---- Print-in-place clearance (SPEC §3.2) ----------------------------------
-// Design gap between linked wire surfaces. Coupon prints 0.30/0.40/0.50 to
-// find the real floor for this P1S/PLA/profile before committing.
-GAP        = 0.40;     // nominal design clearance
-GAP_TIGHT  = 0.30;     // stretch (image's number) — must be proven
-GAP_SAFE   = 0.50;     // fallback if 0.40 fuses
+// ---- Print-in-place clearance (SPEC §3.2) — CHOSEN AT M1 -------------------
+// M1 physical print (all three released & articulated cleanly on the P1S);
+// user selected the tightest, 0.30 mm. This is the locked design clearance.
+GAP        = 0.30;     // CHOSEN design clearance (M1 physical, 2026-07-30)
+GAP_ALT_04 = 0.40;     // also printed clean — fallback / looser drape
+GAP_ALT_05 = 0.50;     // also printed clean — safest
+
+// ---- M1-calibrated interlink (tilt +T / -T pair) ---------------------------
+// A verified linked pair (Gauss Lk = +1) that both rests on the bed and holds
+// GAP between the threaded wires. Basis for the M2 weave lattice.
+LINK_TILT  = 30;       // ring lean; opposite sign on adjacent rings
+LINK_DX    = 3.7;      // diagonal X offset giving GAP=0.30 at this tilt
+LINK_DY    = 3.0;      // diagonal Y offset (row step)
 
 // ---- Weave: European 4-in-1 (SPEC §4) --------------------------------------
 // Tilt angle of alternating rings. Derived nominal; VERIFIED by collision test,
