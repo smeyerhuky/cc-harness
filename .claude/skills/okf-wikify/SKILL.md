@@ -68,9 +68,27 @@ Each `index.md` (no frontmatter — reserved filename) lists its directory's fil
 
 Write the root `index.md` last, once you know the final directory structure — it needs `okf_version: "0.1"` in its frontmatter (the *only* file allowed to declare this) plus a one-paragraph summary of the whole source and a table of contents linking each subdirectory's `index.md`.
 
-### Step 4: Write the bundle's CLAUDE.md
+### Step 4: Record the bundle in the governing CLAUDE.md
 
-Add a `CLAUDE.md` as a *sibling* of the bundle directory (e.g. `project/CLAUDE.md` next to `project/kb/`), not inside the bundle itself. CLAUDE.md is agent operating instructions, not OKF content, and it needs to be picked up automatically for any session working anywhere in the project — not just one that cds into the bundle folder. Explain, for a future Claude session that lands in this directory cold:
+CLAUDE.md is agent operating instructions, not OKF content, and it needs to be picked up
+automatically for any session working in the surrounding directory — not just one that cds into
+the bundle folder. So the bundle's usage notes belong in the **governing CLAUDE.md** for the
+directory that owns the bundle.
+
+**Never create a `<Name>-KB-CLAUDE.md` (or any other renamed companion CLAUDE file).** A `kb/`
+bundle does not get its own separate CLAUDE file — it is governed by the nearest `CLAUDE.md` above
+it.
+
+- **If a governing `CLAUDE.md` already exists** (a repo with a CLAUDE.md hierarchy — e.g.
+  `project/CLAUDE.md` above `project/kb/`), **update it**: add or refresh a short section that
+  describes the bundle and how to navigate it. Do not add a second CLAUDE file.
+- **If none exists** (a standalone wikify with no surrounding governance), create a plain
+  `CLAUDE.md` as a *sibling* of the bundle directory (e.g. `project/CLAUDE.md` next to
+  `project/kb/`), not inside it.
+
+Either way, keep it current **as the work evolves** — update the governing CLAUDE.md and the
+bundle in the same change that produces new material, rather than regenerating everything at the
+end. Explain, for a future Claude session that lands in this directory cold:
 
 - What OKF is and the specific conventions this bundle follows (frontmatter schema, reserved filenames, `okf_version` placement).
 - The directory map and what's in each section.
@@ -78,7 +96,7 @@ Add a `CLAUDE.md` as a *sibling* of the bundle directory (e.g. `project/CLAUDE.m
 - How to *use* it: start from `index.md`, follow links into the specific files needed, cite file paths when answering questions so claims stay verifiable against the source.
 - Where the original source material lives, for anything not captured in the decomposition (figures, exact formatting, material judged not worth atomizing).
 
-See `references/claude-md-template.md` for a template to adapt rather than writing this from scratch.
+See `references/claude-md-template.md` for a section/template to adapt rather than writing this from scratch (adapt it into the existing governing CLAUDE.md when one exists).
 
 ### Step 5: Lint
 
@@ -96,4 +114,4 @@ Some sources don't cleanly decompose into standalone concepts — a tightly sequ
 
 ## Updating an existing bundle
 
-If a `kb/`-style OKF bundle already exists and the user wants to add new material to it (e.g. "add a section on X" to a bundle you or a prior session built), don't rebuild it — read the existing `index.md` files and the sibling `CLAUDE.md` (next to the bundle directory, not inside it) to understand established conventions (frontmatter fields used, directory naming, tone), then add new files that match those conventions and cross-link into the existing graph from at least one existing file. Re-run the linter afterward.
+If a `kb/`-style OKF bundle already exists and the user wants to add new material to it (e.g. "add a section on X" to a bundle you or a prior session built), don't rebuild it — read the existing `index.md` files and the **governing `CLAUDE.md`** (the nearest one above the bundle directory) to understand established conventions (frontmatter fields used, directory naming, tone), then add new files that match those conventions and cross-link into the existing graph from at least one existing file. Update that governing `CLAUDE.md` if the bundle's shape changed; never add a `<Name>-KB-CLAUDE.md`. Re-run the linter afterward.

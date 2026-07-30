@@ -2,7 +2,12 @@
 
 Adapt this — don't copy it verbatim with placeholders left in. Fill in the specifics of the actual bundle you built.
 
-This file lives as a **sibling** of the bundle directory (e.g. `project/CLAUDE.md` next to `project/kb/`), not inside it — CLAUDE.md is agent operating instructions, not OKF content, and needs to be picked up automatically for any session working in the project.
+CLAUDE.md is agent operating instructions, not OKF content, and needs to be picked up automatically for any session working in the surrounding directory. So this content belongs in the **governing CLAUDE.md** for the directory that owns the bundle:
+
+- **If a governing `CLAUDE.md` already exists** (a repo with a CLAUDE.md hierarchy — e.g. `project/CLAUDE.md` above `project/kb/`), **fold the relevant sections below into it**; do not create a second file.
+- **If none exists**, create a plain `CLAUDE.md` as a **sibling** of the bundle directory (e.g. `project/CLAUDE.md` next to `project/kb/`), not inside it.
+
+**Never name the file `<Name>-KB-CLAUDE.md` or any other renamed companion** — a `kb/` bundle does not get its own separate CLAUDE file.
 
 ```markdown
 # <bundle-dir-name> — Working Notes for Claude Sessions

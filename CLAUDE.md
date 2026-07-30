@@ -5,8 +5,10 @@ A playground environment for experimentation and development.
 ## Directory Structure
 
 - **CLAUDE.md** - Root-level Claude configuration (this file)
-- **kb/CLAUDE.md** - Knowledge base Claude configuration
-- **projects/kb/CLAUDE.md** - Projects KB Claude configuration
+- **kb/CLAUDE.md** - Governs the repo-wide knowledge base
+- **projects/CLAUDE.md** - Governs the `projects/` directory (all projects)
+- **projects/kb/CLAUDE.md** - Governs the projects index/governance KB
+- **projects/<name>/CLAUDE.md** - Governs a specific project
 - **README.md** - Repository overview
 - **LICENSE** - Project license
 
@@ -20,7 +22,7 @@ A playground environment for experimentation and development.
 
 - **kb/** - Repository-wide knowledge base (OKF bundle)
   - `architecture/` - Directory structure and KB organization docs
-  | `additive-engineering/` - Additive Engineering concepts, and rulebooks
+  - `additive-engineering/` - Additive Engineering concepts, and rulebooks
   - `concepts/` - Abstract concepts (deploy lifecycle, progressive disclosure, etc.)
   - `development/` - Workflow and shared-code guidance
   - `getting-started/` - Orientation and quick-start docs
@@ -39,6 +41,34 @@ A playground environment for experimentation and development.
 ## Getting Started
 
 This is a playground branch initialized with a minimal structure. Add your project content to the respective directories.
+
+## Documentation & CLAUDE.md governance
+
+The repo works by **building out projects and updating their documentation as it goes** — docs are
+maintained incrementally alongside the work, never as a single end-of-project dump.
+
+**CLAUDE.md files** live at exactly these levels, each governing its directory and everything below:
+
+| File | Governs |
+|---|---|
+| `/CLAUDE.md` | the whole repo |
+| `/kb/CLAUDE.md` | the repo-wide knowledge base |
+| `/projects/CLAUDE.md` | the `projects/` directory (all projects) |
+| `/projects/<project-name>/CLAUDE.md` | one specific project |
+
+A directory is governed by the nearest `CLAUDE.md` above it. **Never create
+`<Name>-KB-CLAUDE.md` or any other renamed companion CLAUDE file** — a `kb/` bundle does not get
+its own separate CLAUDE file; its guidance belongs in the governing `CLAUDE.md`.
+
+**Knowledge-base layers** (three, distinct scopes):
+
+| Location | Scope |
+|---|---|
+| `/kb/` | repo-wide knowledge (architecture, process, engineering references, lessons) |
+| `/projects/kb/` | high-level index/governance of all projects (one card per project) |
+| `/projects/<project-name>/kb/` | project-specific detail (design, findings, decisions, plan) |
+
+See [`/projects/CLAUDE.md`](projects/CLAUDE.md) for the full project workflow.
 
 ## Development
 
