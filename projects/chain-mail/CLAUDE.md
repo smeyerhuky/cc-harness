@@ -28,6 +28,11 @@ The `kb/` bundle is the place to understand where the project stands. Start at
 - **[process/](kb/process/index.md)** — milestones/plan (M0–M6) and how work is validated
 - **[structure/](kb/structure/index.md)** — directory/file layout
 
+## Start here
+
+**[`HANDOFF.md`](HANDOFF.md)** is the full documented handoff — goal, every decision and measured
+result, tooling, and current/future stages. Read it first to pick up the project cold.
+
 ## Authoritative sources (the KB digests these)
 
 - `spec/SPEC.md` — frozen specification; **governs**. Post-freeze changes need a new signed-off revision.

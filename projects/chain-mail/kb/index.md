@@ -26,3 +26,6 @@ and plan. It is the place a future session should start to understand where the 
 **M1 complete (physical).** The print-in-place linked-ring coupon printed on the P1S; all gap
 variants released and articulated cleanly. Design clearance locked at **G = 0.30 mm**. **M2**
 (the woven E4-1 sheet) is in progress — see [Findings › Weave tiling](./findings/weave-tiling.md).
+
+> For a single end-to-end handoff of the whole project (design, tests, tooling, roadmap), see
+> [`../HANDOFF.md`](../HANDOFF.md).

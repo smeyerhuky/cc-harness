@@ -6,8 +6,11 @@ volume, then unfolds into a wide flexible maille sheet. For dwarf/gnome cosplay.
 
 ## Status
 
-**M1 complete (geometry + verification).** See [`DESIGN_REPORT.md`](DESIGN_REPORT.md).
-Spec is **FROZEN**: [`spec/SPEC.md`](spec/SPEC.md).
+**M1 complete (physical, G = 0.30 mm).** M2 (woven sheet) in progress.
+
+**New here? Read [`HANDOFF.md`](HANDOFF.md)** — the full documented handoff covering everything
+designed and tested and the current/future stages. Deep detail: [`DESIGN_REPORT.md`](DESIGN_REPORT.md);
+spec (governs, **FROZEN**): [`spec/SPEC.md`](spec/SPEC.md).
 
 ## Design highlights
 
