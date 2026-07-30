@@ -173,6 +173,12 @@ Color is a **first-class parametric subsystem**: map an arbitrary **SVG / JPG / 
 **unfolded** sheet, and preserve that color per-ring **through the fold** so the folded print
 carries the picture that appears only when expanded.
 
+**`color_mode` parameter (config.scad):** a single toggle gates the whole pipeline —
+`"off"` = single-filament monochrome (default for **all prototype/coupon prints** → fast, no
+AMS swaps, isolates geometry from color), `"band"` = procedural row/fold banding, `"image"` =
+full §7.1 image map. Geometry is identical across modes; only per-ring filament assignment
+changes, so a coupon proven in `off` mode is unchanged when color is switched on.
+
 Pipeline:
 1. **Unfolded parameterization** — every ring has a stable unfolded coordinate `(u,v)` (its
    place in the flat sheet), assigned at generation time and carried as metadata through the
