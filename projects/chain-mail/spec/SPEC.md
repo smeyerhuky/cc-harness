@@ -202,7 +202,62 @@ milestones stay small until the pipeline is proven on a swatch (M2).
 
 ---
 
-## 8. Staged milestones (de-risk before the big print)
+## 8. WebGPU physics visualizer (digital twin)
+
+A browser **WebGPU** app that simulates the maille as a **physics-grounded cloth** and renders
+it at ring fidelity. Not eye candy — it is a **validation instrument** and a design cockpit
+that shares the SCAD parameters, `(u,v)` parameterization, and AMS palette, so it is a faithful
+digital twin of the printed part.
+
+### 8.1 What it must do
+- **Drape** the sheet under gravity onto colliders (flat table, sphere, and a torso/shoulder
+  mannequin for the cosplay fit) and settle to a stable, cloth-like rest.
+- **Fold / unfold** on a slider (0 = flat → 1 = fully folded accordion) so we can *see* the
+  accordion collapse and the hinge crease bend — the same motion §6 checks analytically.
+- **Show color** — render `color_mode` `off`/`band`/`image` with the exact §7.1 map, so we
+  preview the picture on the *draped* form and confirm it reads after folding.
+- **Report** live: min fold radius reached, max link strain, self-collision count, est. mass
+  (from ring count × PLA density), and drape footprint.
+
+### 8.2 Physics model — "physics grounded, cloth fidelity"
+- **Solver:** **XPBD** (extended position-based dynamics) in WebGPU **compute shaders** —
+  robust for constraint networks, interactive at thousands of rings.
+- **Element:** each ring = an **oriented particle** (position + orientation), not a bare point,
+  so tilt θ and ring-through-ring articulation are represented.
+- **Constraints (calibrated, not cosmetic):**
+  - *link* — distance/contact constraint at the true inter-ring seat distance (from `WD`,`ID`).
+  - *articulation limit* — bounded relative rotation matching how far linked rings actually
+    hinge before wire-on-wire contact → this is what makes bulk drape and **minimum fold
+    radius emergent**, not scripted.
+  - *bending/anisotropy* — E4-1 is anisotropic (stretches more along one weave axis); stiffness
+    is set per-axis to match real maille, tuned against M2/M3 physical coupons.
+  - *self-collision* — ring–ring and ring–collider (capsule/SDF), so folds can't interpenetrate.
+- **Crossvalidation gate:** the visualizer's emergent **min fold radius must agree with the
+  SCAD kinematic `Rmin`** (§6.6) within tolerance. Two independent methods agreeing is the
+  confidence signal; divergence flags a bug in one of them.
+
+### 8.3 Data contract & architecture
+- **Input:** the ring graph exported from the generator as JSON — nodes `{id, u, v,
+  rest_xyz, orientation, color_lane, is_crease}` + link list. Same source of truth as the
+  print pipeline (`config.scad` → generator → JSON), so viz and print never drift.
+- **Compute:** WGSL substepped XPBD (gravity, constraints, collision) on the GPU.
+- **Render:** instanced torus mesh, per-instance color from the AMS palette; metal-ish PBR for
+  "armor" preview and a flat mode that mimics printed PLA color.
+- **UI:** sliders mirroring `config.scad` (WD, ID, AR, pitch, θ, hinge R), the fold slider,
+  collider picker, `color_mode` + image loader, play/pause, and the §8.1 readouts.
+- **Perf / LOD:** full oriented-ring solve for coupons; for the ~17k-ring strip, solve a
+  representative decimated graph and instance-render the full ring count, with a warning that
+  the physics is sampled. Runs client-side, self-contained page under `viz/`.
+
+### 8.4 Scope honesty
+WebGPU support varies by browser/GPU → the app **feature-detects and degrades** (WebGL
+fallback render, physics capped) rather than failing. It approximates PLA mechanics, not a
+certified FEA; it validates **motion, drape, fold feasibility, and color appearance**, and
+cross-checks the analytic kinematics — it does **not** replace the physical coupon prints.
+
+---
+
+## 9. Staged milestones (de-risk before the big print)
 
 | # | Milestone | Deliverable | Gate |
 |---|---|---|---|
@@ -214,30 +269,39 @@ milestones stay small until the pipeline is proven on a swatch (M2).
 | M5 | **Full strip** (~3 m unfolded, hinge-limited) | cosplay-scale panel | `verify.py` all-pass; print-time/AMS budget accepted |
 | M6 | **Seam/jump-ring join doc** | assembly guide for multi-strip garments | — |
 
+The visualizer (§8) is built alongside, not at the end: a **VZ0** skeleton (load ring-graph
+JSON, instanced render, fold slider) lands with M2 so we can eyeball the swatch; the **XPBD
+physics + crossvalidation gate** (§8.2) matures with M3/M4 to confirm the emergent fold radius
+against the SCAD `Rmin`.
+
 Each milestone runs `verify.py`; results attach to `DESIGN_REPORT.md`.
 
 ---
 
-## 9. Decisions — RESOLVED (user, 2026-07-30)
+## 10. Decisions — RESOLVED (user, 2026-07-30)
 
 1. **Ring gauge** → **finer: WD 1.6 / ID 8 / OD 11.2 mm** (§3.1). Accept denser weave +
    tighter print-in-place margin; M1 coupon gates fragility/fusing.
 2. **Primary output** → **one large drape strip**, maximized via engineered fold.
 3. **Color** → **image-to-surface mapping is a core feature** (§7.1): parametric SVG/JPG/PNG
    onto the unfolded surface, preserved per-ring through the fold; banding is a special case.
+   `color_mode` toggle (off/band/image); prototypes default to `off`.
 4. **Fold aggressiveness** → **engineer the crease/"edge" links for aggressive folding** (§5):
    dedicated hinge rows decouple fold radius from drape gauge; target hinge `Rmin ≈ 8 mm`
    (~15× area), pinned by the M3 coupon.
+5. **WebGPU physics visualizer** (§8) → **in scope**: physics-grounded cloth-fidelity digital
+   twin that shares the SCAD data contract and crossvalidates the analytic fold kinematics.
 
-### 9.1 New risks these choices introduce (accepted, tracked)
+### 10.1 New risks these choices introduce (accepted, tracked)
 - **R1 — finer wire fragility:** 1.6 mm PLA links may snap under wear → M1 gate + parametric fallback.
 - **R2 — scale explosion:** ~15× strip ≈ 17k rings → multi-day prints, heavy slice, many AMS swaps → keep strip length a dial; prove per-panel first.
 - **R3 — hinge strain:** aggressive crease links may over-strain PLA in the fold → §6.7 + M3.
 - **R4 — palette posterization:** ≤4–5 inks → only bold art reads; set expectations on source images.
+- **R5 — viz vs reality gap:** WebGPU/browser support varies and XPBD ≠ FEA → feature-detect + degrade (§8.4); the sim validates motion/drape/color and crossvalidates `Rmin`, never replaces coupon prints.
 
 ---
 
-## 10. Deliverable tree (per skill)
+## 11. Deliverable tree (per skill)
 
 ```
 projects/chain-mail/
@@ -249,6 +313,12 @@ projects/chain-mail/
 ├── src/fold.scad           # accordion transform + as-printed layout
 ├── src/assembly.scad       # top-level: folded print model
 ├── tools/colormap.py       # image→(u,v)→AMS-palette per-ring color pipeline (§7.1)
+├── tools/export_graph.py   # ring graph → JSON (shared print/viz data contract, §8.3)
+├── viz/                     # WebGPU physics visualizer (digital twin, §8)
+│   ├── index.html          # self-contained app entry
+│   ├── solver.wgsl         # XPBD compute (gravity, constraints, collision)
+│   ├── render.wgsl         # instanced torus + AMS-palette color
+│   └── app.(ts|js)         # UI, data load, feature-detect + degrade
 ├── stl/ 3mf/ step/ renders/
 ├── libs/BOSL2/             # vendored
 ├── tools/                  # copies of verify scripts used
