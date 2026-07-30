@@ -1,7 +1,8 @@
 {
   "name": "chain-mail",
-  "version": "0.1.0",
-  "description": "A new playground project (scaffold)",
-  "status": "scaffold",
+  "version": "0.2.0",
+  "description": "Parametric print-in-place folding European 4-in-1 chainmail for Bambu P1S",
+  "status": "in-progress",
+  "milestone": "M1 — linkage coupon verified",
   "updated": "2026-07-30"
 }

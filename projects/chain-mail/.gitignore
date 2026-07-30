@@ -1,0 +1,6 @@
+# vendored library (re-clone via skill instructions)
+libs/BOSL2/
+# transient sweep artifacts
+stl/A_*.stl
+stl/B_*.stl
+stl/*s.stl

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "slack_articulating",
+    "part_a": "stl/pair_slack_A.stl",
+    "part_b": "stl/pair_slack_B.stl",
+    "expected_clearance": 3.19,
+    "tolerance": 0.2,
+    "note": "centred rest pose; proves free articulation, ~3.2mm play; MEASURED not asserted"
+  },
+  {
+    "name": "gap_0.50_safe",
+    "part_a": "stl/pair_050_A.stl",
+    "part_b": "stl/pair_050_B.stl",
+    "expected_clearance": 0.50,
+    "tolerance": 0.08,
+    "note": "GAP_SAFE fallback"
+  },
+  {
+    "name": "gap_0.40_nominal",
+    "part_a": "stl/pair_040_A.stl",
+    "part_b": "stl/pair_040_B.stl",
+    "expected_clearance": 0.40,
+    "tolerance": 0.08,
+    "note": "GAP nominal design clearance"
+  },
+  {
+    "name": "gap_0.30_tight",
+    "part_a": "stl/pair_030_A.stl",
+    "part_b": "stl/pair_030_B.stl",
+    "expected_clearance": 0.30,
+    "tolerance": 0.08,
+    "note": "GAP_TIGHT stretch goal; must survive physical print without fusing"
+  }
+]

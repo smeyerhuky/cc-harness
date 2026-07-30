@@ -1,6 +1,7 @@
 # SPEC — Chain-Mail: Parametric Print-in-Place Folding European 4-in-1
 
-**Status:** DRAFT — awaiting sign-off. Do not write SCAD until frozen.
+**Status:** FROZEN — signed off by user 2026-07-30. Execution proceeds at M1.
+Post-freeze changes require a new signed-off revision; do not edit silently.
 **Target machine:** Bambu Lab P1S + AMS 2, CMYK PLA
 **Skill:** `scad-design-to-print`
 **Date:** 2026-07-30
