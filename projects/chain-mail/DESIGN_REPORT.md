@@ -75,3 +75,28 @@ naïvely tiling a full grid **collides on same-column neighbors** (offset (0,3) 
 woven height structure, not a uniform grid — this is the core M2 problem, now scoped concretely.
 
 **Status: M1 printable + verified. Awaiting physical print to pick `G`.**
+
+---
+
+## M2 — flat E4-1 weave (in progress): linking rules + tiling constraint
+
+Characterized the weave geometry with the M1 tools (`check_fit` + `linking_number`):
+
+**Linking rules (opposite-tilt +T / −T rings):**
+- Pure **X** offset `(cx, 0)` → **no link** (Lk 0) at any tilt/spacing tested.
+- Pure **Y** offset `(0, cy)` → **links** (Lk +1), clearance grows with `cy`.
+- **Diagonal** `(dx, dy)` → **links** (Lk +1) — this is the M1 pair, and the real E4-1 link
+  (each ring threads 4 diagonal neighbors in the rows above/below).
+
+**Tiling constraint (measured):**
+- Same-row, same-tilt rings clear at **px ≥ 7.4 mm** (collision 0). Good.
+- Same-tilt rings **two rows apart** `(0, 6 mm)` **collide** (5.5 mm³) and don't clear until
+  ~12 mm. But the diagonal link needs `dy ≈ 3 mm` → same-tilt repeats every `2·dy = 6 mm` →
+  collision.
+
+**Conclusion:** a **perfectly flat** E4-1 (all rings at one Z) cannot tile at this gauge
+(OD 11.2 rings are too fat for the tight weave). The real solution — used by both metal and
+printed maille — is a **woven over-under sheet ~2 wire-diameters thick**: rings alternate Z so
+same-tilt neighbors clear vertically. Still print-in-place: elevated rings **rest on** lower
+rings (contact, printable), so nothing floats. Next M2 step: build the woven-height E4-1 unit
+cell and verify all-links-Lk1 + all-pairs-collision-free + every-ring-bed-or-rest-supported.
