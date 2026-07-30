@@ -17,36 +17,55 @@ fragile → pick real `G`.
 
 ### What was built
 - `src/ring.scad` — parametric torus ring (`WD` 1.6, `ID` 8.0, `OD` 11.2 finer gauge).
-- `src/coupon.scad` — canonical perpendicular linked pair, offset + lateral-shift parametric.
-- `src/coupon_plate.scad` — the printable M1 test plate (4 pairs).
+- `src/coupon.scad` — printable linked pair in the real E4-1 lean pose.
+- `src/coupon_plate.scad` — the M1 test plate (3 gap pairs).
 
-### Key results (MEASURED with `check_fit.py`, not asserted)
-1. **Linkage is collision-free and topologically valid.** Offset sweep 4.0–6.0 mm → collision
-   volume **0.000 mm³** at every step; rings are linked, not fused.
-2. **Slack pose has ~3.19 mm of play** at the centred pose (offset 4.8) — matches the geometric
-   maximum `(ID − WD)/2 = 3.2 mm`, confirming the model behaves exactly as the math predicts.
-   This is far above the printable floor → free articulation is guaranteed.
-3. **Tolerance ladder calibrated.** Lateral shift of the threaded ring maps monotonically to
-   the tightest wire gap:
+### Two bugs found and fixed during M1
 
-   | Target gap | Shift (mm) | Measured min clearance (mm) |
-   |---|---|---|
-   | 0.50 (safe) | 2.70 | 0.525 |
-   | 0.40 (nominal) | 2.80 | 0.413 |
-   | 0.30 (tight) | 2.90 | 0.305 |
+**Bug 1 — floating parts (print orientation).** The first coupon used a perpendicular link
+(ring A flat, ring B axis-vertical) and lifted the whole plate, so rings hovered above the bed
+and the slicer flagged **floating parts**. Inherent to an *isolated* print-in-place link: with
+sub-millimetre clearances every ring is its own island, and any island not touching the bed
+cannot print. **Every ring needs its own bed-contact point.**
 
-   These three go on the plate so a single physical print reveals which gap the P1S/PLA/profile
-   resolves without fusing.
+**Bug 2 — not actually interlinked (topology).** The first "fix" gave both rings the *same*
+30° tilt. Two circles in **parallel planes can never link** — they were just two separate rings
+sitting 0.4 mm apart. `check_fit.py` reported collision 0 and clearance 0.4, but **collision-free
+≠ linked**; my XY-overlap heuristic was invalid. Caught by inspection of the side elevation.
+
+**Fix (both bugs):** rings lean in **opposite** directions — ring A **+30°**, ring B **−30°** —
+offset diagonally. Opposite tilt gives non-parallel planes, so the rings **genuinely interlink**,
+while each ring's low point still rests on the bed (z = 0). This mirrors how real European 4-in-1
+alternates ring lean. Plate z-range **0.000 – 6.400 mm** → sits on the bed, no support, no
+floating, only 6.4 mm tall.
+
+### New verification: topological linking number
+Added [`tools/linking_number.py`](tools/linking_number.py) — the discrete **Gauss linking
+integral** over the two ring centrelines. `|Lk| = 1` proves a true interlink; `Lk = 0` means
+not linked. This is now a required gate alongside `check_fit.py`, because non-collision alone
+does not prove a link. Sanity: same-tilt pair → **Lk 0.000**; opposite-tilt pair → **Lk +1.000**.
+
+### Key results (all MEASURED, not asserted)
+Tilt +30/−30, dy 3 mm; the crossing gap is set by dx; every rung is a verified interlink:
+
+| Target gap | dx (mm) | Measured clearance | Collision | Linking number |
+|---|---|---|---|---|
+| 0.30 (tight) | 3.7 | 0.306 mm | 0.000 mm³ | **Lk +1.000** |
+| 0.40 (nominal) | 3.4 | 0.403 mm | 0.000 mm³ | **Lk +1.000** |
+| 0.50 (safe) | 3.1 | ~0.51 mm | 0.000 mm³ | **Lk +1.000** |
+
+All three go on the plate so one physical print reveals which gap the P1S/PLA/profile resolves
+without fusing.
 
 ### Verification
-`verify.py .` → **exit 0, all checks pass**: tree, spec, renders, every mesh watertight/manifold
-(0 non-manifold edges, 0 degenerate faces), and all 4 `fit_checks.json` pairs within tolerance.
-Fit spec: [`spec/fit_checks.json`](spec/fit_checks.json). Renders in `renders/`.
+`verify.py .` → **exit 0, all checks pass**: tree, spec, renders, every mesh watertight/manifold,
+all 3 `fit_checks.json` pairs within tolerance. Independent linkage pass: all three pairs
+**Lk +1.000**. Fit spec: [`spec/fit_checks.json`](spec/fit_checks.json).
 
-### Open item carried to M2
-- **Print orientation.** The coupon's threaded ring currently prints axis-vertical (overhang-
-  heavy). The printable E4-1 *lean* pose (rings tilted ~30–60° to the bed, self-supporting)
-  is finalized at the M2 swatch, where real weave clearances are also measured. The M1 plate
-  remains valid for topology + the fusing-floor test as printed.
+### Finding carried to M2 (weave tiling)
+While validating the pair I confirmed the **diagonal** neighbor (dx 4, dy 3) links cleanly, but
+naïvely tiling a full grid **collides on same-column neighbors** (offset (0,3) → 9 mm³, (0,6) →
+5.5 mm³ at a single global tilt/height). So a valid E4-1 sheet needs a proper sublattice /
+woven height structure, not a uniform grid — this is the core M2 problem, now scoped concretely.
 
-**Status: M1 geometry + verification complete. Awaiting physical print to pick `G`.**
+**Status: M1 printable + verified. Awaiting physical print to pick `G`.**

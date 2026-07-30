@@ -1,36 +1,33 @@
 // ============================================================================
-// coupon_plate.scad — M1 print-in-place test plate (SPEC §9 / M1)
-// Four linked-ring pairs printed as one job:
-//   pair 0: slack articulating pair (shift 0)     -> proves free movement
-//   pair 1: gap 0.50 mm  (shift 2.70)  } tolerance ladder -> find the fusing
-//   pair 2: gap 0.40 mm  (shift 2.80)  } floor for this P1S / PLA / profile
-//   pair 3: gap 0.30 mm  (shift 2.90)  }
-// Shift->gap values were MEASURED with check_fit.py (trust the boolean).
+// coupon_plate.scad — M1 print-in-place test plate (SPEC §9 / M1) [PRINTABLE+LINKED]
+// Three GENUINELY INTERLINKED ring pairs (Lk = +1 each), printed as one job.
+// Opposite tilt (+30 / -30) makes the rings link; both feet on the bed => no
+// floating islands, no support. Print at 0.2mm / 0.4mm nozzle and see which gap
+// releases without fusing -> picks the real design clearance G.
 //
-// NOTE (orientation): ring B currently prints axis-vertical. Print pose is a
-// provisional; the printable E4-1 lean pose is finalized at M2. This plate is
-// valid for topology + the fusing-floor test as-is.
+//   pair @ dx 3.7 -> ~0.31 mm gap (tight)
+//   pair @ dx 3.4 -> ~0.40 mm gap (nominal)
+//   pair @ dx 3.1 -> ~0.51 mm gap (safe)
+// dx->gap MEASURED (check_fit.py); interlink PROVEN (linking_number.py, Lk=+1).
 // ============================================================================
 
 include <config.scad>
 use <ring.scad>
 
-// shift values calibrated to target gaps (measured, not assumed)
-PAIRS = [
-    // [shift,  gap_label]
-    [0.00, 0.00],   // slack articulating
-    [2.70, 0.50],
-    [2.80, 0.40],
-    [2.90, 0.30],
-];
+TILT = 30;
+DY   = 3.0;
+LIFT = (ID + WD)/2 * sin(TILT) + WD/2;
 
-PAIR_SPACING_Y = 20;   // centre-to-centre spacing between pairs on the bed
+// [dx, gap_label]
+LADDER = [ [3.7, 0.30], [3.4, 0.40], [3.1, 0.50] ];
 
-module coupon_pair(offset = 4.8, shift = 0) {
-    ring();                                                  // ring A, axis Z
-    translate([offset, shift, 0]) rotate([90, 0, 0]) ring(); // ring B, threads A
+GROUP_SPACING_Y = 26;
+
+module pair(dx) {
+    translate([0,  0,  LIFT]) rotate([0,  TILT, 0]) ring();   // ring A (+TILT)
+    translate([dx, DY, LIFT]) rotate([0, -TILT, 0]) ring();   // ring B (-TILT) threads A
 }
 
-for (i = [0 : len(PAIRS) - 1])
-    translate([0, i * PAIR_SPACING_Y, OD/2])   // lift so lowest ring point ~ on bed
-        coupon_pair(offset = 4.8, shift = PAIRS[i][0]);
+for (i = [0 : len(LADDER) - 1])
+    translate([0, i * GROUP_SPACING_Y, 0])
+        pair(LADDER[i][0]);

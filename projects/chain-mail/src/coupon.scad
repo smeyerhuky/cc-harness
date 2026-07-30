@@ -1,26 +1,33 @@
 // ============================================================================
-// coupon.scad — M1 two-ring print-in-place linkage coupon (SPEC §8 / M1)
-// Canonical perpendicular chain-link pair: ring A (axis Z) + ring B (axis Y)
-// offset along X so B threads A's hole. Purpose: validate print-in-place
-// release + MEASURE the real gap between linked wires against GAP.
-// Exact E4-1 tilt clearances are validated later at the M2 swatch.
+// coupon.scad — M1 print-in-place linkage coupon (SPEC §9 / M1)  [PRINTABLE + LINKED]
+// Two OPPOSITE-tilted rings: ring A leans +TILT, ring B leans -TILT, offset
+// diagonally. Opposite tilt => non-parallel planes => the rings genuinely
+// INTERLINK (Gauss linking number Lk = +1), not merely sit side by side.
+// Both rings rest a foot on the bed (z=0) => no floating, no support.
 //
-// Overridable at CLI with -D:
-//   PART           : -1 = both (visual), 0 = ring A only, 1 = ring B only
-//   COUPON_OFFSET  : centre-to-centre distance along X between the two rings
+// Two independent checks gate this geometry:
+//   check_fit.py       -> collision 0, min clearance = the design gap
+//   linking_number.py  -> |Lk| = 1  (proves topological interlink)
+// At TILT 30, dy 3, the gap is set by dx:
+//   dx 3.7 -> 0.31 mm   dx 3.4 -> 0.40 mm   dx 3.1 -> 0.51 mm   (all Lk +1)
+//
+// -D overrides: PART (-1 both / 0 A / 1 B), COUPON_TILT, COUPON_DX, COUPON_DY
 // ============================================================================
 
 include <config.scad>
 use <ring.scad>
 
-PART          = -1;
-COUPON_OFFSET = 4.8;   // = (ID+WD)/2 nominal; centred slack pose
-COUPON_SHIFT  = 0;     // lateral (Y) shift of ring B — pushes B toward one side
-                       // of A's hole to force a controlled tightest gap (tolerance ladder)
+PART        = -1;
+COUPON_TILT = 30;
+COUPON_DX   = 3.4;   // -> ~0.40 mm gap (nominal)
+COUPON_DY   = 3.0;
 
-module coupon_ring_A() ring();                                  // axis Z, at origin
-module coupon_ring_B() translate([COUPON_OFFSET, COUPON_SHIFT, 0])
-                           rotate([90, 0, 0]) ring();           // axis Y, threads A
+LIFT = (ID + WD)/2 * sin(COUPON_TILT) + WD/2;   // low point rests on the bed
+
+module coupon_ring_A()                                       // leans +TILT
+    translate([0, 0, LIFT]) rotate([0,  COUPON_TILT, 0]) ring();
+module coupon_ring_B()                                       // leans -TILT, threads A
+    translate([COUPON_DX, COUPON_DY, LIFT]) rotate([0, -COUPON_TILT, 0]) ring();
 
 if (PART == 0)      coupon_ring_A();
 else if (PART == 1) coupon_ring_B();

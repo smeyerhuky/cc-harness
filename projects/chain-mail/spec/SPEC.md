@@ -123,6 +123,15 @@ a strip.
 
 Flat panel (no fold, reference): ~226 × 228 mm ≈ **1147 rings**.
 
+### 5.0 Floating-islands rule (print-in-place, learned at M1)
+With deliberate clearances, **every ring is a separate island** — slicers reject any island
+that does not touch the bed ("floating parts"). Therefore **every ring must have its own
+bed-contact point**. M1 established the printable unit: rings at a shallow **~30° lean**, offset
+diagonally so each threads its neighbor while its low point rests on the bed. The full weave and
+the folded layout must preserve this per-ring bed-reachability (or rest-contact onto a lower
+ring). Naïve uniform-grid tiling collides on same-column neighbors → the E4-1 sheet needs a
+proper sublattice / woven-height structure (M2).
+
 ### 5.1 Printability of the fold
 The accordion is a bellows: each fold layer prints above the last across the gap `G`. Two
 candidate strategies, to be decided by test:
