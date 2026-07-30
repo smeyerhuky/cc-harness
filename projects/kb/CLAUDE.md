@@ -10,6 +10,7 @@ This KB provides a central index and navigation hub for all projects. Each proje
 
 ### Projects (`projects/`)
 - **Sample Project** - Template project demonstrating the playground structure
+- **Chain Mail** - Parametric print-in-place folding European 4-in-1 chainmail (Bambu P1S)
 
 ## Using This Knowledge Base
 

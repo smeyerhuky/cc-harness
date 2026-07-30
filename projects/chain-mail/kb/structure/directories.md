@@ -1,59 +1,53 @@
 ---
 type: "Reference"
 title: "Project Directory Structure"
-description: "Detailed explanation of the chain-mail project's directory organization."
-resource: "../README.md"
-tags: ["structure", "directories", "project"]
+description: "Directory and file layout of the chain-mail project as of M1/M2."
+resource: "../../README.md"
+tags: ["structure", "directories", "project", "scad"]
 timestamp: "2026-07-30"
 ---
 
 # Project Directory Structure
 
-Chain Mail follows the standard playground structure for all projects.
+Chain Mail follows the playground project structure plus the `scad-design-to-print` deliverable
+tree.
 
-## Complete Directory Layout
+## Layout
 
 ```
 projects/chain-mail/
 │
-├── src/                             # Project source code
-│   └── (your source code here)      # Organize as needed for your project
+├── src/                         # OpenSCAD source
+│   ├── config.scad              # single source of truth for all numbers
+│   ├── ring.scad                # parametric torus ring (field + crease variants)
+│   ├── coupon.scad              # M1 print-in-place linked pair (opposite tilt)
+│   └── coupon_plate.scad        # M1 test plate (3 gap pairs)
 │
-├── kb/                              # Project knowledge base
-│   ├── index.md                     # KB entry point with okf_version
-│   ├── overview/                    # Project overview section
-│   │   └── about.md                 # About this project
-│   └── structure/                   # Structure and organization
-│       └── directories.md           # This file
+├── spec/
+│   ├── SPEC.md                  # FROZEN specification
+│   └── fit_checks.json          # automated clearance checks for verify.py
 │
-├── CLAUDE.md                        # Project-specific configuration
-├── README.md                        # Project overview and setup
-└── version.json                     # Project metadata and version
+├── tools/                       # verification scripts (+ linking_number.py)
+├── stl/                         # exported meshes (pairs + plate)
+├── renders/                     # iso / top / section PNGs
+│
+├── kb/                          # this knowledge base
+│   ├── index.md                 # KB entry point (okf_version)
+│   ├── overview/  design/  findings/  process/  structure/
+│
+├── DESIGN_REPORT.md             # per-milestone engineering log
+├── CLAUDE.md   README.md   version.json
+└── (libs/BOSL2 vendored, gitignored)
 ```
 
-## Directory Purposes
+## Key files
 
-### `src/`
-Contains all project source code. Organize subdirectories as appropriate for the project
-type (web, library, CLI, etc.). Currently empty apart from a `.keep` placeholder.
+- **`src/config.scad`** — every parameter; edit here, not in downstream files.
+- **`spec/SPEC.md`** — frozen requirements; see the [spec summary](../design/spec-summary.md).
+- **`tools/linking_number.py`** — Gauss linking-number gate (proves interlink).
+- **`DESIGN_REPORT.md`** — measured results and decisions per milestone.
 
-### `kb/`
-Project-specific knowledge base using Open Knowledge Format (OKF). Includes:
-- **index.md** - KB entry point with `okf_version: "0.1"`
-- Subdirectories organized by topic
-- Each content file has OKF frontmatter (type, title, description, resource, tags, timestamp)
-- Files link to related content using relative markdown links
+## Related
 
-### `CLAUDE.md`
-Project-specific configuration and guidelines for Claude working in this project.
-
-### `README.md`
-Quick project overview and setup instructions.
-
-### `version.json`
-Project metadata: `name`, `version`, `description`, `status`, and `updated`.
-
-## Related Documentation
-
-- [About Chain Mail](../overview/about.md) - Project overview
-- [Repository Architecture](../../../../kb/architecture/directory-structure.md) - Overall repo structure
+- [About Chain Mail](../overview/about.md) · [Geometry & configuration](../design/geometry-and-config.md)
+- [Repository Architecture](../../../../kb/architecture/directory-structure.md)

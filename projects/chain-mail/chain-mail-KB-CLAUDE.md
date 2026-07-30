@@ -1,43 +1,47 @@
 # Chain Mail Knowledge Base (OKF Format)
 
-This is an Open Knowledge Format (OKF) bundle documenting the Chain Mail project — a new
-playground project currently existing as a scaffold created from the standard template.
+This is an Open Knowledge Format (OKF) bundle documenting the **Chain Mail** project — a
+parametric, print-in-place, folding European 4-in-1 chainmail for the Bambu Lab P1S. It captures
+the project's goal, spec, configuration, findings/learnings, and plan so a future session can
+resume with full context.
 
-## About This Bundle
+## About this bundle
 
-This knowledge base is organized following the [OKF spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf).
-Each content file contains YAML frontmatter describing its type, title, tags, and source,
-followed by markdown content.
+Organized following the [OKF spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf).
+Each content file has YAML frontmatter (type, title, description, resource, tags, timestamp)
+followed by markdown. `okf_version` appears **only** in `kb/index.md`. Subdirectory `index.md`
+files are pure tables of contents (no frontmatter).
 
-## Structure
+## Sections
 
-The KB is organized into two main sections:
+- **`overview/`** — goal/task, what it is, current status.
+- **`design/`** — ring geometry, weave, the `config.scad` parameters, and the frozen spec summary.
+- **`findings/`** — measured results and hard-won learnings per milestone (M1 linkage, M2 weave).
+- **`process/`** — milestones/plan (M0–M6) and how work is validated.
+- **`structure/`** — directory/file layout.
 
-### Overview (`overview/`)
-- **About Chain Mail** - Project overview, purpose, and current status
+## Using this knowledge base
 
-### Structure (`structure/`)
-- **Project Directory Structure** - Detailed explanation of directories and organization
+**Start:** `kb/index.md`. **Understand the design:** `design/`. **See what we learned and why the
+geometry is what it is:** `findings/`. **Know what's next:** `process/milestones.md`.
 
-## Using This Knowledge Base
+## Authoritative sources (this KB digests them)
 
-**Start here:** Read `kb/index.md` to understand this project's documentation.
-
-**Learn the structure:** Review [Project Directory Structure](./kb/structure/directories.md).
+- `spec/SPEC.md` — frozen specification (governs).
+- `src/config.scad` — single source of truth for all numbers.
+- `DESIGN_REPORT.md` — measured engineering log per milestone.
 
 ## Conventions
 
-- **Frontmatter:** Every content file has type, title, description, resource, tags, timestamp
-- **okf_version:** Declared only in `kb/index.md`
-- **File types:** Common types include "Concept", "Reference", "Workflow", "Guide"
-- **Linking:** Use relative markdown links (e.g., `[text](../other-dir/file.md)`)
+- Frontmatter on every content file; relative markdown links; types in use: `Concept`,
+  `Reference`, `Lesson`, `Playbook`.
+- **Findings are measured, not asserted** — every quantitative claim traces to `check_fit.py`,
+  `check_mesh.py`, `verify.py`, or `tools/linking_number.py`.
+- After edits, lint: `python3 .claude/skills/okf-wikify/scripts/lint_okf.py projects/chain-mail/kb/`.
 
-## Related Knowledge Bases
+## Related knowledge bases
 
-- **Repository KB:** `/kb/` - Repository-wide guidance and architecture
-- **Projects KB:** `/projects/kb/` - Navigation to all project KBs
-
-## Next Steps
-
-1. Define the project's scope and update the overview
-2. Add feature/decision sections to the KB as implementation lands
+- Repo-wide 3D-print engineering: `/kb/additive-engineering/` (see the print-in-place chainmail
+  cookbook entry).
+- Projects navigation: `/projects/kb/`.
+- Repository KB & git protocol: `/kb/`.

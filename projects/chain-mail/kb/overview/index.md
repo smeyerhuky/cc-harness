@@ -1,3 +1,3 @@
 # Overview
 
-* [About Chain Mail](about.md) - New playground project scaffolded from the template
+* [About Chain Mail](about.md) — project goal, what it is, and current status

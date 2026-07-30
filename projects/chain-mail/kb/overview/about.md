@@ -1,46 +1,53 @@
 ---
 type: "Concept"
 title: "About Chain Mail"
-description: "New playground project scaffolded from the standard template."
-resource: "../README.md"
-tags: ["chain-mail", "project", "overview", "scaffold"]
+description: "Goal, scope, and status of the print-in-place folding European 4-in-1 chainmail project."
+resource: "../../README.md"
+tags: ["chain-mail", "overview", "goal", "print-in-place", "chainmail"]
 timestamp: "2026-07-30"
 ---
 
 # About Chain Mail
 
-Chain Mail is a new project in the playground. It was created from the standard project
-template and currently exists as a scaffold — the directory structure and configuration
-are in place, but no implementation has been added yet.
+## Goal / task
 
-## Purpose
+Design a **single parametric OpenSCAD model** that prints as **one job, fully articulated, with
+zero assembly** (print-in-place) and yields a **wide, flexible European 4-in-1 chainmail sheet**.
+Because the unfolded sheet is larger than the printer's footprint, the part is printed
+**pre-folded** (accordion / mountain-valley) to pack maximum unfolded area into the build volume,
+then hand-expanded into the flat sheet. Target use: **dwarf / gnome cosplay** (chunky-to-fine
+maille reads well and helps printability).
 
-The scope of this project is not yet defined. This document, along with the rest of the
-knowledge base, should be updated once the project's direction is decided.
+## Non-negotiables
 
-## Project Structure
+- **Print-in-place is mandatory** — no post-print assembly of individual rings.
+- **Controlled tolerance / gaps** so links articulate and never fuse.
+- **Classic European 4-in-1** weave for authentic drape.
+- **Math + kinematic validation as we go** — measured, never assumed.
 
-```
-projects/chain-mail/
-├── src/                 # Project source code (empty)
-├── kb/                  # Project-specific knowledge base
-│   ├── index.md        # KB entry point
-│   ├── overview/       # Project overview section
-│   └── structure/      # Structure and organization section
-├── CLAUDE.md            # Project configuration
-├── README.md            # Project overview
-└── version.json         # Project metadata
-```
+## Target machine & material
 
-## Key Files
+Bambu Lab **P1S** + **AMS 2**, **CMYK PLA**. Build volume 256³ mm (usable ~230 × 230 × 236 mm
+with buffer). **0.4 mm** nozzle, **0.2 mm** layers. See [Geometry & configuration](../design/geometry-and-config.md).
 
-- **README.md** - Quick project overview and getting started guide
-- **CLAUDE.md** - Project-specific Claude configuration and guidelines
-- **version.json** - Project metadata, version, and status
-- **kb/index.md** - Entry point for project documentation
+## Distinctive subsystems
 
-## Next Steps
+- **Engineered hinge folding** — dedicated crease links fold tight, decoupling fold radius from
+  drape gauge (target ~15× area per print). See the [spec summary](../design/spec-summary.md).
+- **Image-to-surface color** — map any SVG/JPG/PNG onto the *unfolded* sheet, preserved per-ring
+  through the fold (`color_mode` = off / band / image).
+- **WebGPU physics visualizer** — a cloth-fidelity digital twin that crossvalidates the analytic
+  fold kinematics.
 
-- Define the project's scope and update this document
-- Review [Project Structure](../structure/directories.md) for the directory layout
-- Add source to `src/` and document features in new `kb/` sections as they land
+## Current status
+
+**M1 complete (physical).** Print-in-place linkage validated on the P1S; design clearance locked
+at **G = 0.30 mm**. **M2** (woven E4-1 sheet) in progress. Full history:
+[Findings](../findings/index.md) · [Milestones & plan](../process/milestones.md).
+
+## Related
+
+- [Design overview](../design/index.md) · [Frozen spec summary](../design/spec-summary.md)
+- Source of truth for numbers: `projects/chain-mail/src/config.scad`
+- Engineering log: `projects/chain-mail/DESIGN_REPORT.md`
+- Repo-wide 3D-print knowledge: [Additive Engineering KB](../../../../kb/additive-engineering/index.md)
