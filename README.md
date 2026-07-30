@@ -10,43 +10,45 @@ This repository serves as a development environment where you can work on variou
 
 ```
 cc-harness/
-├── .claude/                     # Claude skill definitions
+├── .claude/                       # Claude skill definitions
 │   └── skills/
-│       └── okf-wikify/          # OKF deep-wiki skill
+│       └── okf-wikify/            # OKF deep-wiki skill
+│       └── scad-design-to-print/  # SCAD Design to Print skill
 │
-├── kb/                          # Repository-wide knowledge base (OKF bundle)
-│   ├── architecture/            # Directory structure and KB organization docs
-│   ├── concepts/                # Abstract concepts (deploy lifecycle, etc.)
-│   ├── development/             # Workflow and shared-code guidance
-│   ├── getting-started/         # Orientation and quick-start docs
-│   ├── lessons/                 # Lessons learned from real deploys
-│   ├── platforms/               # Per-platform deploy recipes (Cloudflare Workers, etc.)
-│   ├── process/                 # Git/PR/commit discipline
-│   └── index.md                 # KB entry point
+├── kb/                            # Repository-wide knowledge base (OKF bundle)
+│   ├── architecture/              # Directory structure and KB organization docs
+│   ├── additive-engineering/      # Additive Engineering concepts, and rulebooks
+│   ├── concepts/                  # Abstract concepts (deploy lifecycle, etc.)
+│   ├── development/               # Workflow and shared-code guidance
+│   ├── getting-started/           # Orientation and quick-start docs
+│   ├── lessons/                   # Lessons learned from real deploys
+│   ├── platforms/                 # Per-platform deploy recipes (Cloudflare Workers, etc.)
+│   ├── process/                   # Git/PR/commit discipline
+│   └── index.md                   # KB entry point
 │
-├── projects/                    # All project containers
-│   ├── common/                  # Shared utilities and common code
+├── projects/                      # All project containers
+│   ├── common/                    # Shared utilities and common code
 │   │   └── .keep
-│   ├── hello-worker/            # Cloudflare Worker project
-│   │   ├── src/                 # Worker source code
-│   │   └── wrangler.jsonc       # Wrangler configuration
-│   ├── kb/                      # Projects directory KB index
-│   │   └── index.md             # Navigation for project KBs
-│   └── sample-project/          # Template project
-│       ├── src/                 # Project source code
-│       ├── kb/                  # Project-specific KB
-│       ├── CLAUDE.md            # Project-specific Claude configuration
-│       ├── README.md            # Project overview and setup
-│       └── version.json         # Project metadata and version
+│   ├── hello-worker/              # Cloudflare Worker project
+│   │   ├── src/                   # Worker source code
+│   │   └── wrangler.jsonc         # Wrangler configuration
+│   ├── kb/                        # Projects directory KB index
+│   │   └── index.md               # Navigation for project KBs
+│   └── sample-project/            # Template project
+│       ├── src/                   # Project source code
+│       ├── kb/                    # Project-specific KB
+│       ├── CLAUDE.md              # Project-specific Claude configuration
+│       ├── README.md              # Project overview and setup
+│       └── version.json           # Project metadata and version
 │
-├── config/                      # Root-level configuration
+├── config/                        # Root-level configuration
 │   └── .keep
 │
-├── README.md                    # This file
-├── CLAUDE.md                    # Root-level Claude configuration
-├── KB-CLAUDE.md                 # Knowledge base Claude configuration
-├── Projects-KB-CLAUDE.md        # Projects KB Claude configuration
-└── LICENSE                      # Project license
+├── README.md                      # This file
+├── CLAUDE.md                      # Root-level Claude configuration
+├── KB-CLAUDE.md                   # Knowledge base Claude configuration
+├── Projects-KB-CLAUDE.md          # Projects KB Claude configuration
+└── LICENSE                        # Project license
 ```
 
 ## Knowledge Base Organization
@@ -61,6 +63,7 @@ cc-harness/
 | Directory | Contents |
 |-----------|----------|
 | `kb/architecture/` | Directory structure and KB organization docs |
+| `kb/additive-engineering/` | Additive Engineering concepts, and rulebooks |
 | `kb/concepts/` | Abstract concepts: deploy lifecycle, progressive disclosure, verification vs. deployment |
 | `kb/development/` | Workflow guides and shared-code patterns |
 | `kb/getting-started/` | Orientation overview and quick-start guide |

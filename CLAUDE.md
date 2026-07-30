@@ -5,18 +5,22 @@ A playground environment for experimentation and development.
 ## Directory Structure
 
 - **CLAUDE.md** - Root-level Claude configuration (this file)
-- **KB-CLAUDE.md** - Knowledge base Claude configuration
-- **Projects-KB-CLAUDE.md** - Projects KB Claude configuration
+- **kb/CLAUDE.md** - Knowledge base Claude configuration
+- **projects/kb/CLAUDE.md** - Projects KB Claude configuration
 - **README.md** - Repository overview
 - **LICENSE** - Project license
 
 - **.claude/** - Claude skill definitions
   - `skills/okf-wikify/` - OKF deep-wiki skill
+  - `skills/scad-design-to-print/` - SCAD Design to Print skill
+
+
 
 - **config/** - Root-level configuration files
 
 - **kb/** - Repository-wide knowledge base (OKF bundle)
   - `architecture/` - Directory structure and KB organization docs
+  | `additive-engineering/` - Additive Engineering concepts, and rulebooks
   - `concepts/` - Abstract concepts (deploy lifecycle, progressive disclosure, etc.)
   - `development/` - Workflow and shared-code guidance
   - `getting-started/` - Orientation and quick-start docs
