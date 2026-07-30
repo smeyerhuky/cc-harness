@@ -1,49 +1,37 @@
-# Projects Knowledge Base (OKF Format)
+# Projects Index KB — Working Rules for Claude Sessions
 
-This is an Open Knowledge Format (OKF) bundle for navigating and discovering project-specific knowledge bases in the playground.
+Governs `projects/kb/`, the **high-level index / governance KB of all projects** — one card per
+project plus directory mapping. It is a navigation and governance layer, not project detail
+(project detail lives in each `projects/<project-name>/kb/`).
 
-## About This Bundle
+For rules on working inside `projects/` generally, see [`/projects/CLAUDE.md`](../CLAUDE.md).
 
-This KB provides a central index and navigation hub for all projects. Each project maintains its own OKF-formatted knowledge base in `projects/[project-name]/kb/`.
+## What's here
 
-## Structure
+- `index.md` — entry point (this bundle does **not** carry `okf_version`; only project `kb/`
+  bundles do).
+- `projects/index.md` — table of contents listing every project card.
+- `projects/<name>.md` — one reference card per project (what it is, status, how to get started,
+  links into that project's KB).
 
-### Projects (`projects/`)
-- **Sample Project** - Template project demonstrating the playground structure
+## Registering / updating a project card
 
-## Using This Knowledge Base
+When a project is created or changes materially:
 
-**Start here:** Read `projects/kb/index.md` to access the projects index.
+1. Add or update `projects/kb/projects/<name>.md` (a card, following an existing one's shape).
+2. Ensure it is linked from `projects/kb/projects/index.md`.
+3. Keep the card's status/description in sync with the project's `version.json` and `kb/`.
 
-**Navigate to project:** Find the project you're interested in under [Projects](./projects/index.md), then navigate to that project's KB.
-
-**Project-specific KB:** Each project's KB is located at `projects/[project-name]/kb/index.md`.
-
-## Repository KB Navigation
-
-For repository-wide knowledge and guidelines, see `/kb/index.md`:
-- Getting started with the playground
-- Repository architecture and structure
-- Development workflows and standards
-
-## Adding a New Project
-
-When creating a new project:
-
-1. Create project directory: `mkdir -p projects/[project-name]/{src,kb}`
-2. Follow [Project Template](../../kb/architecture/project-template.md) structure
-3. Document project in `projects/[project-name]/kb/` using OKF format
-4. Add entry to `projects/kb/projects/index.md`
-5. Create companion `[project-name]-KB-CLAUDE.md` documenting the project KB
+**Do not** create `<Name>-KB-CLAUDE.md` companion files — a project is governed by its own
+`projects/<name>/CLAUDE.md`.
 
 ## Conventions
 
-- Each project KB uses OKF format with YAML frontmatter
-- `okf_version: "0.1"` declared only in project `kb/index.md`
-- Project KBs use relative links to reference each other and the repository KB
-- This navigation KB does NOT contain `okf_version` — only individual project KBs do
+- Cards use OKF frontmatter (`type/title/description/resource/tags/timestamp`) and relative links.
+- Keep cards **high-level**; deep detail belongs in the project's own `kb/`.
+- After edits, lint: `python3 .claude/skills/okf-wikify/scripts/lint_okf.py projects/kb/`.
 
-## Related Knowledge Bases
+## Related
 
-- **Repository KB:** `/kb/` - Repository-wide guidance
-- **Individual Project KBs:** `/projects/[project-name]/kb/` - Project-specific documentation
+- Repo-wide KB: [`/kb/index.md`](../../kb/index.md)
+- A project's detail KB: `projects/<project-name>/kb/index.md`

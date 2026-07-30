@@ -16,6 +16,7 @@ cc-harness/
 │       └── scad-design-to-print/  # SCAD Design to Print skill
 │
 ├── kb/                            # Repository-wide knowledge base (OKF bundle)
+│   ├── CLAUDE.md                  # Governs the repo-wide KB
 │   ├── architecture/              # Directory structure and KB organization docs
 │   ├── additive-engineering/      # Additive Engineering concepts, and rulebooks
 │   ├── concepts/                  # Abstract concepts (deploy lifecycle, etc.)
@@ -27,29 +28,24 @@ cc-harness/
 │   └── index.md                   # KB entry point
 │
 ├── projects/                      # All project containers
+│   ├── CLAUDE.md                  # Governs the projects/ directory
 │   ├── common/                    # Shared utilities and common code
-│   │   └── .keep
-│   ├── hello-worker/              # Cloudflare Worker project
-│   │   ├── src/                   # Worker source code
-│   │   └── wrangler.jsonc         # Wrangler configuration
-│   ├── kb/                        # Projects directory KB index
-│   │   └── index.md               # Navigation for project KBs
-│   └── sample-project/            # Template project
-│       ├── src/                   # Project source code
-│       ├── kb/                    # Project-specific KB
-│       ├── CLAUDE.md              # Project-specific Claude configuration
-│       ├── README.md              # Project overview and setup
-│       └── version.json           # Project metadata and version
+│   ├── hello-worker/              # Cloudflare Worker project (src/, wrangler.jsonc)
+│   ├── sample-project/            # Template project (src/, kb/, CLAUDE.md, README.md, version.json)
+│   └── kb/                        # Projects index/governance KB (CLAUDE.md, index.md, projects/)
 │
 ├── config/                        # Root-level configuration
 │   └── .keep
 │
 ├── README.md                      # This file
 ├── CLAUDE.md                      # Root-level Claude configuration
-├── KB-CLAUDE.md                   # Knowledge base Claude configuration
-├── Projects-KB-CLAUDE.md          # Projects KB Claude configuration
 └── LICENSE                        # Project license
 ```
+
+> **CLAUDE.md governance:** CLAUDE.md files live at four levels — `/CLAUDE.md`, `/kb/CLAUDE.md`,
+> `/projects/CLAUDE.md`, and `/projects/<name>/CLAUDE.md` — each governing its directory and below.
+> There are **no** `<Name>-KB-CLAUDE.md` companion files; a `kb/` bundle is governed by the nearest
+> CLAUDE.md above it. See [`/CLAUDE.md`](CLAUDE.md) → "Documentation & CLAUDE.md governance".
 
 ## Knowledge Base Organization
 
@@ -98,9 +94,12 @@ projects/[project-name]/
 
 1. Create a new directory under `/projects/[your-project-name]`
 2. Add the required structure: `src/`, `kb/`, `CLAUDE.md`, `README.md`, `version.json`
-3. Document project-specific instructions in `CLAUDE.md`
-4. Add project documentation to `kb/`
-5. Update `projects/kb/index.md` to reference your new project
+3. Write `CLAUDE.md` to govern the project (rules, conventions, kb navigation)
+4. Start the project `kb/` as an OKF bundle (`kb/index.md` holds the only `okf_version`)
+5. Register the project: add a card at `projects/kb/projects/<name>.md` and link it from
+   `projects/kb/projects/index.md`; add the project to the trees in `/CLAUDE.md` and this README
+
+See [`/projects/CLAUDE.md`](projects/CLAUDE.md) for the full workflow and the CLAUDE.md hierarchy.
 
 ## Shared Code
 
