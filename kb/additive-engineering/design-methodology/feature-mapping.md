@@ -22,4 +22,4 @@ Common mappings include:
 - **Constant Cross-Sections along a Path (e.g., tubing, wires, pipes):** Best modeled using a `Sweep` command.
 - **Prismatic Volumes:** Best modeled using an `Extrude` command.
 
-This strategy relies heavily on [Geometric Decomposition](geometric_decomposition.md), as identifying the underlying primitive shapes within an object dictates the sequence of operations required.
+This strategy relies heavily on [Geometric Decomposition](geometric-decomposition.md), as identifying the underlying primitive shapes within an object dictates the sequence of operations required.

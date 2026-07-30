@@ -23,4 +23,4 @@ Nodes are classified as:
 - **Gray:** Intersects the object boundary (requires further subdivision).
 
 ## Applications
-Octrees are heavily used for accelerating collision detection, generating [Finite Element](finite-element.md) meshes, and boolean evaluations in [CSG](../solid-modeling/csg.md). They provide a rapid, approximate way to evaluate integral properties like mass and volume.
+Octrees are heavily used for accelerating collision detection, generating [Finite Element Analysis](../analysis-methods/finite-element.md) meshes, and boolean evaluations in [CSG](../solid-modeling/csg.md). They provide a rapid, approximate way to evaluate integral properties like mass and volume.

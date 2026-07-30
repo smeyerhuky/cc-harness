@@ -13,7 +13,7 @@ tags: ["cad", "features", "extrude", "fillet"]
 timestamp: "2024-01-01"
 ---
 
-Once a 2D profile is fully defined (see [Sketches and Constraints](sketches_and_constraints.md)), it is converted into 3D [geometry](../mathematics/geometry.md) using feature commands.
+Once a 2D profile is fully defined (see [Sketches and Constraints](sketches-and-constraints.md)), it is converted into 3D [geometry](../mathematics/geometry.md) using feature commands.
 
 The most fundamental operations include:
 - **Extrude Boss/Base:** Projects a 2D sketch linearly to create a 3D volume.

@@ -17,4 +17,4 @@ Reverse engineering in the context of CAD (Computer-Aided Design) involves recre
 
 This process eliminates the reliance on traditional [engineering drawings](../engineering-documentation/engineering-drawings.md) or step-by-step instructions. Instead, it demands critical thinking to analyze the target object and determine the sequence of modeling operations required to reconstruct it in the software.
 
-By attempting to reconstruct complex, real-world objects (such as bicycles, musical instruments, or teacup rides), the designer learns not just how to execute specific CAD commands, but how to strategically plan a design from scratch. This involves [Geometric Decomposition](geometric_decomposition.md) and [Feature Mapping](feature_mapping.md).
+By attempting to reconstruct complex, real-world objects (such as bicycles, musical instruments, or teacup rides), the designer learns not just how to execute specific CAD commands, but how to strategically plan a design from scratch. This involves [Geometric Decomposition](geometric-decomposition.md) and [Feature Mapping](feature-mapping.md).

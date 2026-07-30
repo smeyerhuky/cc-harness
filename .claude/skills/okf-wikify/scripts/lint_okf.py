@@ -113,10 +113,9 @@ def lint(root: Path):
                 resolved = (path.parent / target_clean).resolve()
             try:
                 resolved_rel = resolved.relative_to(root.resolve())
+                linked_targets.add(resolved_rel)
             except ValueError:
-                warnings.append(f"{rel}: link '{target}' points outside the bundle")
-                continue
-            linked_targets.add(resolved_rel)
+                pass  # External to bundle, that's allowed now
             if not resolved.exists():
                 errors.append(f"{rel}: broken link -> {target}")
 
