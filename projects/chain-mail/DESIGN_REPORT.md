@@ -130,3 +130,40 @@ and (2) **tolerance** (min surface clearance ≥ tol−margin everywhere). Resul
 No walls meshed; tolerance honored across the whole assembly. **Next:** extend to a *kinematic*
 sweep (articulate links through their range of motion and re-scan) so no collision occurs at any
 reachable pose, not just at rest.
+
+---
+
+## M2 — flat European 4-in-1 weave SOLVED (round + square plates)
+
+**Result:** a valid, printable, flat E4-1 sheet for both round and square links — collision-free,
+genuinely interlinked, and validated kinematically at full-plate scale.
+
+### The unlock
+Rigid tiling had failed because early attempts used row pitch `py ≈ 3 mm`, placing same-tilt
+neighbours 6 mm apart → fusion. Measuring the link envelope showed the opposite-tilt interlink
+**survives to `dy = 6 mm`** (Lk +1), while same-tilt rings clear at **≥ 12 mm**. Row pitch
+**`py = 6`** satisfies both, and the sheet stays **flat** (every ring on the bed — no
+woven-height, no support).
+
+### Verified weave (row-brick, rows lean ±30°, odd rows staggered px/2)
+| Unit | px | py | min clearance | interior links |
+|---|---|---|---|---|
+| round | 6.8 | 6.0 | 0.58 mm | all 4 `|Lk|=1` |
+| square | 7.5 | 6.5 | 0.69 mm | all 4 `|Lk|=1` |
+Locked in `src/config.scad` (`WEAVE_*`).
+
+### Full-plate validation (all gates green)
+| Plate | rings | footprint | fused | min clr | interlinked | watertight | kinematic ±12° |
+|---|---|---|---|---|---|---|---|
+| round | 957 (29×33) | 204×203 mm | 0 | 0.58 mm | all 4 ✓ | 957/957 ✓ | no collision ✓ |
+| square | 780 (26×30) | 201×200 mm | 0 | 0.69 mm | all 4 ✓ | 780/780 ✓ | no collision ✓ |
+
+### New tooling
+- `tools/build_plate.py` — instances one unit link across the weave to export a printable
+  full-bed plate STL (CGAL can't handle ~1000 rings). Reports rings, footprint, watertightness.
+- `tools/sheet_scan.py` — rewritten to the verified row-brick lattice; adds `--links` (interior
+  interlink check, parity-aware) and `--flex-sweep` (kinematic ROM gate).
+
+### Next
+Physically print both plates (0.4 nozzle / 0.2 layer, GAP 0.30) and confirm drape/no-fuse; then
+carry the winning unit into the folding/packing work (M3+).

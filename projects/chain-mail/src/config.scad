@@ -24,12 +24,15 @@ LINK_TILT  = 30;       // ring lean; opposite sign on adjacent rings
 LINK_DX    = 3.7;      // diagonal X offset giving GAP=0.30 at this tilt
 LINK_DY    = 3.0;      // diagonal Y offset (row step)
 
-// ---- Weave: European 4-in-1 (SPEC §4) --------------------------------------
-// Tilt angle of alternating rings. Derived nominal; VERIFIED by collision test,
-// never trusted as typed. Refined during M2 swatch.
-TILT       = 45;       // ring tilt from sheet plane (deg), nominal
-ROW_PITCH  = OD * 0.55; // centre-to-centre row spacing (nominal, from feasibility calc)
-COL_PITCH  = OD * 0.65; // centre-to-centre column spacing (nominal)
+// ---- Weave: flat European 4-in-1 (M2, VERIFIED) ----------------------------
+// Row-brick weave: adjacent rows lean +/-WEAVE_TILT, odd rows brick-staggered by
+// px/2. FLAT (all rings on the bed). Params verified by whole-assembly collision
+// gate (fused=0, min clearance >= GAP) AND linking number (every interior ring
+// interlinks all 4 neighbours, |Lk|=1). Row pitch PY=6 spaces same-tilt
+// neighbours to ~12 mm so they clear, while opposite-tilt links survive to dy=6.
+WEAVE_TILT      = 30;
+WEAVE_PX_ROUND  = 6.8; WEAVE_PY_ROUND  = 6.0;   // -> min clearance 0.58 mm
+WEAVE_PX_SQUARE = 7.5; WEAVE_PY_SQUARE = 6.5;   // -> min clearance 0.69 mm
 
 // ---- Engineered hinge / crease links (SPEC §5) -----------------------------
 // Crease links get their own geometry tuned to fold tight, decoupling fold

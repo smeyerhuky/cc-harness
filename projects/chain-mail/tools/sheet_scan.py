@@ -1,75 +1,94 @@
 #!/usr/bin/env python3
 """
-sheet_scan.py — wide-sheet + kinematic collision/clearance gate (scalable).
+sheet_scan.py — flat E4-1 sheet/plate collision + interlink + kinematic gate (scalable).
 
-Instances one exported link mesh across the E4-1 lattice (no CGAL for the whole
-sheet) and runs FCL collision over the whole assembly:
-  * fusion:    NO two links may be in collision  (no meshed walls)
-  * tolerance: global min clearance >= tol - margin  (honors the print gap)
-  * kinematics: with --flex-sweep, re-checks across a range of articulation so no
-    collision occurs at ANY reachable pose, not just at rest.
+Instances one exported link mesh across the VERIFIED flat European 4-in-1 lattice
+(row-brick: adjacent rows lean +/-tilt, odd rows staggered px/2, all rings on the bed)
+and runs FCL collision over the whole assembly:
+  * fusion:    NO two links in collision              (no meshed walls)
+  * tolerance: global min clearance >= tol - margin   (honors the print gap)
+  * interlink: interior ring must link all 4 neighbours (|Lk|=1)   [--links]
+  * kinematics: --flex-sweep re-checks across an articulation range (ROM gate)
 
-Lattice mirrors compare/sheet.scad: link (a,b) at ((a+b)*VX, (a-b)*VY, LIFT+ZW*(a%2)),
-lean +T if (a+b) even else -T, plus an articulation offset FLEX (alternating sign).
+Params mirror src/config.scad (round: px6.8/py6.0, square: px7.5/py6.5, tilt 30).
 
 Usage:
-    python3 sheet_scan.py --shape round --cols 6 --rows 6 --zw 0 --tol 0.30
-    python3 sheet_scan.py --shape round --cols 6 --rows 6 --zw 5 --flex-sweep -12:12:7
+    python3 sheet_scan.py --shape round --cols 30 --rows 34 --tol 0.30 --links
+    python3 sheet_scan.py --shape square --cols 6 --rows 6 --flex-sweep=-12:12:7
 """
 
-import argparse, json, sys, math
+import argparse, json, sys, math, importlib.util
 from pathlib import Path
 
-# --- constants mirror src/config.scad (single source of truth) --------------
 WD, ID = 1.6, 8.0
-T  = 30.0            # LINK_TILT
-VX = 3.7            # LINK_DX
-VY = 3.0            # LINK_DY
-LIFT0 = (ID + WD) / 2 * math.sin(math.radians(T)) + WD / 2   # base lift to bed
+R = (ID + WD) / 2
+TILT = 30.0
+PARAMS = {"round": (6.8, 6.0), "square": (7.5, 6.5)}   # (px, py)
+LIFT = R * math.sin(math.radians(TILT)) + WD / 2       # flat: every ring on the bed
 
+_ln = None
+def _linking():
+    global _ln
+    if _ln is None:
+        p = Path(__file__).resolve().parent / "linking_number.py"
+        spec = importlib.util.spec_from_file_location("ln", p)
+        _ln = importlib.util.module_from_spec(spec); spec.loader.exec_module(_ln)
+    return _ln
 
-def transforms(cols, rows, zw, flex):
-    import numpy as np
-    from trimesh.transformations import rotation_matrix, translation_matrix
+def pose(r, c, px, py, flex=0.0):
+    tilt = TILT if r % 2 == 0 else -TILT
+    ft = tilt + (flex if r % 2 == 0 else -flex)
+    center = (c * px + (r % 2) * (px / 2), r * py, LIFT)
+    return center, tilt, ft
+
+def transforms(cols, rows, px, py, flex):
+    from trimesh.transformations import translation_matrix, rotation_matrix
     out = []
-    lift = LIFT0 + zw
-    for a in range(cols):
-        for b in range(rows):
-            even = ((a + b) % 2 == 0)
-            tilt = T if even else -T
-            ft = tilt + (flex if even else -flex)
-            x = (a + b) * VX
-            y = (a - b) * VY
-            z = lift + zw * (a % 2)
-            M = translation_matrix([x, y, z]) @ rotation_matrix(math.radians(ft), [0, 1, 0])
-            out.append((f"{a}_{b}", M))
+    for r in range(rows):
+        for c in range(cols):
+            center, _tilt, ft = pose(r, c, px, py, flex)
+            out.append((f"{r}_{c}",
+                        translation_matrix(center) @ rotation_matrix(math.radians(ft), [0, 1, 0])))
     return out
 
-
-def scan(unit_mesh, cols, rows, zw, flex, tol, margin):
+def scan(unit, cols, rows, px, py, flex, tol, margin):
     from trimesh.collision import CollisionManager
     mgr = CollisionManager()
-    for name, M in transforms(cols, rows, zw, flex):
-        mgr.add_object(name, unit_mesh, transform=M)
-    hit, names = mgr.in_collision_internal(return_names=True)
+    for name, M in transforms(cols, rows, px, py, flex):
+        mgr.add_object(name, unit, transform=M)
+    _, names = mgr.in_collision_internal(return_names=True)
     fused = sorted(tuple(sorted((a, b))) for a, b in names)
     dist = float(mgr.min_distance_internal())
     return {"flex": flex, "num_fused": len(fused), "fused": fused[:20],
             "min_clearance_mm": round(dist, 4),
             "pass": (len(fused) == 0 and dist >= tol - margin)}
 
+def interior_links(cols, rows, px, py):
+    ln = _linking()
+    r, c = rows // 2, cols // 2
+    (cC, tC, _) = pose(r, c, px, py)
+    # brick stagger: an even row's up/down neighbours sit at columns {c, c-1};
+    # an odd row's sit at {c, c+1}. Pick the correct pair by parity.
+    dcs = (0, -1) if r % 2 == 0 else (0, 1)
+    out = []
+    for dr in (1, -1):
+        for dc in dcs:
+            (cN, tN, _) = pose(r + dr, c + dc, px, py)
+            lk = ln.linking_number(ln.ring_centreline(R, tC, cC), ln.ring_centreline(R, tN, cN))
+            out.append(round(lk, 2))
+    return out
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--shape", choices=["round", "square"], default="round")
     ap.add_argument("--cols", type=int, default=6)
     ap.add_argument("--rows", type=int, default=6)
-    ap.add_argument("--zw", type=float, default=0.0, help="woven-height Z offset")
     ap.add_argument("--tol", type=float, default=0.30)
     ap.add_argument("--margin", type=float, default=0.05)
     ap.add_argument("--flex", type=float, default=0.0)
     ap.add_argument("--flex-sweep", default=None, help="min:max:steps articulation sweep (deg)")
-    ap.add_argument("--unit", default=None, help="path to single-link STL (default compare/unit_<shape>.stl)")
+    ap.add_argument("--links", action="store_true", help="also verify interior ring links all 4 neighbours")
+    ap.add_argument("--unit", default=None)
     args = ap.parse_args()
 
     try:
@@ -77,38 +96,38 @@ def main() -> int:
     except ImportError as e:
         print(json.dumps({"errors": [f"missing dependency: {e}"], "pass": False})); return 2
 
+    px, py = PARAMS[args.shape]
     unit_path = Path(args.unit) if args.unit else Path(__file__).resolve().parents[1] / "compare" / f"unit_{args.shape}.stl"
     if not unit_path.exists():
         print(json.dumps({"errors": [f"unit mesh not found: {unit_path}"], "pass": False})); return 2
     unit = trimesh.load(str(unit_path), force="mesh")
 
     report = {"shape": args.shape, "grid": f"{args.cols}x{args.rows}", "links": args.cols * args.rows,
-              "zw": args.zw, "tolerance_mm": args.tol}
+              "px": px, "py": py, "tilt": TILT, "tolerance_mm": args.tol}
 
     if args.flex_sweep:
         lo, hi, steps = args.flex_sweep.split(":")
         lo, hi, steps = float(lo), float(hi), int(steps)
         vals = [lo + (hi - lo) * k / (steps - 1) for k in range(steps)] if steps > 1 else [lo]
-        poses = [scan(unit, args.cols, args.rows, args.zw, f, args.tol, args.margin) for f in vals]
-        worst_clear = min(p["min_clearance_mm"] for p in poses)
-        any_fused = any(p["num_fused"] > 0 for p in poses)
+        poses = [scan(unit, args.cols, args.rows, px, py, f, args.tol, args.margin) for f in vals]
         report.update({
-            "mode": "kinematic-sweep",
-            "flex_range_deg": [lo, hi], "poses": len(poses),
-            "worst_min_clearance_mm": worst_clear,
-            "any_pose_fused": any_fused,
+            "mode": "kinematic-sweep", "flex_range_deg": [lo, hi], "poses": len(poses),
+            "worst_min_clearance_mm": min(p["min_clearance_mm"] for p in poses),
+            "any_pose_fused": any(p["num_fused"] > 0 for p in poses),
             "fused_poses": [p["flex"] for p in poses if p["num_fused"] > 0],
-            "pass": (not any_fused),                 # no collision at ANY reachable pose
+            "pass": not any(p["num_fused"] > 0 for p in poses),
             "per_pose": poses,
         })
-        print(json.dumps(report, indent=2))
-        return 0 if report["pass"] else 1
-    else:
-        r = scan(unit, args.cols, args.rows, args.zw, args.flex, args.tol, args.margin)
-        report.update({"mode": "static", **r})
-        print(json.dumps(report, indent=2))
-        return 0 if report["pass"] else 1
+        print(json.dumps(report, indent=2)); return 0 if report["pass"] else 1
 
+    r = scan(unit, args.cols, args.rows, px, py, args.flex, args.tol, args.margin)
+    report.update({"mode": "static", **r})
+    if args.links:
+        lks = interior_links(args.cols, args.rows, px, py)
+        report["interior_links_Lk"] = lks
+        report["all_4_interlinked"] = all(abs(x) >= 0.9 for x in lks)
+        report["pass"] = report["pass"] and report["all_4_interlinked"]
+    print(json.dumps(report, indent=2)); return 0 if report["pass"] else 1
 
 if __name__ == "__main__":
     sys.exit(main())

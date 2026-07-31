@@ -1,41 +1,34 @@
 // ============================================================================
-// sheet.scad — wider 2D maille sheet (single X/Y grid) for the stress test.
-// Diagonal E4-1 lattice from the M1-verified link vector: link (a,b) sits at
-// (a+b)*VX, (a-b)*VY with tilt alternating by (a+b) parity, so every orthogonal
-// lattice neighbour is an opposite-tilt interlink at the verified (VX, VY) offset.
+// sheet.scad — flat European 4-in-1 maille sheet (VERIFIED weave), for renders.
+// Row-brick weave: adjacent rows lean +/-WEAVE_TILT, odd rows staggered px/2,
+// all rings on the bed. Verified collision-free (fused=0, clearance >= GAP) with
+// every interior ring interlinking all 4 neighbours (|Lk|=1). See src/config.scad.
 //
-//   SHAPE = "round" | "square"
-//   COLS, ROWS  : lattice extent
-//   ZW          : woven-height Z offset (over/under) to clear same-tilt neighbours
-//   FLEX        : articulation perturbation (deg) — swept by kinematic_scan.py
+//   SHAPE = "round" | "square"   COLS, ROWS = patch extent
+// Printable full-bed plates are generated with tools/build_plate.py (instancing),
+// since OpenSCAD/CGAL can't export ~1000 rings; this file is for preview renders.
 // ============================================================================
 
 include <../src/config.scad>
 use <link.scad>
 
 SHAPE = "round";
-COLS  = 6;
-ROWS  = 6;
-ZW    = 0;      // tune so the whole-assembly collision gate passes
-FLEX  = 0;      // rock each link about its axis (range-of-motion stress)
+COLS  = 8;
+ROWS  = 9;
 
-T    = LINK_TILT;
-VX   = LINK_DX;
-VY   = LINK_DY;
-LIFT = (ID + WD)/2 * sin(T) + WD/2 + ZW;   // keep everything above the bed
+PX = (SHAPE == "square") ? WEAVE_PX_SQUARE : WEAVE_PX_ROUND;
+PY = (SHAPE == "square") ? WEAVE_PY_SQUARE : WEAVE_PY_ROUND;
+LIFT = (ID + WD)/2 * sin(WEAVE_TILT) + WD/2;
 
 module sheet() {
-    for (a = [0 : COLS - 1])
-        for (b = [0 : ROWS - 1]) {
-            even = ((a + b) % 2 == 0);
-            tilt = even ? T : -T;
-            x = (a + b) * VX;
-            y = (a - b) * VY;
-            z = LIFT + ZW * (a % 2);                 // woven over/under by column parity
-            ft = tilt + (even ? FLEX : -FLEX);       // articulation
-            color(even ? [0.60,0.64,0.70] : [0.50,0.54,0.62])
-            translate([x, y, z]) rotate([0, ft, 0]) link(SHAPE);
+    for (r = [0 : ROWS - 1]) {
+        tilt = (r % 2 == 0) ? WEAVE_TILT : -WEAVE_TILT;
+        for (c = [0 : COLS - 1]) {
+            x = c * PX + (r % 2) * (PX / 2);
+            color((r % 2 == 0) ? [0.60,0.64,0.70] : [0.50,0.54,0.62])
+            translate([x, r * PY, LIFT]) rotate([0, tilt, 0]) link(SHAPE);
         }
+    }
 }
 
 sheet();

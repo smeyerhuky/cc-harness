@@ -1,8 +1,8 @@
 {
   "name": "chain-mail",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Parametric print-in-place folding European 4-in-1 chainmail for Bambu P1S",
   "status": "in-progress",
-  "milestone": "M1 complete (physical, G=0.30mm) — starting M2 weave",
-  "updated": "2026-07-30"
+  "milestone": "M2 flat weave SOLVED (round+square plates verified) — ready to print",
+  "updated": "2026-07-31"
 }
