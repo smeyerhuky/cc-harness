@@ -35,6 +35,7 @@ A playground environment for experimentation and development.
   - `common/` - Shared utilities and code used across projects
   - `hello-worker/` - Cloudflare Worker project (`src/`, `wrangler.jsonc`)
   - `sample-project/` - Template project (`src/`, `kb/`, `CLAUDE.md`, `README.md`, `version.json`)
+  - `chain-mail/` - Parametric print-in-place folding European 4-in-1 chainmail for the Bambu P1S (OpenSCAD; `src/`, `spec/`, `tools/`, `kb/`)
   - `kb/` - Projects directory KB index
 
 ## Getting Started

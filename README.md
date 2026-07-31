@@ -32,6 +32,7 @@ cc-harness/
 │   ├── common/                    # Shared utilities and common code
 │   ├── hello-worker/              # Cloudflare Worker project (src/, wrangler.jsonc)
 │   ├── sample-project/            # Template project (src/, kb/, CLAUDE.md, README.md, version.json)
+│   ├── chain-mail/                # Print-in-place folding chainmail (src/, spec/, tools/, kb/, CLAUDE.md)
 │   └── kb/                        # Projects index/governance KB (CLAUDE.md, index.md, projects/)
 │
 ├── config/                        # Root-level configuration

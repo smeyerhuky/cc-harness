@@ -1,0 +1,26 @@
+[
+  {
+    "name": "gap_0.30_tight",
+    "part_a": "stl/pair_030_A.stl",
+    "part_b": "stl/pair_030_B.stl",
+    "expected_clearance": 0.31,
+    "tolerance": 0.08,
+    "note": "tilt +30/-30 dx3.7; interlinked (Lk=+1), both feet on bed; tight/stretch"
+  },
+  {
+    "name": "gap_0.40_nominal",
+    "part_a": "stl/pair_040_A.stl",
+    "part_b": "stl/pair_040_B.stl",
+    "expected_clearance": 0.40,
+    "tolerance": 0.08,
+    "note": "tilt +30/-30 dx3.4; interlinked (Lk=+1); nominal design clearance G"
+  },
+  {
+    "name": "gap_0.50_safe",
+    "part_a": "stl/pair_050_A.stl",
+    "part_b": "stl/pair_050_B.stl",
+    "expected_clearance": 0.51,
+    "tolerance": 0.08,
+    "note": "tilt +30/-30 dx3.1; interlinked (Lk=+1); safe fallback"
+  }
+]
