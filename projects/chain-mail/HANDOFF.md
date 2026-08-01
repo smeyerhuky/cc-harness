@@ -4,10 +4,40 @@
 measured result so far, the tools and how to run them, what's done vs. in progress, and the
 concrete next steps. Authoritative detail lives in the files this points to; this is the map.
 
-- **Status:** M1 complete (physically printed & validated). M2 (woven sheet) in progress.
+- **Status:** M1 complete (physically printed). **M2 flat weave SOLVED** — round + square plates verified, ready to print.
 - **Locked design clearance:** `GAP = 0.30 mm`.
-- **Last updated:** 2026-07-30.
-- **Branch:** `claude/chain-mail-project-euamyr`.
+- **Last updated:** 2026-07-31.
+- **Branch:** `claude/chain-mail-project-euamyr` · **PR #6**.
+
+---
+
+## Quick handoff (current)
+
+**Where we are:** the hard part (a flat European 4-in-1 sheet that is *interlinked* **and**
+*collision-free* **and** printable) is solved for both link shapes. Full-bed plates are generated,
+validated on every gate, and committed to PR #6.
+
+| Plate (in `stl/`) | rings | footprint | fused | min clearance | interlinked | watertight | kinematic ±12° |
+|---|---|---|---|---|---|---|---|
+| `plate_round.stl` | 957 | 204×203 mm | 0 | 0.58 mm | all 4 `Lk±1` | 957/957 | no collision |
+| `plate_square.stl` | 780 | 201×200 mm | 0 | 0.69 mm | all 4 `Lk±1` | 780/780 | no collision |
+
+**The M2 unlock:** rigid tiling failed only because early row pitch (`py≈3`) put same-tilt
+neighbours 6 mm apart → fusion. The opposite-tilt link survives to `dy=6 mm` while same-tilt rings
+clear at `≥12 mm`, so **`py=6` gives a flat sheet** (every ring on the bed, no support). Verified
+weave locked in `config.scad` (`WEAVE_*`): row-brick, rows lean ±30°, odd rows staggered `px/2`;
+round `px6.8/py6.0`, square `px7.5/py6.5`.
+
+**Print settings:** flat on the bed, 0.4 nozzle / 0.2 layer, `GAP 0.30`, **no supports**, ~6.4 mm tall.
+
+**New tools:** `tools/build_plate.py` (instances one link → printable full-bed plate STL; CGAL
+can't do ~1000 rings) and `tools/sheet_scan.py` (verified lattice; `--links` parity-aware interlink
+check + `--flex-sweep` kinematic ROM gate). Committed STLs are lower-poly to fit size limits;
+regenerate full-res via `build_plate.py`.
+
+**Immediate next step:** print both plates; the physical drape/no-fuse result picks the winning
+unit (round vs square — square holds clearance better through articulation) to carry into the
+folding/packing work (M3+).
 
 ---
 
