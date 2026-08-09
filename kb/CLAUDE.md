@@ -55,7 +55,11 @@ To add content to this bundle:
 
 - **Frontmatter:** Every file has type, title, description, resource, tags, timestamp
 - **okf_version:** Declared only in root `index.md`
-- **File types:** Common types include "Concept", "Reference", "Workflow", "Guide"
+- **File types:** `type` draws from a **closed, registered vocabulary** — see
+  the `types:` block in [`authority/vocabulary.yaml`](authority/vocabulary.yaml)
+  (Concept, Reference, Playbook, Lesson, Policy, Process, Mechanism, Algorithm,
+  Model, and a few more). Use a registered genre; adding a new one is a
+  deliberate edit to the registry, checked by the authority linter.
 - **Linking:** Use relative markdown links (e.g., `[text](../other-dir/file)`).
 - **Markdown:** Plain markdown with OKF frontmatter; no special tooling required
 - **Tags are authority-controlled:** the `tags:` field is governed by a controlled

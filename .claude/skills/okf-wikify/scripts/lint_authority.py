@@ -21,6 +21,10 @@ Three tiers of finding:
                case-fold or by a trailing plural 's'/'es'. Auto-detected, so it
                works even for concepts not yet in the vocabulary — this is how
                new authority-control candidates surface. (shown by default)
+  TYPE         A `type` value that is a known non-preferred alias, or is absent
+               from the registered `type` vocabulary. Unlike `tags`, `type` is a
+               CLOSED vocabulary, so an unregistered value is a real finding, not
+               a candidate — hence shown by default. (shown by default)
   FORM / UNACCESSIONED
                FORM: a tag whose spelling violates the preferred form-of-heading
                (lowercase kebab-case) and is not an allowed exception.
@@ -61,44 +65,52 @@ def parse_frontmatter(text: str):
 
 
 def load_vocab(path: Path):
-    """Return (descriptors, uf_map, form_exceptions, reviewed_distinct) or None."""
+    """Return a dict of the parsed authority file, or None if unavailable."""
     if not path.exists() or yaml is None:
         return None
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     terms = data.get("terms", {}) or {}
-    descriptors = set(terms)
-    uf_map = {}          # non-preferred term -> preferred descriptor
+    uf_map = {}          # non-preferred tag -> preferred descriptor
     for term, meta in terms.items():
         for variant in ((meta or {}).get("use_for") or []):
             uf_map[variant] = term
     form = data.get("form", {}) or {}
-    form_exceptions = set(form.get("form_exceptions") or [])
-    reviewed_distinct = {
-        frozenset(pair) for pair in (data.get("reviewed_distinct") or [])
-        if isinstance(pair, list) and len(pair) == 2
+    types = data.get("types", {}) or {}
+    return {
+        "descriptors": set(terms),
+        "uf_map": uf_map,
+        "form_exceptions": set(form.get("form_exceptions") or []),
+        "reviewed_distinct": {
+            frozenset(pair) for pair in (data.get("reviewed_distinct") or [])
+            if isinstance(pair, list) and len(pair) == 2
+        },
+        "types_registered": set(types.get("registered") or []),
+        "types_uf": dict(types.get("use_for") or {}),
     }
-    return descriptors, uf_map, form_exceptions, reviewed_distinct
 
 
-def collect_tags(root: Path):
-    """Map every tag surface form -> sorted list of files that use it."""
-    usage = defaultdict(set)
+def collect_records(root: Path):
+    """One pass: tag_usage and type_usage, each surface form -> set of files."""
+    tag_usage = defaultdict(set)
+    type_usage = defaultdict(set)
     for path in sorted(root.rglob("*.md")):
         if not path.is_file() or path.name in RESERVED_NAMES:
             continue
         fm = parse_frontmatter(path.read_text(encoding="utf-8", errors="replace"))
         if not isinstance(fm, dict):
             continue
+        rel = str(path.relative_to(root))
         tags = fm.get("tags")
         if isinstance(tags, str):
             tags = [tags]
-        if not isinstance(tags, list):
-            continue
-        rel = path.relative_to(root)
-        for t in tags:
-            if isinstance(t, str) and t.strip():
-                usage[t.strip()].add(str(rel))
-    return usage
+        if isinstance(tags, list):
+            for t in tags:
+                if isinstance(t, str) and t.strip():
+                    tag_usage[t.strip()].add(rel)
+        tp = fm.get("type")
+        if isinstance(tp, str) and tp.strip():
+            type_usage[tp.strip()].add(rel)
+    return tag_usage, type_usage
 
 
 def _singular_plural_pair(a: str, b: str) -> bool:
@@ -146,16 +158,32 @@ def is_wellformed(tag: str) -> bool:
 
 def lint(root: Path, vocab_path: Path, report: bool):
     warnings = []
-    usage = collect_tags(root)
-    if not usage:
+    notes = []
+    usage, type_usage = collect_records(root)
+    if not usage and not type_usage:
         return ["no tagged files found under %s" % root], []
 
     vocab = load_vocab(vocab_path)
-    notes = []
+    if vocab:
+        descriptors = vocab["descriptors"]
+        uf_map = vocab["uf_map"]
+        form_exceptions = vocab["form_exceptions"]
+        reviewed_distinct = vocab["reviewed_distinct"]
+        types_registered = vocab["types_registered"]
+        types_uf = vocab["types_uf"]
+    else:
+        descriptors = uf_map = None
+        form_exceptions = set()
+        reviewed_distinct = frozenset()
+        types_registered = set()
+        types_uf = {}
+        notes.append(
+            "no vocabulary file at %s — running heuristic checks only "
+            "(VARIANT/TYPE/FORM/UNACCESSIONED need the authority file)" % vocab_path
+        )
 
     # VARIANT — tags that resolve to a preferred descriptor via UF.
-    if vocab:
-        descriptors, uf_map, form_exceptions, reviewed_distinct = vocab
+    if uf_map is not None:
         for tag in sorted(usage):
             if tag in uf_map:
                 files = ", ".join(sorted(usage[tag]))
@@ -163,14 +191,6 @@ def lint(root: Path, vocab_path: Path, report: bool):
                     "VARIANT: tag '%s' is non-preferred; use '%s' "
                     "(in: %s)" % (tag, uf_map[tag], files)
                 )
-    else:
-        descriptors = uf_map = None
-        form_exceptions = set()
-        reviewed_distinct = frozenset()
-        notes.append(
-            "no vocabulary file at %s — running heuristic checks only "
-            "(VARIANT/FORM/UNACCESSIONED need the authority file)" % vocab_path
-        )
 
     # COLLISION — auto-detected, no vocabulary required.
     for kind, forms in detect_collisions(set(usage), reviewed_distinct):
@@ -179,6 +199,22 @@ def lint(root: Path, vocab_path: Path, report: bool):
             "COLLISION (%s): %s — likely one concept split across spellings; "
             "consolidate to one authorized form" % (label, " / ".join(forms))
         )
+
+    # TYPE — a CLOSED vocabulary, so findings show by default.
+    if types_registered:
+        for tp in sorted(type_usage):
+            files = ", ".join(sorted(type_usage[tp]))
+            if tp in types_uf:
+                warnings.append(
+                    "TYPE: type '%s' is non-preferred; use '%s' (in: %s)"
+                    % (tp, types_uf[tp], files)
+                )
+            elif tp not in types_registered:
+                warnings.append(
+                    "TYPE: type '%s' is not in the registered type vocabulary; "
+                    "use a registered genre or add it to types.registered (in: %s)"
+                    % (tp, files)
+                )
 
     # FORM + UNACCESSIONED — review candidates, only with --report.
     if report:

@@ -1,5 +1,5 @@
 ---
-type: "Example"
+type: "Code Example"
 title: "Transparent PETG Glass"
 description: "Complex slicing configuration for optical clarity"
 resource: "Web Synthesis"

@@ -65,6 +65,40 @@ form:
     - FEM
     - NURBS        # tolerated form; the descriptor below is lowercase `nurbs`
 
+# ----------------------------------------------------------------------------
+# Registered `type` vocabulary (CLOSED).
+# ----------------------------------------------------------------------------
+# Unlike `tags` — an OPEN vocabulary that grows by accession, where an
+# un-listed term is merely a candidate — the OKF `type` field draws from a
+# FIXED registry. Every file's `type` must be one of `registered`, or a
+# `use_for` alias that resolves to one. lint_authority.py reports any other
+# value by default (not only under --report), because the set is meant to be
+# complete: a new genre is a deliberate addition here, not silent drift.
+#
+# `type` names the *genre* of a knowledge record (its Dublin Core dc:type).
+# `tags` (below) name its *subject*. Keep the two jobs separate.
+types:
+  registered:
+    - Concept        # an abstract idea, principle, or definition
+    - Reference      # structured lookup material (specs, field tables)
+    - Playbook       # an ordered procedure to follow
+    - Lesson         # a concrete gotcha from a real session, with context
+    - Policy         # a prescriptive rule (MUST / MUST NOT)
+    - Process        # a workflow / how-we-do-it description
+    - Methodology    # a named approach or method
+    - Architecture   # structural description of a system or layout
+    - Mechanism      # how a physical / engineering thing works
+    - Algorithm      # a computational method
+    - Model          # a mathematical or conceptual model
+    - Theory         # theoretical foundation
+    - Technology     # a tool or technology description
+    - Analysis       # an analytical study or investigation
+    - Code Example   # a worked code sample
+  use_for:           # non-preferred type -> registered type
+    Example: Code Example
+    Workflow: Process
+    Guide: Reference
+
 terms:
 
   # ---- domain --------------------------------------------------------------

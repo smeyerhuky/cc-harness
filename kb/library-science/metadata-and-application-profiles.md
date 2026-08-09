@@ -24,7 +24,7 @@ shows the frontmatter is already a competent — if informal — application pro
 |---|---|---|
 | `title` | `dc:title` | direct |
 | `description` | `dc:description` | direct |
-| `type` | `dc:type` | but drawn from a local, *uncontrolled* type list |
+| `type` | `dc:type` | drawn from a **closed registered vocabulary** (see below) |
 | `resource` | `dc:source` | provenance — traces the claim back |
 | `tags` | `dc:subject` | the field [authority control](authority-control.md) governs |
 | `timestamp` | `dc:date` | ISO 8601 |
@@ -40,15 +40,25 @@ usage:
 - **OKF** = the minimal base standard: one required element (`type`), tolerant
   of anything else.
 - **This profile** = the tightening: `tags` MUST resolve to the
-  [controlled vocabulary](authority-control.md); `type` SHOULD draw from a small
-  registered set (`Concept`, `Reference`, `Playbook`, `Lesson`, `Policy`,
-  `Workflow` — the values already in use); `resource` SHOULD be present so every
-  claim is [traceable](collection-development.md).
+  [controlled vocabulary](authority-control.md); `type` MUST be one of the
+  **closed registered set** in the vocabulary's `types:` block (`Concept`,
+  `Reference`, `Playbook`, `Lesson`, `Policy`, `Process`, `Mechanism`,
+  `Algorithm`, `Model`, `Architecture`, and a few more — the genres actually in
+  use); `resource` SHOULD be present so every claim is
+  [traceable](collection-development.md).
 
-Keeping the two layers separate is deliberate: the OKF linter checks the base
-standard, `lint_authority.py` checks the profile. A bundle can be OKF-valid and
-profile-improvable at the same time, and adoption of the profile never breaks
-base conformance.
+The two fields are controlled differently, and the difference is the point.
+`tags` is an **open** vocabulary — a subject term not yet listed is a *candidate*
+(the linter only surfaces it under `--report`), so the subject vocabulary can
+grow by accession without noise. `type` is a **closed** vocabulary — it names a
+record's *genre*, and genres are a small deliberate set, so an unregistered
+`type` is a real finding shown *by default*. Adding a genre is an intentional
+edit to `types.registered`, not silent drift.
+
+Keeping the profile separate from OKF itself is likewise deliberate: the OKF
+linter checks the base standard, `lint_authority.py` checks the profile. A bundle
+can be OKF-valid and profile-improvable at the same time, and adopting the
+profile never breaks base conformance.
 
 ## The next step: FRBR-style relationship edges
 

@@ -36,14 +36,19 @@ faceted controlled vocabulary) and [`lint_authority.py`](../../.claude/skills/ok
 the linter runs in CI advisory; **graduation:** VARIANT + COLLISION findings
 reach zero and `--strict` is turned on.
 
-## Phase 2 — Formalize the metadata application profile
+## Phase 2 — Formalize the metadata application profile *(shipped)*
 
 **Discipline:** metadata standards / Dublin Core. **Mechanism:** OKF frontmatter.
-**Delivers:** register the small `type` vocabulary (`Concept`, `Reference`,
-`Playbook`, `Lesson`, `Policy`, `Workflow`) the way `tags` is now controlled; add
-a `type` check to `lint_authority.py`; keep the
-[crosswalk](metadata-and-application-profiles.md) current. **Done when:** every
-file's `type` draws from the registered set and the crosswalk is documented.
+**Delivered:** a **closed** `type` registry in
+[`authority/vocabulary.yaml`](../authority/vocabulary.yaml) (`types.registered`
++ `types.use_for` aliases), taken from the genres actually in use (Concept,
+Reference, Playbook, Lesson, Policy, Process, Mechanism, Algorithm, Model,
+Architecture, …); a `TYPE` check in `lint_authority.py` that — because the
+vocabulary is closed — flags any unregistered or aliased `type` **by default**,
+not just under `--report`; and the [crosswalk](metadata-and-application-profiles.md)
+kept current. The one variant in the corpus (`Example` → `Code Example`) was
+normalized. **Done:** every file's `type` draws from the registered set; the
+linter passes `--strict`.
 
 ## Phase 3 — FRBR-style relationship edges
 
