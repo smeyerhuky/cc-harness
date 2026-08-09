@@ -3,7 +3,7 @@ type: "Policy"
 title: "Push and Retry"
 description: "How to push to the designated branch, and the exponential-backoff retry policy for genuine network failures only."
 resource: "session-instructions:2026-07-15"
-tags: ["git", "push", "retry", "policy"]
+tags: ["git", "push", "retry", "governance"]
 timestamp: "2026-07-15"
 ---
 

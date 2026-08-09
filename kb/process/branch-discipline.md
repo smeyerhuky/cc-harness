@@ -3,7 +3,7 @@ type: "Policy"
 title: "Branch Discipline"
 description: "Rules for how Claude sessions use the designated development branch — develop there, commit there, push there, never elsewhere without explicit permission."
 resource: "session-instructions:2026-07-15"
-tags: ["git", "branches", "policy"]
+tags: ["git", "branching", "governance"]
 timestamp: "2026-07-15"
 ---
 

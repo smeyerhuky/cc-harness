@@ -5,7 +5,7 @@ type: "Concept"
 title: "Repository as Memory"
 description: "Core concept from AI-SDLC"
 resource: "AI-SDLC"
-tags: ['memory', 'context', 'git']
+tags: ['memory', 'context-management', 'git']
 timestamp: "2026-07-24"
 ---
 

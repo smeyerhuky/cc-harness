@@ -9,7 +9,7 @@ type: "Mechanism"
 title: "Injection Molding"
 description: "Process of injecting molten polymer into a mold cavity to form a part."
 resource: "Manufacturing Engineering and Technology, 8th ed. by S. Kalpakjian"
-tags: ["polymer", "molding", "injection"]
+tags: ["polymers", "molding", "injection"]
 timestamp: "2025-05-01"
 ---
 

@@ -6,7 +6,7 @@ type: "Concept"
 title: "Versioning and Diffing"
 description: "Core concept from agentcad Concepts"
 resource: "agentcad Concepts"
-tags: ['version-control', 'diff', 'iteration']
+tags: ['git', 'diff', 'iteration']
 timestamp: "2026-07-24"
 ---
 

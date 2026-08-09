@@ -3,7 +3,7 @@ type: "Lesson"
 title: "Sandbox Egress Limits — the CCR proxy is itself a Worker"
 description: "Claude Code Remote routes outbound HTTPS through a Cloudflare Worker, and Cloudflare blocks Worker-to-Worker fetches to `*.workers.dev` with error 1042. HTTP verify from inside the sandbox can't reach your own deployed Worker."
 resource: "session:2026-07-15 remote-verify attempts"
-tags: ["sandbox", "ccr", "cloudflare", "egress", "verify", "gotcha"]
+tags: ["sandbox", "ccr", "cloudflare", "egress", "verification", "lesson"]
 timestamp: "2026-07-15"
 ---
 

@@ -43,6 +43,12 @@ facets:
   - material      # feedstock / physical materials
   - math          # mathematical foundations
 
+# reviewed_distinct: pairs the COLLISION heuristic flags as look-alikes but a
+# human has confirmed are genuinely different concepts. The linter skips these.
+# A cataloger's record of "yes, we looked; keep them separate."
+reviewed_distinct:
+  - [dynamic, dynamics]   # dynamic (programming) vs dynamics (physics/motion)
+
 form:
   preferred_case: lower-kebab
   form_exceptions:
@@ -170,7 +176,8 @@ terms:
     related: [classification, metadata]
   metadata:
     facet: library-science
-    use_for: [meta]
+    # NB: the bare tag `meta` is NOT a variant of this — in kb/concepts it means
+    # "meta / self-referential" (docs about the KB itself), a distinct concept.
     related: [application-profile, crosswalk]
   application-profile:
     facet: library-science
@@ -244,6 +251,19 @@ terms:
   extrusion:
     facet: technique
     use_for: [extrude]
+  sweeps:
+    facet: technique
+    scope_note: Sweeping a profile along a path to form a solid/surface.
+    use_for: [sweep]
+  shafts:
+    facet: technique
+    scope_note: Rotating machine elements that transmit torque.
+    use_for: [shaft]
+
+  # ---- material ------------------------------------------------------------
+  polymers:
+    facet: material
+    use_for: [polymer]
 
   # ---- math ----------------------------------------------------------------
   geometry:

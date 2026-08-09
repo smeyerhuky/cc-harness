@@ -3,7 +3,7 @@ type: "Lesson"
 title: "Temporary Deploy Claim Window"
 description: "`wrangler deploy --temporary` gives you a 60-minute window to claim the auto-created account, after which the deployment goes away."
 resource: "session:2026-07-15 hello-worker deploy"
-tags: ["cloudflare", "wrangler", "temp-deploy", "gotcha"]
+tags: ["cloudflare", "wrangler", "temp-deploy", "lesson"]
 timestamp: "2026-07-15"
 ---
 

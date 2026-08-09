@@ -3,7 +3,7 @@ type: "Reference"
 title: "Mechanical Engineering for OpenSCAD Designs"
 description: "Gear module math, pressure angles, bearing fits, shaft-hub joints, snap-fit calculations, and stiffness estimates for FDM parts."
 resource: "https://www.khkgears.net/new/gear_knowledge/abcs_of_gears-b/b6.html"
-tags: ["gears", "bearings", "mechanics", "fdm", "snap-fit", "shaft", "tolerances"]
+tags: ["gears", "bearings", "mechanics", "fdm", "snap-fit", "shafts", "tolerances"]
 timestamp: "2026-07-30"
 ---
 

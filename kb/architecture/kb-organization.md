@@ -3,7 +3,7 @@ type: "Concept"
 title: "Knowledge Base Organization"
 description: "How knowledge bases are organized across the playground."
 resource: "README.md"
-tags: ["kb", "knowledge-base", "organization"]
+tags: ["knowledge-base", "organization"]
 timestamp: "2026-07-15"
 ---
 

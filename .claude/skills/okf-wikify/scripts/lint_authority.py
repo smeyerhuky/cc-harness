@@ -61,22 +61,23 @@ def parse_frontmatter(text: str):
 
 
 def load_vocab(path: Path):
-    """Return (descriptors, uf_map, form_exceptions, facet_of) or None."""
+    """Return (descriptors, uf_map, form_exceptions, reviewed_distinct) or None."""
     if not path.exists() or yaml is None:
         return None
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     terms = data.get("terms", {}) or {}
     descriptors = set(terms)
     uf_map = {}          # non-preferred term -> preferred descriptor
-    facet_of = {}
     for term, meta in terms.items():
-        meta = meta or {}
-        facet_of[term] = meta.get("facet")
-        for variant in (meta.get("use_for") or []):
+        for variant in ((meta or {}).get("use_for") or []):
             uf_map[variant] = term
     form = data.get("form", {}) or {}
     form_exceptions = set(form.get("form_exceptions") or [])
-    return descriptors, uf_map, form_exceptions, facet_of
+    reviewed_distinct = {
+        frozenset(pair) for pair in (data.get("reviewed_distinct") or [])
+        if isinstance(pair, list) and len(pair) == 2
+    }
+    return descriptors, uf_map, form_exceptions, reviewed_distinct
 
 
 def collect_tags(root: Path):
@@ -107,15 +108,22 @@ def _singular_plural_pair(a: str, b: str) -> bool:
     return False
 
 
-def detect_collisions(tags):
-    """Auto-detect case-fold and singular/plural near-duplicates in the corpus."""
+def detect_collisions(tags, reviewed_distinct=frozenset()):
+    """Auto-detect case-fold and singular/plural near-duplicates in the corpus.
+
+    Pairs recorded in the vocabulary's `reviewed_distinct` list (look-alikes a
+    human confirmed are different concepts) are skipped.
+    """
     collisions = []
+
+    def is_reviewed(forms):
+        return frozenset(forms) in reviewed_distinct
 
     casefold = defaultdict(set)
     for t in tags:
         casefold[t.lower()].add(t)
     for _, forms in sorted(casefold.items()):
-        if len(forms) > 1:
+        if len(forms) > 1 and not is_reviewed(forms):
             collisions.append(("case", tuple(sorted(forms))))
 
     tag_list = sorted(tags)
@@ -126,7 +134,7 @@ def detect_collisions(tags):
                 continue  # already reported as a case collision
             if _singular_plural_pair(a.lower(), b.lower()):
                 key = tuple(sorted((a, b)))
-                if key not in seen:
+                if key not in seen and not is_reviewed(key):
                     seen.add(key)
                     collisions.append(("plural", key))
     return collisions
@@ -147,7 +155,7 @@ def lint(root: Path, vocab_path: Path, report: bool):
 
     # VARIANT — tags that resolve to a preferred descriptor via UF.
     if vocab:
-        descriptors, uf_map, form_exceptions, _ = vocab
+        descriptors, uf_map, form_exceptions, reviewed_distinct = vocab
         for tag in sorted(usage):
             if tag in uf_map:
                 files = ", ".join(sorted(usage[tag]))
@@ -158,13 +166,14 @@ def lint(root: Path, vocab_path: Path, report: bool):
     else:
         descriptors = uf_map = None
         form_exceptions = set()
+        reviewed_distinct = frozenset()
         notes.append(
             "no vocabulary file at %s — running heuristic checks only "
             "(VARIANT/FORM/UNACCESSIONED need the authority file)" % vocab_path
         )
 
     # COLLISION — auto-detected, no vocabulary required.
-    for kind, forms in detect_collisions(set(usage)):
+    for kind, forms in detect_collisions(set(usage), reviewed_distinct):
         label = "case-variant" if kind == "case" else "singular/plural"
         warnings.append(
             "COLLISION (%s): %s — likely one concept split across spellings; "

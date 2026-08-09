@@ -3,7 +3,7 @@ type: "Reference"
 title: "CSG Algorithms and B-Rep Strategies for OpenSCAD"
 description: "CSG boolean tree construction, hull and Minkowski patterns, B-Rep export strategies, and performance optimisation for OpenSCAD geometry."
 resource: "https://openscad.org/documentation.html"
-tags: ["csg", "b-rep", "openscad", "algorithms", "hull", "minkowski", "boolean"]
+tags: ["csg", "brep", "openscad", "algorithms", "hull", "minkowski", "boolean"]
 timestamp: "2026-07-30"
 ---
 

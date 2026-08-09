@@ -9,7 +9,7 @@ type: "Concept"
 title: "Elementary Features"
 description: "Core 3D operations for generating and modifying primitive volumes."
 resource: "https://ocw.mit.edu/courses/res-16-002-how-to-cad-almost-anything-january-iap-2024/"
-tags: ["cad", "features", "extrude", "fillet"]
+tags: ["cad", "features", "extrusion", "fillet"]
 timestamp: "2024-01-01"
 ---
 

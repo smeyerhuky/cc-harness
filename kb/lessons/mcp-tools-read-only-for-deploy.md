@@ -3,7 +3,7 @@ type: "Lesson"
 title: "Cloudflare MCP tools are read-only for deploy"
 description: "The Cloudflare Developer Platform MCP server exposes inspection tools but no deploy tool — you still need `wrangler` on the command line."
 resource: "session:2026-07-15 mcp__Cloudflare_Developer_Platform__* enumeration"
-tags: ["cloudflare", "mcp", "deploy", "gotcha"]
+tags: ["cloudflare", "mcp", "deploy", "lesson"]
 timestamp: "2026-07-15"
 ---
 

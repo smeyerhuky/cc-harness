@@ -9,7 +9,7 @@ type: "Concept"
 title: "Advanced Surfacing and Features"
 description: "Generating complex, organic 3D geometries."
 resource: "https://ocw.mit.edu/courses/res-16-002-how-to-cad-almost-anything-january-iap-2024/"
-tags: ["cad", "loft", "sweep", "wrap"]
+tags: ["cad", "loft", "sweeps", "wrap"]
 timestamp: "2024-01-01"
 ---
 
