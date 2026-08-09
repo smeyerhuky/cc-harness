@@ -99,6 +99,40 @@ types:
     Workflow: Process
     Guide: Reference
 
+# ----------------------------------------------------------------------------
+# Relationship-type vocabulary (for the OKF `relationships:` field).
+# ----------------------------------------------------------------------------
+# Typed edges between records — the FRBR/LRM layer. Use SPARINGLY: reach for a
+# typed edge only when an agent needs to QUERY the relationship mechanically
+# (e.g. "is this superseded?", "what governs this?"). Ordinary "see also"
+# cross-references stay plain markdown links in the body, per the OKF spec.
+#
+# Frontmatter shape:
+#   relationships:
+#     - type: ELABORATES
+#       target: /concepts/progressive-disclosure.md   # bundle-relative or ./relative
+#
+# relationships.py validates that `type` is registered and `target` resolves,
+# and answers the queries the edges enable. Each edge type records its inverse
+# so the graph can be traversed both ways.
+relationship_types:
+  SUPERSEDES:     {inverse: SUPERSEDED_BY, scope_note: "This record replaces the target; the target is obsolete."}
+  SUPERSEDED_BY:  {inverse: SUPERSEDES,    scope_note: "This record is obsolete; the target replaces it. Pair with status: deprecated."}
+  GOVERNS:        {inverse: GOVERNED_BY,   scope_note: "This record's rules constrain the target."}
+  GOVERNED_BY:    {inverse: GOVERNS,       scope_note: "This record is subject to the policy in the target."}
+  IMPLEMENTS:     {inverse: IMPLEMENTED_BY, scope_note: "This record realizes the concept/spec in the target."}
+  IMPLEMENTED_BY: {inverse: IMPLEMENTS,    scope_note: "The target realizes the concept/spec in this record."}
+  ELABORATES:     {inverse: ELABORATED_BY, scope_note: "This record expands on / reframes the target (a related FRBR expression)."}
+  ELABORATED_BY:  {inverse: ELABORATES,    scope_note: "The target expands on this record."}
+  DERIVED_FROM:   {inverse: SOURCE_OF,     scope_note: "This record's content was derived from the target."}
+  SOURCE_OF:      {inverse: DERIVED_FROM,  scope_note: "The target was derived from this record."}
+  PART_OF:        {inverse: HAS_PART,      scope_note: "This record is a component of the larger work at target."}
+  HAS_PART:       {inverse: PART_OF,       scope_note: "The target is a component of this record."}
+
+# Valid `status` values (OKF domain-extension overlay). A record with
+# status: deprecated should also carry a SUPERSEDED_BY edge where one exists.
+statuses: [draft, review, finalized, deprecated]
+
 terms:
 
   # ---- domain --------------------------------------------------------------

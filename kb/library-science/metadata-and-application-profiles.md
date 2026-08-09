@@ -64,16 +64,21 @@ profile never breaks base conformance.
 
 The research doc's **FRBR/LRM** model is about relationships *between* records —
 a Work realized through Expressions, one record superseding another. OKF already
-has the hook: the optional **`relationships`** field with typed edges
-(`SUPERSEDED_BY`, `GOVERNED_BY`) documented in the
-[okf-spec](../../.claude/skills/okf-wikify/references/okf-spec.md). Today those
-edges live only as prose links. Using them mechanically would let an agent ask
-questions a flat link graph cannot answer:
+has the hook: the optional **`relationships`** field with typed edges, documented
+in the [okf-spec](../../.claude/skills/okf-wikify/references/okf-spec.md). As of
+[Phase 3](roadmap.md) these edges are **live and machine-queryable**, not just
+prose: the edge types are a registered vocabulary in
+[`authority/vocabulary.yaml`](../authority/vocabulary.yaml), and
+[`relationships.py`](../../.claude/skills/okf-wikify/scripts/relationships.py)
+validates and traverses them. That lets an agent ask questions a flat link graph
+cannot answer:
 
-- *"Is this lesson still current, or has an ADR superseded it?"* → `SUPERSEDED_BY`
-- *"Which policy governs this file?"* → `GOVERNED_BY`
-- *"Show every expression of this concept across bundles."* → a Work grouping
+- *"Is this lesson still current, or has something superseded it?"* →
+  `relationships.py kb/ --current` (reads `SUPERSEDED_BY` + `status: deprecated`)
+- *"Which policy governs this file?"* → `--governed-by FILE` (reads `GOVERNED_BY`)
+- *"Show the whole edge graph."* → `--graph`
 
-That is [Phase 3 of the roadmap](roadmap.md): reserve the typed edges for the
-handful of relationships an agent needs to *query*, and leave ordinary "see also"
-as plain markdown links — the same discipline the okf-spec already prescribes.
+The discipline the okf-spec prescribes still holds: typed edges are reserved for
+the handful of relationships an agent needs to *query*; ordinary "see also"
+cross-references stay plain markdown links. Seeding is therefore deliberately
+sparse — an edge is added only when something will actually query it.

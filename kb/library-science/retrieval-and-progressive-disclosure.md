@@ -5,6 +5,9 @@ description: "Frames the harness's load-two-or-three-files pattern as a classic 
 resource: "Core IR (indexing, ranking, precision/recall); Open Courseware in LIS, Module 4"
 tags: [information-retrieval, progressive-disclosure, context-management, library-science]
 timestamp: "2026-08-09"
+relationships:
+  - type: ELABORATES
+    target: /concepts/progressive-disclosure.md
 ---
 
 # Progressive Disclosure as an Information-Retrieval System

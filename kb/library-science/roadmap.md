@@ -50,14 +50,28 @@ kept current. The one variant in the corpus (`Example` → `Code Example`) was
 normalized. **Done:** every file's `type` draws from the registered set; the
 linter passes `--strict`.
 
-## Phase 3 — FRBR-style relationship edges
+## Phase 3 — FRBR-style relationship edges *(shipped)*
 
 **Discipline:** FRBR/LRM. **Mechanism:** OKF's optional `relationships` field.
-**Delivers:** use typed edges (`SUPERSEDED_BY`, `GOVERNED_BY`) for the handful of
-relationships an agent needs to *query*, starting with governance (which
-`CLAUDE.md` governs a file) and supersession in `lessons/`. Ordinary "see also"
-stays a plain link. **Done when:** an agent can answer "is this lesson still
-current?" from an edge, not prose.
+**Delivered:** a registered edge vocabulary in
+[`authority/vocabulary.yaml`](../authority/vocabulary.yaml)
+(`relationship_types` — `SUPERSEDED_BY`/`SUPERSEDES`, `GOVERNED_BY`/`GOVERNS`,
+`IMPLEMENTS`/`IMPLEMENTED_BY`, `ELABORATES`, `DERIVED_FROM`, `PART_OF`, each with
+an inverse and scope note) plus registered `statuses`; and
+[`relationships.py`](../../.claude/skills/okf-wikify/scripts/relationships.py),
+which **validates** every edge (type registered, target resolves, status valid)
+and **answers** the queries the edges enable — `--current` (what is
+deprecated/superseded), `--governed-by FILE`, `--graph`.
+
+Edges are seeded only where genuinely true and queryable, per the OKF spec's
+"use sparingly" rule — ordinary "see also" stays a plain markdown link. The
+young corpus has no supersession yet, so `--current` truthfully reports "all
+current"; the mechanism is proven on two real edges (this bundle's IR file
+`ELABORATES` the [progressive-disclosure concept](../concepts/progressive-disclosure.md);
+[authority-control](authority-control.md) is `IMPLEMENTED_BY` the vocabulary
+file). **Done:** the "is this still current?" question is now answerable from an
+edge and a `status`, not from prose — ready for [Phase 5](#phase-5--collection-development--weeding-policy)
+weeding to populate as records age.
 
 ## Phase 4 — A retrieval eval
 

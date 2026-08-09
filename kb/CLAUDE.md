@@ -83,6 +83,17 @@ python3 .claude/skills/okf-wikify/scripts/lint_authority.py kb/            # var
 python3 .claude/skills/okf-wikify/scripts/lint_authority.py kb/ --report   # + form + unaccessioned-term coverage
 ```
 
+Typed relationships between records (the `relationships:` frontmatter field —
+`SUPERSEDED_BY`, `GOVERNED_BY`, `IMPLEMENTED_BY`, …) are governed and queried by
+a companion tool. Add an edge only when something will actually query it;
+ordinary "see also" stays a plain markdown link.
+
+```
+python3 .claude/skills/okf-wikify/scripts/relationships.py kb/                 # validate edges + statuses
+python3 .claude/skills/okf-wikify/scripts/relationships.py kb/ --current       # what's deprecated/superseded
+python3 .claude/skills/okf-wikify/scripts/relationships.py kb/ --graph         # print the edge graph
+```
+
 When adding a file: prefer an existing descriptor; if the right term isn't in
 the vocabulary yet, use a sensible lowercase-kebab-case tag and (when it
 recurs) accession it into `authority/vocabulary.yaml`. The rationale, the

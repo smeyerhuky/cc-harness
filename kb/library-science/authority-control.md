@@ -5,6 +5,9 @@ description: "One authorized term per concept, with variants resolving to it —
 resource: "LC Catalogers Learning Workshop (NACO authority training); Open Courseware in LIS research doc"
 tags: [authority-control, controlled-vocabulary, library-science, governance]
 timestamp: "2026-08-09"
+relationships:
+  - type: IMPLEMENTED_BY
+    target: /authority/vocabulary.yaml
 ---
 
 # Authority Control for KB Tags
