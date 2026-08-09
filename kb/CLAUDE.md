@@ -58,6 +58,32 @@ To add content to this bundle:
 - **File types:** Common types include "Concept", "Reference", "Workflow", "Guide"
 - **Linking:** Use relative markdown links (e.g., `[text](../other-dir/file)`).
 - **Markdown:** Plain markdown with OKF frontmatter; no special tooling required
+- **Tags are authority-controlled:** the `tags:` field is governed by a controlled
+  vocabulary — use the authorized descriptor for a concept, not a synonym or
+  spelling variant. See below.
+
+## Authority control for tags (library-science overlay)
+
+`tags:` across all bundles is a single controlled vocabulary, not a free-form
+folksonomy. The authority file is [`authority/vocabulary.yaml`](authority/vocabulary.yaml):
+a faceted thesaurus recording the preferred term (descriptor) for each concept
+and the non-preferred variants (`use_for`) that resolve to it. This keeps
+retrieval-by-tag from losing recall when one concept acquires many spellings.
+
+This is an opt-in **application profile** layered on top of OKF — OKF itself
+tolerates any tag; the profile tightens it. It is enforced separately from the
+OKF structural linter, in **advisory mode** (warnings, not build failures):
+
+```
+python3 .claude/skills/okf-wikify/scripts/lint_authority.py kb/            # variants + auto-detected collisions
+python3 .claude/skills/okf-wikify/scripts/lint_authority.py kb/ --report   # + form + unaccessioned-term coverage
+```
+
+When adding a file: prefer an existing descriptor; if the right term isn't in
+the vocabulary yet, use a sensible lowercase-kebab-case tag and (when it
+recurs) accession it into `authority/vocabulary.yaml`. The rationale, the
+roadmap, and the LIS mapping live in the [`library-science/`](library-science/index.md)
+bundle.
 
 ## Related Knowledge Bases
 

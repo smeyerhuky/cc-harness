@@ -1,0 +1,256 @@
+# CC-Harness KB — Controlled Vocabulary (Authority File)
+# ----------------------------------------------------------------------------
+# A library-science authority file for the `tags:` frontmatter field used
+# across every OKF bundle in kb/. It records the *preferred term* (descriptor)
+# for each concept and the *non-preferred terms* (entry terms) that should
+# resolve to it — the same USE / UF (Used-For) apparatus a thesaurus uses to
+# collapse spelling variants and synonyms so that retrieval by tag does not
+# lose recall to vocabulary drift.
+#
+# This is an APPLICATION PROFILE layer on top of OKF. OKF itself is
+# deliberately minimal ("consumers must tolerate unknown tags"); this file
+# adds an opt-in, stricter conformance target enforced by
+# `.claude/skills/okf-wikify/scripts/lint_authority.py` in ADVISORY mode.
+#
+# Adoption is incremental, exactly like a real cataloging department: we do
+# not enumerate every keyword up front. We seed the cross-cutting vocabulary
+# and the known variant collisions, let the linter surface new candidates
+# ("unaccessioned terms"), and accession them here as they prove load-bearing.
+#
+# Schema
+# ------
+# facets:            ordered list of the top-level facets (subject dimensions).
+# form:              rules for the *form of headings* (how a tag is spelled).
+#   preferred_case:  "lower-kebab" — headings are lowercase, hyphen-separated.
+#   form_exceptions: surface forms allowed to keep mixed case / symbols
+#                    (proper nouns, acronyms, language names).
+# terms:             the descriptors. Each key IS the preferred term.
+#   facet:           which facet it belongs to.
+#   scope_note:      (optional) how the term is meant to be used — a cataloger's
+#                    scope note (SN). Present for the load-bearing terms.
+#   use_for:         (optional) non-preferred entry terms (UF). Any tag in this
+#                    list is a VARIANT and should be rewritten to the descriptor.
+#   broader:         (optional) broader terms (BT) — hierarchical parents.
+#   related:         (optional) related terms (RT) — associative cross-refs.
+# ----------------------------------------------------------------------------
+
+facets:
+  - domain        # subject area a file belongs to
+  - agent         # agentic / AI-native engineering concepts
+  - process       # git + development process
+  - artifact      # genre of knowledge (mirrors OKF `type`, in tag form)
+  - technique     # methods / operations (CAD, geometry, manufacturing)
+  - material      # feedstock / physical materials
+  - math          # mathematical foundations
+
+form:
+  preferred_case: lower-kebab
+  form_exceptions:
+    - WebGPU
+    - OpenCASCADE
+    - OpenSCAD
+    - C++
+    - DSL
+    - BSP
+    - UI
+    - UX
+    - PID
+    - FEA
+    - FEM
+    - NURBS        # tolerated form; the descriptor below is lowercase `nurbs`
+
+terms:
+
+  # ---- domain --------------------------------------------------------------
+  library-science:
+    facet: domain
+    scope_note: >
+      Application of Library & Information Science (cataloging, authority
+      control, metadata, IR) to the agentic harness itself.
+    related: [knowledge-base, authority-control, metadata]
+  knowledge-base:
+    facet: domain
+    scope_note: The KB / OKF machinery itself (structure, navigation, governance).
+    use_for: [kb, knowledgebase]
+  okf:
+    facet: domain
+    scope_note: Open Knowledge Format — the bundle format kb/ is written in.
+  additive-engineering:
+    facet: domain
+    use_for: [additive]
+    related: [additive-manufacturing]
+  deploy:
+    facet: domain
+    scope_note: Shipping code to a runtime (Workers, Vercel, Fly, ...).
+    use_for: [deployment]
+  ai-sdlc:
+    facet: domain
+    use_for: [pdlc, ai-dlc]
+
+  # ---- agent ---------------------------------------------------------------
+  agent:
+    facet: agent
+    scope_note: Agentic-execution concepts — how an AI session behaves/decides.
+    use_for: [agents, agentic]
+  context-management:
+    facet: agent
+    scope_note: Deliberate control of what enters the model's context window.
+    use_for: [context]
+    related: [progressive-disclosure, memory]
+  progressive-disclosure:
+    facet: agent
+    scope_note: Loading two or three KB files per question, never the whole tree.
+    related: [context-management, information-retrieval]
+  memory:
+    facet: agent
+    scope_note: Durable, repository-resident knowledge (vs ephemeral chat).
+    related: [context-management]
+  prompting:
+    facet: agent
+    use_for: [prompt, prompts]
+
+  # ---- process -------------------------------------------------------------
+  git:
+    facet: process
+    use_for: [version-control]
+  pull-requests:
+    facet: process
+    use_for: [pull-request, pr, prs]
+  branching:
+    facet: process
+    use_for: [branch, branches]
+  commits:
+    facet: process
+    use_for: [commit]
+  verification:
+    facet: process
+    scope_note: Explicitly checking generated output against the spec.
+    use_for: [verify, validation, validate]
+  workflow:
+    facet: process
+    use_for: [process]
+  governance:
+    facet: process
+    scope_note: Rules that constrain how agents/humans change the repo.
+    use_for: [policy]
+
+  # ---- artifact (genre of knowledge; parallels OKF `type`) -----------------
+  concept:
+    facet: artifact
+    use_for: [concepts]
+  lesson:
+    facet: artifact
+    scope_note: A concrete thing that bit us in a real session, with context.
+    use_for: [lessons, gotcha, gotchas]
+  playbook:
+    facet: artifact
+    use_for: [playbooks, recipe, recipes]
+  reference:
+    facet: artifact
+    use_for: [references]
+
+  # ---- library-science method terms (dogfooding: used by this bundle) ------
+  authority-control:
+    facet: library-science
+    scope_note: One authorized form per concept; variants resolve to it.
+    related: [controlled-vocabulary, metadata]
+  controlled-vocabulary:
+    facet: library-science
+    use_for: [controlled-vocab, thesaurus, taxonomy]
+    related: [authority-control, faceted-classification]
+  faceted-classification:
+    facet: library-science
+    scope_note: Classifying by independent facets rather than one rigid tree.
+    related: [classification, controlled-vocabulary]
+  classification:
+    facet: library-science
+    related: [faceted-classification, knowledge-organization]
+  knowledge-organization:
+    facet: library-science
+    related: [classification, metadata]
+  metadata:
+    facet: library-science
+    use_for: [meta]
+    related: [application-profile, crosswalk]
+  application-profile:
+    facet: library-science
+    scope_note: A tightened, domain-specific use of a base metadata standard.
+    related: [metadata, okf]
+  crosswalk:
+    facet: library-science
+    scope_note: A mapping of one metadata scheme's fields onto another's.
+    related: [metadata]
+  information-retrieval:
+    facet: library-science
+    use_for: [ir, retrieval, search]
+    related: [progressive-disclosure]
+  frbr:
+    facet: library-science
+    scope_note: Work / Expression / Manifestation / Item entity model (and LRM).
+    use_for: [lrm]
+    related: [knowledge-organization]
+  collection-development:
+    facet: library-science
+    scope_note: Selection, weeding (deaccession), and provenance of KB material.
+    use_for: [weeding, deaccession]
+    related: [provenance]
+  provenance:
+    facet: library-science
+    scope_note: Where a claim came from and how it can be traced back.
+    related: [collection-development, metadata]
+  roadmap:
+    facet: library-science
+    use_for: [road-map, plan]
+
+  # ---- technique (seeded with the KNOWN collisions from the corpus) --------
+  boolean:
+    facet: technique
+    scope_note: Constructive-solid-geometry union/difference/intersection.
+    use_for: [booleans]
+    related: [csg]
+  csg:
+    facet: technique
+    scope_note: Constructive Solid Geometry as a modeling paradigm.
+    related: [boolean]
+  nurbs:
+    facet: technique
+    use_for: [NURBS]
+  brep:
+    facet: technique
+    scope_note: Boundary representation of solids.
+    use_for: [b-rep, B-Rep]
+  fillet:
+    facet: technique
+    use_for: [fillets]
+  loops:
+    facet: technique
+    scope_note: Iteration constructs in a modeling DSL / language.
+    use_for: [for-loop, for-loops]
+  additive-manufacturing:
+    facet: technique
+    scope_note: Fabrication by material addition (FDM/SLA/SLS).
+    use_for: [3d-printing, layered-manufacturing]
+    broader: [manufacturing]
+  manufacturing:
+    facet: technique
+  slicing:
+    facet: technique
+    scope_note: Converting a model into printer toolpaths (the process).
+    related: [slicer]
+  slicer:
+    facet: technique
+    scope_note: The tool that performs slicing (Bambu/Cura/Prusa).
+    related: [slicing]
+  extrusion:
+    facet: technique
+    use_for: [extrude]
+
+  # ---- math ----------------------------------------------------------------
+  geometry:
+    facet: math
+  topology:
+    facet: math
+  calculus:
+    facet: math
+  trigonometry:
+    facet: math
