@@ -9,7 +9,7 @@ type: "Mechanism"
 title: "Thermoforming"
 description: "Process of heating a thermoplastic sheet and forming it over a mold."
 resource: "Manufacturing Engineering and Technology, 8th ed. by S. Kalpakjian"
-tags: ["polymer", "forming", "sheet"]
+tags: ["polymers", "forming", "sheet"]
 timestamp: "2025-05-01"
 ---
 

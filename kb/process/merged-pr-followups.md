@@ -3,7 +3,7 @@ type: "Policy"
 title: "Follow-up Work on a Merged PR"
 description: "A merged PR is finished — do not reuse its branch to track new work. Restart from the default branch on the same branch name."
 resource: "session-instructions:2026-07-15"
-tags: ["git", "pull-requests", "policy"]
+tags: ["git", "pull-requests", "governance"]
 timestamp: "2026-07-15"
 ---
 

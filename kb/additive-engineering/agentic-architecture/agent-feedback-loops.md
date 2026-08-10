@@ -4,7 +4,7 @@ type: "Architecture"
 title: "Multi-Agent Feedback Loops"
 description: "How the agent verifies and fixes its own generated CAD."
 resource: "agentic_cad_software_architecture.md"
-tags: ["agents", "validation", "FEA"]
+tags: ["agent", "verification", "FEA"]
 timestamp: "2026-07-24"
 ---
 

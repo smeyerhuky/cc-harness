@@ -3,7 +3,7 @@ type: "Playbook"
 title: "Local Verify with `wrangler dev`"
 description: "Run the actual Cloudflare workerd runtime locally with no auth required — the correct stage-2 verify before any deploy."
 resource: "https://developers.cloudflare.com/workers/wrangler/commands/#dev"
-tags: ["cloudflare", "workers", "verify", "workerd"]
+tags: ["cloudflare", "workers", "verification", "workerd"]
 timestamp: "2026-07-15"
 ---
 

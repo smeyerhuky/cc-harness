@@ -3,7 +3,7 @@ type: "Concept"
 title: "Development Workflow"
 description: "Standard development workflow for working in the playground."
 resource: "README.md"
-tags: ["workflow", "development", "process"]
+tags: ["workflow", "development"]
 timestamp: "2026-07-15"
 ---
 

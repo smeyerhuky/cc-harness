@@ -4,7 +4,7 @@ type: "Concept"
 title: "Isogeometric Analysis (IGA)"
 description: "Eliminating meshing errors by using NURBS directly in FEA."
 resource: "cad_3d_printing_domain_dictionary.md"
-tags: ["FEA", "simulation", "NURBS"]
+tags: ["FEA", "simulation", "nurbs"]
 timestamp: "2026-07-24"
 ---
 

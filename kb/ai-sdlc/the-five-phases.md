@@ -5,7 +5,7 @@ type: "Concept"
 title: "The Five Phases of AI-DLC"
 description: "Core concept from AI-SDLC"
 resource: "AI-SDLC"
-tags: ['phases', 'lifecycle', 'pdlc']
+tags: ['phases', 'lifecycle', 'ai-sdlc']
 timestamp: "2026-07-24"
 ---
 

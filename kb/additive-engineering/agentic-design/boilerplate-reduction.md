@@ -6,7 +6,7 @@ type: "Concept"
 title: "Boilerplate Reduction"
 description: "Core concept from agentcad Concepts"
 resource: "agentcad Concepts"
-tags: ['prompting', 'context', 'efficiency']
+tags: ['prompting', 'context-management', 'efficiency']
 timestamp: "2026-07-24"
 ---
 

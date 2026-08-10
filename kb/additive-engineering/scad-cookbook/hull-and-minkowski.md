@@ -3,7 +3,7 @@ type: "Code Example"
 title: "Homework 4: Advanced Booleans (Hull & Minkowski)"
 description: "Practical OpenSCAD implementation example."
 resource: "Innate Knowledge"
-tags: ['openscad', 'hull', 'minkowski', 'booleans']
+tags: ['openscad', 'hull', 'minkowski', 'boolean']
 timestamp: "2026-07-24"
 ---
 

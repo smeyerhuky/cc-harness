@@ -3,7 +3,7 @@ type: "Code Example"
 title: "Homework 3: Planetary Gear Spinner"
 description: "Practical OpenSCAD implementation example."
 resource: "Innate Knowledge"
-tags: ['openscad', 'gears', 'math', 'for-loop']
+tags: ['openscad', 'gears', 'math', 'loops']
 timestamp: "2026-07-24"
 ---
 

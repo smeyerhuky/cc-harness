@@ -55,9 +55,70 @@ To add content to this bundle:
 
 - **Frontmatter:** Every file has type, title, description, resource, tags, timestamp
 - **okf_version:** Declared only in root `index.md`
-- **File types:** Common types include "Concept", "Reference", "Workflow", "Guide"
+- **File types:** `type` draws from a **closed, registered vocabulary** — see
+  the `types:` block in [`authority/vocabulary.yaml`](authority/vocabulary.yaml)
+  (Concept, Reference, Playbook, Lesson, Policy, Process, Mechanism, Algorithm,
+  Model, and a few more). Use a registered genre; adding a new one is a
+  deliberate edit to the registry, checked by the authority linter.
 - **Linking:** Use relative markdown links (e.g., `[text](../other-dir/file)`).
 - **Markdown:** Plain markdown with OKF frontmatter; no special tooling required
+- **Tags are authority-controlled:** the `tags:` field is governed by a controlled
+  vocabulary — use the authorized descriptor for a concept, not a synonym or
+  spelling variant. See below.
+
+## Authority control for tags (library-science overlay)
+
+`tags:` across all bundles is a single controlled vocabulary, not a free-form
+folksonomy. The authority file is [`authority/vocabulary.yaml`](authority/vocabulary.yaml):
+a faceted thesaurus recording the preferred term (descriptor) for each concept
+and the non-preferred variants (`use_for`) that resolve to it. This keeps
+retrieval-by-tag from losing recall when one concept acquires many spellings.
+
+This is an opt-in **application profile** layered on top of OKF — OKF itself
+tolerates any tag; the profile tightens it. It is enforced separately from the
+OKF structural linter, in **advisory mode** (warnings, not build failures):
+
+```
+python3 .claude/skills/okf-wikify/scripts/lint_authority.py kb/            # variants + auto-detected collisions
+python3 .claude/skills/okf-wikify/scripts/lint_authority.py kb/ --report   # + form + unaccessioned-term coverage
+```
+
+Typed relationships between records (the `relationships:` frontmatter field —
+`SUPERSEDED_BY`, `GOVERNED_BY`, `IMPLEMENTED_BY`, …) are governed and queried by
+a companion tool. Add an edge only when something will actually query it;
+ordinary "see also" stays a plain markdown link.
+
+```
+python3 .claude/skills/okf-wikify/scripts/relationships.py kb/                 # validate edges + statuses
+python3 .claude/skills/okf-wikify/scripts/relationships.py kb/ --current       # what's deprecated/superseded
+python3 .claude/skills/okf-wikify/scripts/relationships.py kb/ --graph         # print the edge graph
+```
+
+Retrieval quality is measurable: an eval set of questions with gold relevant
+files ([`library-science/eval/retrieval-evalset.yaml`](library-science/eval/retrieval-evalset.yaml))
+is scored by precision/recall so a KB edit can be shown to improve retrieval.
+Extend the eval set when you add a topic area.
+
+```
+python3 .claude/skills/okf-wikify/scripts/retrieval_eval.py kb/ --expand --per-query   # score retrieval, show vocab lift
+python3 .claude/skills/okf-wikify/scripts/retrieval_eval.py kb/ --gate-recall 0.75      # CI regression gate (baseline R@3≈0.78)
+```
+
+Stale records are retired on a defined, reversible path — **supersede, don't
+delete** (`status: deprecated` + a `SUPERSEDED_BY` edge, or a `weeded_reason`).
+See the [weeding policy](library-science/weeding-policy.md); the auditor enforces
+it.
+
+```
+python3 .claude/skills/okf-wikify/scripts/weeding.py kb/                       # audit deprecate/supersede invariants
+python3 .claude/skills/okf-wikify/scripts/weeding.py kb/ --candidates          # shelf-read: old records to review
+```
+
+When adding a file: prefer an existing descriptor; if the right term isn't in
+the vocabulary yet, use a sensible lowercase-kebab-case tag and (when it
+recurs) accession it into `authority/vocabulary.yaml`. The rationale, the
+roadmap, and the LIS mapping live in the [`library-science/`](library-science/index.md)
+bundle.
 
 ## Related Knowledge Bases
 

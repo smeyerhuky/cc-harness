@@ -9,7 +9,7 @@ type: "Mechanism"
 title: "Layered and Additive Manufacturing"
 description: "Principles, mechanisms, and constraints of additive manufacturing processes like Fused Deposition Modeling (FDM)."
 resource: "Manufacturing Engineering and Technology, 8th ed. by S. Kalpakjian"
-tags: ["additive", "3d-printing", "fdm", "cad", "layered-manufacturing"]
+tags: ["additive-engineering", "additive-manufacturing", "fdm", "cad"]
 timestamp: "2025-05-01"
 ---
 

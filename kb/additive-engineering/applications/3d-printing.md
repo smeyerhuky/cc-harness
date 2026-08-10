@@ -8,7 +8,7 @@ type: "Concept"
 title: "3D Printing and Additive Manufacturing"
 description: "Core concept from Simplifying 3D Printing with OpenSCAD"
 resource: "Simplifying 3D Printing with OpenSCAD"
-tags: ['manufacturing', '3d-printing', 'slicing']
+tags: ['manufacturing', 'additive-manufacturing', 'slicing']
 timestamp: "2026-07-24"
 ---
 

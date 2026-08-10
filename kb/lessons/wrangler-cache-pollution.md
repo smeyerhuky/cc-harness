@@ -3,7 +3,7 @@ type: "Lesson"
 title: "Wrangler Cache Pollution"
 description: "`.wrangler/` is a local dev cache created by `wrangler dev`; if you don't gitignore it before running wrangler, it gets committed."
 resource: "session:2026-07-15 commits 77f012e → c122163"
-tags: ["cloudflare", "wrangler", "git", "gitignore", "gotcha"]
+tags: ["cloudflare", "wrangler", "git", "gitignore", "lesson"]
 timestamp: "2026-07-15"
 ---
 

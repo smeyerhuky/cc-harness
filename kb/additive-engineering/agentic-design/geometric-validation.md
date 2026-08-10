@@ -6,7 +6,7 @@ type: "Concept"
 title: "Geometric Validation"
 description: "Core concept from agentcad Concepts"
 resource: "agentcad Concepts"
-tags: ['validation', 'metrics', 'topology']
+tags: ['verification', 'metrics', 'topology']
 timestamp: "2026-07-24"
 ---
 

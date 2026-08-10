@@ -9,7 +9,7 @@ type: "Concept"
 title: "Offsets and Blends"
 description: "Creating parallel surfaces and smooth transitions between intersecting geometries."
 resource: "Computational Geometry - MIT OCW 2.158J"
-tags: ["offsets", "fillets", "blends"]
+tags: ["offsets", "fillet", "blends"]
 timestamp: "2026-07-24"
 ---
 
