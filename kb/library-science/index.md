@@ -31,3 +31,5 @@ standards, FRBR/LRM, information retrieval) is what this bundle operationalizes.
   precision and recall.
 * [Collection Development](collection-development.md) — selection, weeding
   (deaccession), and provenance for KB material that accretes over time.
+* [Weeding Policy](weeding-policy.md) — the operational procedure for retiring
+  stale records on a reversible path (supersede, don't delete). **Phase 5, shipped.**

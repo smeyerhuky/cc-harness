@@ -64,7 +64,7 @@ tells us where each LIS technique pushes the dial:
    relevant files — against a transparent TF-IDF retriever over `kb/` and reports
    precision/recall/F1 at k. Crucially it is *sensitive to the edits this overlay
    makes*: turning on controlled-vocabulary query expansion (the `related`/`use_for`
-   edges) lifts mean recall@3 from **0.82 to 0.94** on the current corpus — the
+   edges) lifts mean recall@3 from **0.78 to 0.90** on the current corpus — the
    "see also improves recall" claim above, as a measured number rather than an
    assertion. (Precision@3 reads low because gold sets are deliberately tight —
    often one file — so P@3 caps near 0.33; recall@3 is the headline metric here.)

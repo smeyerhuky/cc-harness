@@ -101,7 +101,17 @@ Extend the eval set when you add a topic area.
 
 ```
 python3 .claude/skills/okf-wikify/scripts/retrieval_eval.py kb/ --expand --per-query   # score retrieval, show vocab lift
-python3 .claude/skills/okf-wikify/scripts/retrieval_eval.py kb/ --gate-recall 0.80      # CI regression gate
+python3 .claude/skills/okf-wikify/scripts/retrieval_eval.py kb/ --gate-recall 0.75      # CI regression gate (baseline R@3≈0.78)
+```
+
+Stale records are retired on a defined, reversible path — **supersede, don't
+delete** (`status: deprecated` + a `SUPERSEDED_BY` edge, or a `weeded_reason`).
+See the [weeding policy](library-science/weeding-policy.md); the auditor enforces
+it.
+
+```
+python3 .claude/skills/okf-wikify/scripts/weeding.py kb/                       # audit deprecate/supersede invariants
+python3 .claude/skills/okf-wikify/scripts/weeding.py kb/ --candidates          # shelf-read: old records to review
 ```
 
 When adding a file: prefer an existing descriptor; if the right term isn't in

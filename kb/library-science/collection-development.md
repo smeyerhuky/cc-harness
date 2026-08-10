@@ -47,8 +47,10 @@ and preserve the trail:
   field makes staleness visible; the `resource` field lets a reviewer re-check
   the source before retiring the claim.
 
-This is [Phase 5 of the roadmap](roadmap.md): a lightweight weeding policy for
-`lessons/`, built on status marking and supersession rather than deletion.
+This is [Phase 5 of the roadmap](roadmap.md), now shipped as the operational
+[weeding policy](weeding-policy.md): status marking and supersession rather than
+deletion, enforced by
+[`weeding.py`](../../.claude/skills/okf-wikify/scripts/weeding.py).
 
 ## Provenance: the trait that makes memory trustworthy
 

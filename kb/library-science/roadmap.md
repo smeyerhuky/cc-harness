@@ -11,8 +11,17 @@ timestamp: "2026-08-09"
 
 Ordered by leverage over cost. Each phase names the LIS discipline it draws
 from (see the [discipline map](discipline-map.md)), the harness mechanism it
-touches, and a concrete "done" test. Phase 0 and Phase 1 ship in this change;
-2–5 are staged so each is independently valuable and non-breaking.
+touches, and a concrete "done" test.
+
+**Status: all six phases shipped.** Each landed as versioned infrastructure — a
+policy plus an enforcing tool — and each was non-breaking on its own. Together
+they give the harness a full library-science spine: consistent terms (Phases
+1–2), queryable relationships (Phase 3), measurable retrieval (Phase 4), and a
+tended collection (Phase 5). Five tools enforce it: `lint_okf.py`,
+`lint_authority.py`, `relationships.py`, and `weeding.py` all run green on the
+current corpus, and `retrieval_eval.py` reports recall@3 of 0.78 (baseline) /
+0.90 (with vocabulary expansion) — a measurement, not a gate, until a
+`--gate-recall` floor is wired into CI.
 
 ---
 
@@ -83,19 +92,23 @@ gold relevant-file sets, and
 which scores a transparent, deterministic TF-IDF retriever over `kb/` by
 precision/recall/F1 at k. The retriever is a reproducible *structural* signal
 (not a stand-in for the LLM), sensitive to exactly what this overlay improves:
-enabling controlled-vocabulary query expansion lifts mean recall@3 from **0.82 to
-0.94**. A `--gate-recall` flag turns it into a CI regression check. **Done:**
+enabling controlled-vocabulary query expansion lifts mean recall@3 from **0.78 to
+0.90**. A `--gate-recall` flag turns it into a CI regression check. **Done:**
 adding the vocabulary's cross-references moves a measured number, on real data.
 
-## Phase 5 — Collection-development & weeding policy
+## Phase 5 — Collection-development & weeding policy *(shipped)*
 
 **Discipline:** collection development, digital preservation. **Mechanism:**
-`lessons/` and the durable KB generally. **Delivers:** a lightweight
-[weeding policy](collection-development.md) — supersede-don't-delete via
-`status: deprecated` + `SUPERSEDED_BY`, weeding on a trigger (dead platform,
-fixed gotcha), provenance enforced through `resource`. **Done when:** a stale
-lesson has a defined, reversible retirement path instead of accumulating
-silently.
+`lessons/` and the durable KB generally. **Delivered:** the operational
+[weeding policy](weeding-policy.md) — supersede-don't-delete via
+`status: deprecated` + `SUPERSEDED_BY` (or a documented `weeded_reason`), weeded
+on a trigger (dead platform, fixed gotcha) with age surfaced only as a
+shelf-read, and provenance enforced through `resource` — plus
+[`weeding.py`](../../.claude/skills/okf-wikify/scripts/weeding.py), which audits
+the two hard invariants and the provenance readiness check and lists review
+candidates. **Done:** a stale record now has a defined, reversible retirement
+path (`weeding.py` proves it, and [`relationships.py --current`](metadata-and-application-profiles.md)
+reads the result); nothing accumulates silently.
 
 ---
 

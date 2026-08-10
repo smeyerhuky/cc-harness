@@ -82,11 +82,13 @@ queries:
   - id: weed-stale-lesson
     query: "How should I retire or deprecate a stale lesson in the knowledge base?"
     gold:
+      - library-science/weeding-policy.md
       - library-science/collection-development.md
-    note: "Weeding / deaccession policy."
+    note: "The operational weeding playbook plus the collection-development concept."
 
   - id: record-currency
     query: "How can I tell whether a knowledge base record is still current or superseded?"
     gold:
+      - library-science/weeding-policy.md
       - library-science/metadata-and-application-profiles.md
-    note: "Relationship edges + status answer record currency."
+    note: "The status/SUPERSEDED_BY mechanism (weeding policy) and the query that reads it (metadata doc)."
