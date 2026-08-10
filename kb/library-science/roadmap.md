@@ -73,14 +73,19 @@ file). **Done:** the "is this still current?" question is now answerable from an
 edge and a `status`, not from prose — ready for [Phase 5](#phase-5--collection-development--weeding-policy)
 weeding to populate as records age.
 
-## Phase 4 — A retrieval eval
+## Phase 4 — A retrieval eval *(shipped)*
 
 **Discipline:** information retrieval (precision/recall). **Mechanism:**
-[progressive disclosure](retrieval-and-progressive-disclosure.md). **Delivers:** a
-small eval set of realistic questions with the KB files that *should* be
-retrieved, scoring an agent's file-selection by precision/recall so KB edits can
-be shown to *improve retrieval*, not just add words. **Done when:** adding a
-`related:` cross-ref or fixing an `index.md` moves a measured number.
+[progressive disclosure](retrieval-and-progressive-disclosure.md). **Delivered:**
+an [eval set](eval/retrieval-evalset.yaml) of 12 realistic questions with tight
+gold relevant-file sets, and
+[`retrieval_eval.py`](../../.claude/skills/okf-wikify/scripts/retrieval_eval.py),
+which scores a transparent, deterministic TF-IDF retriever over `kb/` by
+precision/recall/F1 at k. The retriever is a reproducible *structural* signal
+(not a stand-in for the LLM), sensitive to exactly what this overlay improves:
+enabling controlled-vocabulary query expansion lifts mean recall@3 from **0.82 to
+0.94**. A `--gate-recall` flag turns it into a CI regression check. **Done:**
+adding the vocabulary's cross-references moves a measured number, on real data.
 
 ## Phase 5 — Collection-development & weeding policy
 

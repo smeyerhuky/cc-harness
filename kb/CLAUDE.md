@@ -94,6 +94,16 @@ python3 .claude/skills/okf-wikify/scripts/relationships.py kb/ --current       #
 python3 .claude/skills/okf-wikify/scripts/relationships.py kb/ --graph         # print the edge graph
 ```
 
+Retrieval quality is measurable: an eval set of questions with gold relevant
+files ([`library-science/eval/retrieval-evalset.yaml`](library-science/eval/retrieval-evalset.yaml))
+is scored by precision/recall so a KB edit can be shown to improve retrieval.
+Extend the eval set when you add a topic area.
+
+```
+python3 .claude/skills/okf-wikify/scripts/retrieval_eval.py kb/ --expand --per-query   # score retrieval, show vocab lift
+python3 .claude/skills/okf-wikify/scripts/retrieval_eval.py kb/ --gate-recall 0.80      # CI regression gate
+```
+
 When adding a file: prefer an existing descriptor; if the right term isn't in
 the vocabulary yet, use a sensible lowercase-kebab-case tag and (when it
 recurs) accession it into `authority/vocabulary.yaml`. The rationale, the

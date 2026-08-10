@@ -1,0 +1,92 @@
+# Retrieval eval set for the CC-Harness KB (library-science Phase 4).
+# ----------------------------------------------------------------------------
+# Ground-truth relevance judgments (IR "qrels"): realistic questions paired with
+# the KB files that SHOULD be retrieved to answer them. retrieval_eval.py scores
+# a retriever's top-k file selection against these gold sets by precision/recall,
+# so any KB edit (a consolidated tag, a new cross-reference, a sharper
+# description, a fixed index) can be shown to *improve retrieval* — not just add
+# words. Paths are bundle-relative to kb/.
+#
+# Gold sets are deliberately tight: only files that genuinely answer the
+# question, so precision is meaningful. Keep them honest — a padded gold set
+# inflates recall and measures nothing.
+k: 3
+
+queries:
+  - id: deploy-worker
+    query: "How do I deploy a Cloudflare Worker from this repository?"
+    gold:
+      - platforms/cloudflare-workers-minimal.md
+      - concepts/deploy-lifecycle.md
+      - platforms/cloudflare-credentials.md
+    note: "The minimal recipe, the lifecycle it sits in, and the credentials it needs."
+
+  - id: branch-and-commit
+    query: "What branch should I work on and how should I write commit messages?"
+    gold:
+      - process/branch-discipline.md
+      - process/commit-etiquette.md
+    note: "The two process policies that answer branching and commit form."
+
+  - id: wrangler-stale-assets
+    query: "My wrangler deploy keeps serving stale cached assets, what went wrong?"
+    gold:
+      - lessons/wrangler-cache-pollution.md
+    note: "The specific lesson about wrangler cache pollution."
+
+  - id: context-window-scaling
+    query: "How does the knowledge base avoid loading everything into the context window?"
+    gold:
+      - concepts/progressive-disclosure.md
+      - library-science/retrieval-and-progressive-disclosure.md
+    note: "The concept plus its information-retrieval reframing."
+
+  - id: tag-consistency
+    query: "How are tags kept consistent across the knowledge base?"
+    gold:
+      - library-science/authority-control.md
+    note: "Authority control for KB tags."
+
+  - id: ai-native-principles
+    query: "What are the core principles of AI-native engineering discipline?"
+    gold:
+      - ai-sdlc/seven-principles.md
+    note: "The seven principles."
+
+  - id: repo-as-memory
+    query: "Why keep specs and decisions in the repository instead of chat history?"
+    gold:
+      - ai-sdlc/repository-as-memory.md
+    note: "Repository-as-memory."
+
+  - id: openscad-boolean
+    query: "How do I combine shapes with boolean operations in OpenSCAD?"
+    gold:
+      - additive-engineering/scad-cookbook/hull-and-minkowski.md
+      - platforms/openscad/algorithms.md
+    note: "Boolean/hull cookbook plus the CSG algorithm reference."
+
+  - id: sandbox-egress
+    query: "Why is network egress failing in the deploy sandbox?"
+    gold:
+      - lessons/sandbox-egress-limits.md
+    note: "The sandbox egress lesson."
+
+  - id: verify-before-deploy
+    query: "How do I verify a Worker locally before deploying it?"
+    gold:
+      - platforms/cloudflare-local-verify.md
+      - concepts/verification-vs-deployment.md
+    note: "Local verification recipe plus the verification-vs-deployment concept."
+
+  - id: weed-stale-lesson
+    query: "How should I retire or deprecate a stale lesson in the knowledge base?"
+    gold:
+      - library-science/collection-development.md
+    note: "Weeding / deaccession policy."
+
+  - id: record-currency
+    query: "How can I tell whether a knowledge base record is still current or superseded?"
+    gold:
+      - library-science/metadata-and-application-profiles.md
+    note: "Relationship edges + status answer record currency."
