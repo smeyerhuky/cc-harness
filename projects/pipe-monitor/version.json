@@ -1,0 +1,8 @@
+{
+  "version": "0.1.0",
+  "name": "Acoustic Pipe Monitor",
+  "description": "Single-installation acoustic water-fixture disaggregation and leak-detection system: ESP32-S3 sensor node, LAN FastAPI server, React frontend, 3D-printable hybrid enclosure.",
+  "status": "scaffold",
+  "milestone": "Phase 0 bring-up (physics validation) — full-stack scaffold in place, pending hardware + real data",
+  "updated": "2026-08-24"
+}

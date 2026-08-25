@@ -1,0 +1,26 @@
+# Build artifacts and local data — keep the scaffold source, not its outputs.
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# firmware (ESP-IDF)
+firmware/build/
+firmware/managed_components/
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/dependencies.lock
+
+# server
+server/**/__pycache__/
+server/.pytest_cache/
+server/data/
+*.pyc
+
+# local runtime data
+data/
+*.log
+
+# tsc build info
+frontend/*.tsbuildinfo

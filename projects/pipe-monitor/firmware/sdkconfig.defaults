@@ -1,0 +1,22 @@
+# Defaults for the pipe-monitor node. Target: ESP32-S3-DevKitC-1-N16R8.
+CONFIG_IDF_TARGET="esp32s3"
+
+# 16 MB flash, dual-app OTA
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# 8 MB PSRAM — [HARD] required for the 30 s ring buffer (event-detection-and-clips.md)
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_USE_MALLOC=y
+
+# CPU at 240 MHz for the DSP budget (signal-chain.md)
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+
+# Larger main task stack for DSP init
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+
+# esp-mqtt + HTTP client
+CONFIG_MQTT_TRANSPORT_SSL=y

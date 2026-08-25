@@ -1,0 +1,4 @@
+## Managed component dependencies (idf.py fetches these into managed_components/).
+dependencies:
+  idf: ">=5.1"
+  espressif/esp-dsp: "^1.4.0"   # FFT + windowing for the feature stream

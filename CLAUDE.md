@@ -34,6 +34,7 @@ A playground environment for experimentation and development.
 - **projects/** - All project containers
   - `common/` - Shared utilities and code used across projects
   - `hello-worker/` - Cloudflare Worker project (`src/`, `wrangler.jsonc`)
+  - `pipe-monitor/` - Acoustic pipe monitor full-stack scaffold (`cad/`, `firmware/`, `server/`, `frontend/`, `kb/`)
   - `sample-project/` - Template project (`src/`, `kb/`, `CLAUDE.md`, `README.md`, `version.json`)
   - `kb/` - Projects directory KB index
 
