@@ -10,6 +10,14 @@ compiles/runs where the toolchain allows, but it is **not a validated system** â
 gated on Phase 0 physics validation with real hardware on your actual plumbing. See
 [`kb/plan/phase-0-bringup.md`](kb/plan/phase-0-bringup.md).
 
+## Interactive 3D bench view
+
+[`viewer.html`](viewer.html) is a **self-contained** interactive 3D visualizer (Three.js + your
+actual printed STL meshes, no network needed): orbit the parts, drag the **assemble â†” explode**
+slider, toggle individual parts and wireframe, and step through the **"mount it on the pipe"**
+walkthrough. Open the file in any browser, or view the published artifact. It loads the real
+`cad/stl/` geometry, so it always reflects the current CAD.
+
 ## What's here
 
 | Dir | Component | State |
