@@ -5,7 +5,14 @@ description: "Standard development workflow for working in the playground."
 resource: "README.md"
 tags: ["workflow", "development"]
 timestamp: "2026-07-15"
+status: "deprecated"
+relationships:
+  - type: SUPERSEDED_BY
+    target: /pdlc/pipeline.md
 ---
+
+> **Superseded** by the [PDLC pipeline](../pdlc/pipeline.md) — how work is planned and recorded
+> now. Kept, not deleted, per the [weeding policy](../library-science/weeding-policy.md).
 
 # Development Workflow
 

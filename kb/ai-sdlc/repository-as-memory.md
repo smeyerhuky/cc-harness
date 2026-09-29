@@ -3,7 +3,7 @@
 
 type: "Concept"
 title: "Repository as Memory"
-description: "Core concept from AI-SDLC"
+description: "Why specs, plans, and decisions belong in the repository rather than in ephemeral chat history: every phase leaves a permanent record, so a fresh session or a new developer can reconstruct the reasoning from the files alone."
 resource: "AI-SDLC"
 tags: ['memory', 'context-management', 'git']
 timestamp: "2026-07-24"

@@ -8,9 +8,11 @@ controlled vocabulary and applies the apparatus a cataloging department uses to
 keep a catalog searchable — one authorized form per concept, with variants
 resolving to it.
 
-It runs in ADVISORY mode by default: findings are warnings and the exit code is
-0 unless --strict is passed. Adoption is meant to be incremental — fix the
-high-signal variants first, let the rest accrete into the vocabulary over time.
+Tag findings run in ADVISORY mode by default: they are warnings and do not
+change the exit code unless --strict is passed. Adoption is meant to be
+incremental — fix the high-signal variants first, let the rest accrete into the
+vocabulary over time. TYPE findings are the exception: `type` is a CLOSED
+vocabulary, so a TYPE finding is an error and the exit code is 1 by default.
 
 Three tiers of finding:
 
@@ -24,7 +26,8 @@ Three tiers of finding:
   TYPE         A `type` value that is a known non-preferred alias, or is absent
                from the registered `type` vocabulary. Unlike `tags`, `type` is a
                CLOSED vocabulary, so an unregistered value is a real finding, not
-               a candidate — hence shown by default. (shown by default)
+               a candidate — hence shown by default, and an error: any TYPE
+               finding makes the exit code 1 even without --strict.
   FORM / UNACCESSIONED
                FORM: a tag whose spelling violates the preferred form-of-heading
                (lowercase kebab-case) and is not an allowed exception.
@@ -35,7 +38,9 @@ Three tiers of finding:
 Usage:
     python3 lint_authority.py <bundle-root-dir> [--vocab PATH] [--report] [--strict]
 
-The vocabulary file defaults to <bundle-root>/authority/vocabulary.yaml.
+The vocabulary file defaults to <bundle-root>/authority/vocabulary.yaml, or — for a
+bundle without one, such as a project's kb/ — the nearest ancestor's
+kb/authority/vocabulary.yaml.
 """
 import argparse
 import re
@@ -64,9 +69,26 @@ def parse_frontmatter(text: str):
         return None
 
 
+def find_vocab(root):
+    """The bundle's own authority/vocabulary.yaml, else the nearest ancestor's
+    kb/authority/vocabulary.yaml, else None.
+
+    Project bundles (projects/<name>/kb/) carry no authority file of their own:
+    they are governed by the repo-wide one. Falling back to it keeps their
+    vocabulary checks on by default instead of silently skipped."""
+    own = root / "authority" / "vocabulary.yaml"
+    if own.exists():
+        return own
+    for parent in root.parents:
+        inherited = parent / "kb" / "authority" / "vocabulary.yaml"
+        if inherited.exists():
+            return inherited
+    return None
+
+
 def load_vocab(path: Path):
     """Return a dict of the parsed authority file, or None if unavailable."""
-    if not path.exists() or yaml is None:
+    if path is None or not path.exists() or yaml is None:
         return None
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     terms = data.get("terms", {}) or {}
@@ -179,7 +201,8 @@ def lint(root: Path, vocab_path: Path, report: bool):
         types_uf = {}
         notes.append(
             "no vocabulary file at %s — running heuristic checks only "
-            "(VARIANT/TYPE/FORM/UNACCESSIONED need the authority file)" % vocab_path
+            "(VARIANT/TYPE/FORM/UNACCESSIONED need the authority file)"
+            % (vocab_path or "%s/authority/ or any ancestor's kb/authority/" % root)
         )
 
     # VARIANT — tags that resolve to a preferred descriptor via UF.
@@ -247,11 +270,13 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("bundle_dir", type=Path)
     ap.add_argument("--vocab", type=Path, default=None,
-                    help="authority file (default: <bundle>/authority/vocabulary.yaml)")
+                    help="authority file (default: <bundle>/authority/vocabulary.yaml, "
+                         "else the nearest ancestor's kb/authority/vocabulary.yaml)")
     ap.add_argument("--report", action="store_true",
                     help="also show FORM + UNACCESSIONED candidates and coverage")
     ap.add_argument("--strict", action="store_true",
-                    help="treat findings as failures (exit 1)")
+                    help="treat every finding as a failure (exit 1); TYPE findings "
+                         "fail even without it")
     args = ap.parse_args()
 
     root = args.bundle_dir.resolve()
@@ -262,20 +287,30 @@ def main():
         print("error: PyYAML is required (pip install pyyaml)", file=sys.stderr)
         sys.exit(2)
 
-    vocab_path = (args.vocab or (root / "authority" / "vocabulary.yaml")).resolve()
+    vocab_path = args.vocab.resolve() if args.vocab else find_vocab(root)
+    have_vocab = vocab_path is not None and vocab_path.exists()
 
     notes, warnings = lint(root, vocab_path, args.report)
+    if have_vocab and vocab_path.parent.parent != root:
+        notes.insert(0, "vocabulary: %s" % vocab_path)
 
     for n in notes:
         print("  · %s" % n)
+    type_errors = [w for w in warnings if w.startswith("TYPE:")]
     if warnings:
         print("\nAUTHORITY FINDINGS (%d):" % len(warnings))
         for w in warnings:
             print("  ! %s" % w)
-    else:
+        if type_errors:
+            print("\nFAIL: %d TYPE finding(s) — `type` is a closed vocabulary."
+                  % len(type_errors))
+    elif have_vocab:
         print("OK: no authority-control findings.")
+    else:
+        print("OK (heuristic checks only — vocabulary checks were NOT performed): "
+              "no authority-control findings.")
 
-    sys.exit(1 if (warnings and args.strict) else 0)
+    sys.exit(1 if (type_errors or (warnings and args.strict)) else 0)
 
 
 if __name__ == "__main__":

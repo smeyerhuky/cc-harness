@@ -1,0 +1,3 @@
+# Python bytecode caches (the skills' scripts create them when run)
+__pycache__/
+*.pyc

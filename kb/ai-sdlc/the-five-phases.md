@@ -3,7 +3,7 @@
 
 type: "Concept"
 title: "The Five Phases of AI-DLC"
-description: "Core concept from AI-SDLC"
+description: "The five phases of the AI-driven development lifecycle (specify, plan, build, validate, ship), each ending at a human gate, because phased work stays legible where one-shot generation does not."
 resource: "AI-SDLC"
 tags: ['phases', 'lifecycle', 'ai-sdlc']
 timestamp: "2026-07-24"

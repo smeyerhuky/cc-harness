@@ -12,6 +12,25 @@
 # inflates recall and measures nothing.
 k: 3
 
+# Records of work, not knowledge — the harness's roadmap, backlog, running
+# journal, handoff, and coverage-audit sweeps, and its review ceremonies — are
+# left out of the eval's corpus (the git-protocol policies in process/ stay in),
+# and so is the PDLC worked example, which is made of example records of the
+# same kinds and restates rules whose home is elsewhere.
+# They stay in the KB and every other gate checks them; they are not searched
+# here because a record that discusses a question (a work item that diagnoses
+# a failing query, a ceremony that debated a rule) outranks the files that
+# answer it. A record about the eval refers to a query by its gold files, not
+# by its id or its words: ids are built from the query's words.
+exclude:
+  - process/roadmap.md
+  - process/handoff.md
+  - process/coverage-audit.md
+  - process/backlog/*
+  - process/journal/*
+  - alignment/*
+  - pdlc/worked-example.md
+
 queries:
   - id: deploy-worker
     query: "How do I deploy a Cloudflare Worker from this repository?"
@@ -92,3 +111,45 @@ queries:
       - library-science/weeding-policy.md
       - library-science/metadata-and-application-profiles.md
     note: "The status/SUPERSEDED_BY mechanism (weeding policy) and the query that reads it (metadata doc)."
+
+  # --- The PDLC topic area (kb/pdlc/): written as a user would ask, not in the
+  # --- method's own words.
+
+  - id: found-bug-midtask
+    query: "I found a bug while doing something else — do I fix it right away or open a ticket first?"
+    gold:
+      - pdlc/work-items.md
+    note: "The found-while-working rule: fix inside the open item, or mint a new one first."
+
+  - id: record-session
+    query: "Where do I write down what happened in a working session, and in what shape?"
+    gold:
+      - pdlc/journals.md
+      - pdlc/templates/running-journal-entry.md
+    note: "The running journal and its entry template."
+
+  - id: resume-cold
+    query: "I'm picking up an existing project in a fresh session — what do I read first, and how do I pick the next task?"
+    gold:
+      - pdlc/journals.md
+      - pdlc/work-items.md
+    note: "The handoff (journals) and the next-item rule (work items)."
+
+  - id: parallel-review
+    query: "How do I run a review with several subagents in parallel without making up what they said?"
+    gold:
+      - pdlc/facilitator.md
+      - pdlc/ceremonies.md
+    note: "The facilitator playbook and the ceremony catalog."
+
+  - id: milestone-finished
+    query: "What has to be true before a milestone counts as finished?"
+    gold:
+      - pdlc/definition-of-done.md
+    note: "The definition of done's milestone tier."
+
+  - id: designs-never-ticketed
+    query: "How do I catch features that were designed but never turned into tasks?"
+    gold:
+      - pdlc/coverage-audit.md
+    note: "The coverage audit."

@@ -61,15 +61,21 @@ tells us where each LIS technique pushes the dial:
    [`retrieval_eval.py`](../../.claude/skills/okf-wikify/scripts/retrieval_eval.py)
    ([Phase 4](roadmap.md), shipped) does exactly this: it runs the
    [eval set](eval/retrieval-evalset.yaml) — realistic questions with gold
-   relevant files — against a transparent TF-IDF retriever over `kb/` and reports
+   relevant files — against a transparent BM25F retriever over `kb/` and reports
    precision/recall/F1 at k. Crucially it is *sensitive to the edits this overlay
    makes*: turning on controlled-vocabulary query expansion (the `related`/`use_for`
-   edges) lifts mean recall@3 from **0.78 to 0.90** on the current corpus — the
+   edges) lifts mean recall@3 from **0.82 to 0.91** on the current corpus (18 questions) — the
    "see also improves recall" claim above, as a measured number rather than an
    assertion. (Precision@3 reads low because gold sets are deliberately tight —
    often one file — so P@3 caps near 0.33; recall@3 is the headline metric here.)
    That makes "did this KB change help retrieval?" a number a human can watch,
-   and gives CI a `--gate-recall` regression check.
+   and gives CI a `--gate-recall` regression check. The eval set can also
+   `exclude:` records of work — a harness's roadmap, backlog, running journal, and
+   review ceremonies ([PDLC](../pdlc/index.md)), and a worked example built from
+   records like them — which live in the KB and are
+   checked by every other gate, but *discuss* questions rather than answer them:
+   left in the corpus, a work item diagnosing a failing query outranks the files
+   that answer it.
 
 The point is not to bolt a search engine onto the repo. It is that the harness is
 *already running an IR system by hand*, and IR's century of theory tells us which

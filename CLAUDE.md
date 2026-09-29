@@ -1,6 +1,6 @@
-# Playground
+# cc-harness
 
-A playground environment for experimentation and development.
+A template repository for multi-project development: clone it, then build your projects in it.
 
 ## Directory Structure
 
@@ -21,25 +21,32 @@ A playground environment for experimentation and development.
 - **config/** - Root-level configuration files
 
 - **kb/** - Repository-wide knowledge base (OKF bundle)
+  - `pdlc/` - The PDLC method: pipeline, work items, journals, facilitator, ceremonies, coverage audit, definition of done, templates, a worked example
+  - `process/` - Git/PR/commit discipline, plus the harness's own roadmap, backlog (`CCH-*`), running journal, and handoff — start at `process/handoff.md`
+  - `alignment/` - The harness's review ceremonies, one folder each (created at the first ceremony)
+  - `ai-sdlc/` - AI-native development principles and the phases the PDLC method implements
+  - `library-science/` - The KB's library-science overlay: authority control, typed relationships, retrieval eval, weeding
+  - `authority/` - The controlled vocabulary (`vocabulary.yaml`): types, tags, relationship types, work-item states
   - `architecture/` - Directory structure and KB organization docs
   - `additive-engineering/` - Additive Engineering concepts, and rulebooks
   - `concepts/` - Abstract concepts (deploy lifecycle, progressive disclosure, etc.)
-  - `development/` - Workflow and shared-code guidance
+  - `development/` - Shared-code guidance (its old workflow page is superseded by `pdlc/`)
   - `getting-started/` - Orientation and quick-start docs
   - `lessons/` - Lessons learned from real deploys
   - `platforms/` - Per-platform deploy recipes (Cloudflare Workers, etc.)
-  - `process/` - Git/PR/commit discipline
   - `index.md` - KB entry point
 
-- **projects/** - All project containers
+- **spikes/** - Repo-level spike journals (`spikes/<slug>/JOURNAL.md`) for time-boxed investigations of harness work (created at the first spike)
+
+- **projects/** - All project containers — each with its own `kb/process/` (handoff, roadmap, backlog, running journal, definition of done) and, once it runs one, `kb/alignment/`
   - `common/` - Shared utilities and code used across projects
-  - `hello-worker/` - Cloudflare Worker project (`src/`, `wrangler.jsonc`)
-  - `sample-project/` - Template project (`src/`, `kb/`, `CLAUDE.md`, `README.md`, `version.json`)
+  - `hello-worker/` - A minimal Cloudflare Worker (`src/`, `wrangler.jsonc`) — the deploy recipes' worked example; prefix `HW`
+  - `sample-project/` - The scaffold every new project is copied from ([`projects/CLAUDE.md`](projects/CLAUDE.md), "Adding a new project")
   - `kb/` - Projects directory KB index
 
 ## Getting Started
 
-This is a playground branch initialized with a minimal structure. Add your project content to the respective directories.
+This is a template: clone it, then start your first project by following [`projects/CLAUDE.md`](projects/CLAUDE.md), "Adding a new project". Work on the harness itself starts at [`kb/process/handoff.md`](kb/process/handoff.md).
 
 ## Documentation & CLAUDE.md governance
 
@@ -53,6 +60,7 @@ maintained incrementally alongside the work, never as a single end-of-project du
 | `/CLAUDE.md` | the whole repo |
 | `/kb/CLAUDE.md` | the repo-wide knowledge base |
 | `/projects/CLAUDE.md` | the `projects/` directory (all projects) |
+| `/projects/kb/CLAUDE.md` | the projects index/governance KB |
 | `/projects/<project-name>/CLAUDE.md` | one specific project |
 
 A directory is governed by the nearest `CLAUDE.md` above it. **Never create
@@ -71,7 +79,28 @@ See [`/projects/CLAUDE.md`](projects/CLAUDE.md) for the full project workflow.
 
 ## Development
 
-Work on features and experiments within the project directories, following the structure outlined above.
+Work on features and experiments within the project directories, following the structure outlined above,
+and plan and record that work by the PDLC protocol below.
+
+## PDLC protocol — how work is planned and recorded
+
+Every project here, and the harness itself, plans and records work the same way — a spec, a
+roadmap of milestones, a backlog of work items, a running journal, and a handoff that says where
+things stand. The method is written once, in [`kb/pdlc/`](kb/pdlc/index.md); each rule lives in
+one file, linked below.
+
+- **Resuming work:** read the handoff first — a project's `projects/<name>/kb/process/handoff.md`,
+  or the harness's [`kb/process/handoff.md`](kb/process/handoff.md) — then take the next work item
+  by [the rule](kb/pdlc/work-items.md#which-item-is-next).
+- **Every change traces to a work item** ([work items](kb/pdlc/work-items.md)); something found on
+  the way is handled by [found while working](kb/pdlc/work-items.md#found-while-working).
+- **Starting a project:** [`projects/CLAUDE.md`](projects/CLAUDE.md), "Adding a new project".
+- **Before committing:** the [gates](kb/pdlc/definition-of-done.md#gates).
+- **Ending a session that changed anything:** [closing a session](kb/pdlc/journals.md#closing-a-session).
+- **At a milestone's exit:** the milestone tier of the
+  [definition of done](kb/pdlc/definition-of-done.md), ending with an
+  [owner check-in](kb/pdlc/pipeline.md#owner-check-ins).
+- **Splitting work across subagents, or running a review:** the [facilitator](kb/pdlc/facilitator.md).
 
 ## Knowledge base — deploy protocol
 
@@ -86,10 +115,10 @@ Before deploying anything from this repo — Cloudflare Worker, Vercel site, Fly
 ### Conventions for the deploy KB
 
 - Frontmatter fields: `type`, `title`, `description`, `resource`, `tags`, `timestamp`. Types in use: `Concept`, `Policy`, `Playbook`, `Reference`, `Lesson`.
-- `okf_version: "0.1"` appears **only** in `kb/index.md` — nowhere else.
+- `okf_version: "0.1"` appears **only** in `kb/index.md` — nowhere else in `kb/`.
 - Subdirectory `index.md` files have no frontmatter — they're pure tables of contents.
 - Cross-link liberally with relative markdown links; cite file paths (`kb/lessons/wrangler-cache-pollution.md`) when answering deploy questions so claims stay verifiable.
-- After changes, run `python3 .claude/skills/okf-wikify/scripts/lint_okf.py kb/`. One warning is expected: `concepts/progressive-disclosure.md` links to `../../CLAUDE.md` (this file) — the sibling CLAUDE.md pattern the OKF skill documents.
+- After changes, run the KB [gates](kb/pdlc/definition-of-done.md#gates) on `kb/` — all must pass; `lint_okf` reports no warnings.
 
 ### When adding new material
 

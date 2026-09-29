@@ -1,10 +1,10 @@
 # CC Harness
 
-A structured coding playground for experimentation and multi-project development with integrated knowledge management.
+A template repository for multi-project development with integrated knowledge management: clone it, then build your projects in it.
 
 ## Purpose
 
-This repository serves as a development environment where you can work on various projects simultaneously, with each project maintaining its own knowledge base and configuration. The playground uses a centralized knowledge base system for sharing general instructions, environment details, and documentation.
+This repository serves as a development environment where you can work on various projects simultaneously, with each project maintaining its own knowledge base and configuration. The harness uses a centralized knowledge base system for sharing general instructions, environment details, and documentation.
 
 ## Directory Structure
 
@@ -17,21 +17,28 @@ cc-harness/
 │
 ├── kb/                            # Repository-wide knowledge base (OKF bundle)
 │   ├── CLAUDE.md                  # Governs the repo-wide KB
+│   ├── pdlc/                      # The PDLC method: how work is planned and recorded
+│   ├── process/                   # Git/PR discipline + the harness's roadmap, backlog, journal, handoff
+│   ├── alignment/                 # The harness's review ceremonies (created at the first one)
+│   ├── ai-sdlc/                   # AI-native development principles
+│   ├── library-science/           # Authority control, typed relationships, retrieval eval, weeding
+│   ├── authority/                 # The controlled vocabulary (vocabulary.yaml)
 │   ├── architecture/              # Directory structure and KB organization docs
 │   ├── additive-engineering/      # Additive Engineering concepts, and rulebooks
 │   ├── concepts/                  # Abstract concepts (deploy lifecycle, etc.)
-│   ├── development/               # Workflow and shared-code guidance
+│   ├── development/               # Shared-code guidance (old workflow superseded by pdlc/)
 │   ├── getting-started/           # Orientation and quick-start docs
 │   ├── lessons/                   # Lessons learned from real deploys
 │   ├── platforms/                 # Per-platform deploy recipes (Cloudflare Workers, etc.)
-│   ├── process/                   # Git/PR/commit discipline
 │   └── index.md                   # KB entry point
+│
+├── spikes/                        # Spike journals for harness investigations (created at the first)
 │
 ├── projects/                      # All project containers
 │   ├── CLAUDE.md                  # Governs the projects/ directory
 │   ├── common/                    # Shared utilities and common code
-│   ├── hello-worker/              # Cloudflare Worker project (src/, wrangler.jsonc)
-│   ├── sample-project/            # Template project (src/, kb/, CLAUDE.md, README.md, version.json)
+│   ├── hello-worker/              # A minimal Cloudflare Worker — the deploy recipes' worked example
+│   ├── sample-project/            # The scaffold every new project is copied from
 │   └── kb/                        # Projects index/governance KB (CLAUDE.md, index.md, projects/)
 │
 ├── config/                        # Root-level configuration
@@ -42,8 +49,9 @@ cc-harness/
 └── LICENSE                        # Project license
 ```
 
-> **CLAUDE.md governance:** CLAUDE.md files live at four levels — `/CLAUDE.md`, `/kb/CLAUDE.md`,
-> `/projects/CLAUDE.md`, and `/projects/<name>/CLAUDE.md` — each governing its directory and below.
+> **CLAUDE.md governance:** CLAUDE.md files live at five levels — `/CLAUDE.md`, `/kb/CLAUDE.md`,
+> `/projects/CLAUDE.md`, `/projects/kb/CLAUDE.md`, and `/projects/<name>/CLAUDE.md` — each governing
+> its directory and below.
 > There are **no** `<Name>-KB-CLAUDE.md` companion files; a `kb/` bundle is governed by the nearest
 > CLAUDE.md above it. See [`/CLAUDE.md`](CLAUDE.md) → "Documentation & CLAUDE.md governance".
 
@@ -58,14 +66,19 @@ cc-harness/
 
 | Directory | Contents |
 |-----------|----------|
+| `kb/pdlc/` | The PDLC method — pipeline, work items, journals, facilitator, ceremonies, coverage audit, definition of done, templates, a worked example |
+| `kb/process/` | Git discipline (branches, commits, PRs, push/retry, merged-PR follow-ups), plus the harness's own roadmap, backlog, running journal, and handoff |
+| `kb/alignment/` | The harness's review ceremonies, one folder each (created at the first ceremony) |
+| `kb/ai-sdlc/` | AI-native development principles and phases |
+| `kb/library-science/` | The KB's library-science overlay: authority control, typed relationships, the retrieval eval, weeding |
+| `kb/authority/` | The controlled vocabulary the KB's linters enforce |
 | `kb/architecture/` | Directory structure and KB organization docs |
 | `kb/additive-engineering/` | Additive Engineering concepts, and rulebooks |
 | `kb/concepts/` | Abstract concepts: deploy lifecycle, progressive disclosure, verification vs. deployment |
-| `kb/development/` | Workflow guides and shared-code patterns |
+| `kb/development/` | Shared-code patterns (the old workflow page is superseded by `kb/pdlc/pipeline.md`) |
 | `kb/getting-started/` | Orientation overview and quick-start guide |
 | `kb/lessons/` | Lessons learned from real deploys (read before hitting the wall) |
 | `kb/platforms/` | Per-platform deploy recipes (Cloudflare Workers; add others here) |
-| `kb/process/` | Branch discipline, commit etiquette, PR creation, push/retry, merged-PR follow-ups |
 
 ### Projects KB (`/projects/kb/`)
 - **Purpose:** Navigation and index for all project-specific KBs
@@ -85,21 +98,17 @@ Each project under `/projects/` follows this template:
 projects/[project-name]/
 ├── src/                 # Source code
 ├── kb/                  # Project-specific knowledge base
-├── CLAUDE.md            # Project configuration and guidelines
+│   └── process/         # Handoff, roadmap, backlog, running journal, definition of done
+├── CLAUDE.md            # Project configuration and guidelines, incl. its work-item prefix
 ├── README.md            # Project overview and setup instructions
 └── version.json         # Project metadata
 ```
 
 ### Creating a New Project
 
-1. Create a new directory under `/projects/[your-project-name]`
-2. Add the required structure: `src/`, `kb/`, `CLAUDE.md`, `README.md`, `version.json`
-3. Write `CLAUDE.md` to govern the project (rules, conventions, kb navigation)
-4. Start the project `kb/` as an OKF bundle (`kb/index.md` holds the only `okf_version`)
-5. Register the project: add a card at `projects/kb/projects/<name>.md` and link it from
-   `projects/kb/projects/index.md`; add the project to the trees in `/CLAUDE.md` and this README
-
-See [`/projects/CLAUDE.md`](projects/CLAUDE.md) for the full workflow and the CLAUDE.md hierarchy.
+Copy the scaffold, `projects/sample-project/` — the steps (prefix, rename, the lines marked
+`SCAFFOLD:`, registration, validation) are in [`/projects/CLAUDE.md`](projects/CLAUDE.md),
+"Adding a new project", along with the CLAUDE.md hierarchy.
 
 ## Shared Code
 
@@ -107,11 +116,10 @@ Use `/projects/common/` for utilities and code shared across multiple projects.
 
 ## Development Workflow
 
-1. **Start a project:** Create a new directory under `/projects/[project-name]`
-2. **Document:** Add instructions to `kb/` and project guidelines to `CLAUDE.md`
-3. **Code:** Implement in `src/`
-4. **Reference:** Update KBs as you work
-5. **Version:** Update `version.json` as project milestones complete
+Work is planned and recorded the same way in every project — a spec, a roadmap of milestones, a
+backlog of work items, a running journal, and a handoff — by the method in
+[`kb/pdlc/`](kb/pdlc/index.md). The short version, with links to each rule, is the "PDLC protocol"
+section of [`/CLAUDE.md`](CLAUDE.md).
 
 ## Getting Started
 

@@ -1,7 +1,7 @@
 ---
 type: "Concept"
 title: "Collection Development, Weeding, and Provenance for the KB"
-description: "Applies the library practices of selection, deaccession (weeding), and provenance to a KB that accretes every session, so it stays trustworthy instead of just large."
+description: "Applies the library practices of selection, deaccession (weeding), and provenance to a knowledge base (KB) that accretes every session, so it stays trustworthy instead of just large."
 resource: "SAA Dictionary of Archives Terminology; DPC Digital Preservation Handbook; Open Courseware in LIS"
 tags: [collection-development, provenance, memory, library-science]
 timestamp: "2026-08-09"

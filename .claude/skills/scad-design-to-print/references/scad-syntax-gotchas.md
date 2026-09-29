@@ -191,5 +191,5 @@ cuboid([20, 10, 5])
 ## Related
 
 - [`bambu-3mf-spec.md`](bambu-3mf-spec.md) — export pipeline from OpenSCAD to Bambu `.3mf`.
-- [`../../../kb/platforms/openscad/algorithms.md`](../../../kb/platforms/openscad/algorithms.md) — CSG boolean tree strategies.
-- [`../../../kb/platforms/openscad/materials.md`](../../../kb/platforms/openscad/materials.md) — print settings that affect geometry choices.
+- [`../../../../kb/platforms/openscad/algorithms.md`](../../../../kb/platforms/openscad/algorithms.md) — CSG boolean tree strategies.
+- [`../../../../kb/platforms/openscad/materials.md`](../../../../kb/platforms/openscad/materials.md) — print settings that affect geometry choices.

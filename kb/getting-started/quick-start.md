@@ -1,7 +1,7 @@
 ---
 type: "Concept"
 title: "Quick Start Guide"
-description: "Get started with the playground in minutes."
+description: "Get started with the harness in minutes."
 resource: "README.md"
 tags: ["setup", "getting-started", "quick-start"]
 timestamp: "2026-07-15"
@@ -18,19 +18,11 @@ Start with the entry points:
 
 ## Creating Your First Project
 
-1. Create a new directory under `/projects/[your-project-name]`
-2. Add the required structure:
-   ```
-   projects/[project-name]/
-   ├── src/           # Your source code goes here
-   ├── kb/            # Project documentation
-   ├── CLAUDE.md      # Project configuration
-   ├── README.md      # Project overview
-   └── version.json   # Project metadata
-   ```
-3. Document project-specific instructions in `CLAUDE.md`
-4. Add project documentation to `kb/`
-5. Update `projects/kb/index.md` to reference your new project
+Copy the scaffold, `projects/sample-project/`, and follow the steps in
+[`projects/CLAUDE.md`](../../projects/CLAUDE.md), "Adding a new project" — choose a work-item
+prefix, rename, fill in the lines marked `SCAFFOLD:`, register the project, validate. The same
+file's "The first session in a new project" says what to do next: the first work item is writing
+the spec.
 
 ## Using Shared Code
 
@@ -38,8 +30,6 @@ Place utilities and code shared across multiple projects in `/projects/common/`.
 
 ## Development Workflow
 
-1. **Start:** Create project directory with required structure
-2. **Document:** Add instructions to `kb/` and guidelines to `CLAUDE.md`
-3. **Code:** Implement in `src/`
-4. **Iterate:** Update KBs as you work
-5. **Version:** Update `version.json` as milestones complete
+Work moves from spec to plan to work items to done by the [PDLC pipeline](../pdlc/pipeline.md);
+a project's handoff (`kb/process/handoff.md`) always says where it stands and what is next. The
+short version, with a link to each rule, is the "PDLC protocol" section of the root `CLAUDE.md`.

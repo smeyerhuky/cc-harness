@@ -3,7 +3,7 @@
 
 type: "Concept"
 title: "Spec-Driven Development"
-description: "Core concept from AI-SDLC / Prommer.net"
+description: "Spec-driven development: a version-controlled specification, not continuous chat prompting, drives the agent along specification, design, implementation, with scope and open questions answered in the spec itself."
 resource: "AI-SDLC / Prommer.net"
 tags: ['sdd', 'spec', 'methodology', 'prompting']
 timestamp: "2026-07-24"

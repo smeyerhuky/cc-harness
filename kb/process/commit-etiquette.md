@@ -1,7 +1,7 @@
 ---
 type: "Policy"
 title: "Commit Etiquette"
-description: "When to commit, what messages look like, the Claude co-author trailer, and staging carefully to avoid cache pollution."
+description: "When to commit, how to write commit messages, the Claude co-author trailer, and staging carefully to avoid cache pollution."
 resource: "session-instructions:2026-07-15"
 tags: ["git", "commits", "governance"]
 timestamp: "2026-07-15"
