@@ -1,16 +1,10 @@
 # Sample Project
 
-A sample project demonstrating the playground structure.
+SCAFFOLD: one paragraph — what this project is and who it is for.
 
-## Overview
+## Getting started
 
-This project serves as a template for creating new projects within the playground. It includes:
+SCAFFOLD: how to build, run, or use it.
 
-- Source code directory (`src/`)
-- Project-specific knowledge base (`kb/`)
-- Project configuration (`CLAUDE.md`)
-- Version information (`version.json`)
-
-## Getting Started
-
-Add your project code to the `src/` directory and documentation to the `kb/` directory.
+How work on the project is planned and recorded, and where its knowledge base starts:
+[`CLAUDE.md`](CLAUDE.md).

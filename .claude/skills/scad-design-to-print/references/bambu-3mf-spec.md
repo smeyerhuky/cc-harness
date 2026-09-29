@@ -175,4 +175,4 @@ For simple single-plate projects, Bambu Studio's **Import** → **Import 3D File
 ## Related
 
 - [`scad-syntax-gotchas.md`](scad-syntax-gotchas.md) — export commands from OpenSCAD to STL/DXF.
-- [`../../../kb/platforms/openscad/materials.md`](../../../kb/platforms/openscad/materials.md) — filament type guidance for setting metadata.
+- [`../../../../kb/platforms/openscad/materials.md`](../../../../kb/platforms/openscad/materials.md) — filament type guidance for setting metadata.

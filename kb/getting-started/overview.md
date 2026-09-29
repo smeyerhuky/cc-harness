@@ -3,7 +3,7 @@ type: "Concept"
 title: "Repository Overview"
 description: "Introduction to the cc harness and its purpose."
 resource: "README.md"
-tags: ["playground", "repository", "overview"]
+tags: ["repository", "overview"]
 timestamp: "2026-07-15"
 ---
 
@@ -13,7 +13,7 @@ The CC Harness is a structured development environment designed for experimentat
 
 ## Purpose
 
-This repository serves as a development environment where you can work on various projects simultaneously, with each project maintaining its own knowledge base and configuration. The playground uses a centralized knowledge base system for sharing general instructions, environment details, and documentation across all projects.
+This repository serves as a development environment where you can work on various projects simultaneously, with each project maintaining its own knowledge base and configuration. The harness uses a centralized knowledge base system for sharing general instructions, environment details, and documentation across all projects.
 
 ## Key Features
 
@@ -25,7 +25,7 @@ This repository serves as a development environment where you can work on variou
 
 ## Design Philosophy
 
-The playground emphasizes:
+The harness emphasizes:
 - **Clarity:** Every file and directory serves a clear purpose
 - **Modularity:** Projects are self-contained but can share utilities
 - **Discoverability:** Knowledge bases guide users to relevant documentation

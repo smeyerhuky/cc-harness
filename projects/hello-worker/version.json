@@ -1,0 +1,8 @@
+{
+  "version": "1.0.1",
+  "name": "Hello Worker",
+  "description": "A minimal Cloudflare Worker — the worked example behind the repo's deploy recipes",
+  "status": "done",
+  "milestone": "M1",
+  "updated": "2026-09-29"
+}

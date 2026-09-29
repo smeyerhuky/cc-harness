@@ -10,7 +10,8 @@
 # This is an APPLICATION PROFILE layer on top of OKF. OKF itself is
 # deliberately minimal ("consumers must tolerate unknown tags"); this file
 # adds an opt-in, stricter conformance target enforced by
-# `.claude/skills/okf-wikify/scripts/lint_authority.py` in ADVISORY mode.
+# `.claude/skills/okf-wikify/scripts/lint_authority.py` — in ADVISORY mode for
+# tags; an unregistered `type` (below) is an error.
 #
 # Adoption is incremental, exactly like a real cataloging department: we do
 # not enumerate every keyword up front. We seed the cross-cutting vocabulary
@@ -72,8 +73,9 @@ form:
 # un-listed term is merely a candidate — the OKF `type` field draws from a
 # FIXED registry. Every file's `type` must be one of `registered`, or a
 # `use_for` alias that resolves to one. lint_authority.py reports any other
-# value by default (not only under --report), because the set is meant to be
-# complete: a new genre is a deliberate addition here, not silent drift.
+# value by default (not only under --report) and exits 1, because the set is
+# meant to be complete: a new genre is a deliberate addition here, not silent
+# drift.
 #
 # `type` names the *genre* of a knowledge record (its Dublin Core dc:type).
 # `tags` (below) name its *subject*. Keep the two jobs separate.
@@ -94,10 +96,20 @@ types:
     - Technology     # a tool or technology description
     - Analysis       # an analytical study or investigation
     - Code Example   # a worked code sample
+    - Work Item      # a PDLC backlog entry: epic, story, spike, or ticket
+    - Journal        # a dated record written as the work happens (running or ceremony journal)
   use_for:           # non-preferred type -> registered type
     Example: Code Example
     Workflow: Process
     Guide: Reference
+    # PDLC names a session naturally reaches for — resolved to the registered
+    # genre so lint_authority can say which one to use.
+    Ticket: Work Item
+    Epic: Work Item
+    Story: Work Item
+    Spike: Work Item
+    Log: Journal
+    Roadmap: Playbook
 
 # ----------------------------------------------------------------------------
 # Relationship-type vocabulary (for the OKF `relationships:` field).
@@ -128,10 +140,21 @@ relationship_types:
   SOURCE_OF:      {inverse: DERIVED_FROM,  scope_note: "The target was derived from this record."}
   PART_OF:        {inverse: HAS_PART,      scope_note: "This record is a component of the larger work at target."}
   HAS_PART:       {inverse: PART_OF,       scope_note: "The target is a component of this record."}
+  # PDLC work-item sequencing. A DEPENDS_ON edge is queried to order the
+  # backlog, so it earns a typed edge rather than a prose "Depends on:" line.
+  DEPENDS_ON:     {inverse: BLOCKS,        scope_note: "This work item cannot be finished until the target work item is done."}
+  BLOCKS:         {inverse: DEPENDS_ON,    scope_note: "The target work item cannot be finished until this one is done."}
 
 # Valid `status` values (OKF domain-extension overlay). A record with
 # status: deprecated should also carry a SUPERSEDED_BY edge where one exists.
+# `status` is the lifecycle of the *record* (is this document current?).
 statuses: [draft, review, finalized, deprecated]
+
+# Valid `state` values for `type: Work Item` records. `state` is the lifecycle
+# of the *work* the record tracks (is this ticket finished?) — deliberately a
+# separate field from `status`, because a done ticket is still a finalized,
+# current record. relationships.py validates both fields.
+work_item_states: [open, active, blocked, done, declined]
 
 terms:
 
@@ -207,6 +230,34 @@ terms:
     facet: process
     scope_note: Rules that constrain how agents/humans change the repo.
     use_for: [policy]
+  backlog:
+    facet: process
+    scope_note: PDLC work items (epics, stories, spikes, tickets) and their index.
+    use_for: [ticket, tickets, work-items]
+  milestone:
+    facet: process
+    scope_note: A roadmap checkpoint with an exit criterion; the unit of owner check-ins.
+    use_for: [milestones]
+  spike:
+    facet: process
+    scope_note: A time-boxed investigation of an unknown, recorded in a spike JOURNAL.md.
+    use_for: [spikes]
+  journal:
+    facet: process
+    scope_note: A dated record written as work happens — running journal or ceremony journal.
+    use_for: [journals, running-journal, build-log]
+  handoff:
+    facet: process
+    scope_note: The living cold-start brief a fresh session reads first.
+    use_for: [handoffs, cold-start]
+  facilitation:
+    facet: process
+    scope_note: The role the primary session plays to run a review ceremony — dispatch, fan-in, synthesis.
+    use_for: [facilitator]
+  ceremony:
+    facet: process
+    scope_note: A review event (kickoff, alignment, triage, investigation) whose outputs live in kb/alignment/<slug>/.
+    use_for: [ceremonies, retro, retrospective]
 
   # ---- artifact (genre of knowledge; parallels OKF `type`) -----------------
   concept:

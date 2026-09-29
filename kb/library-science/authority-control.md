@@ -1,7 +1,7 @@
 ---
 type: "Concept"
 title: "Authority Control for KB Tags"
-description: "One authorized term per concept, with variants resolving to it — the highest-leverage LIS technique for the harness, shipped as a controlled vocabulary plus an advisory linter."
+description: "How tags are kept consistent across the knowledge base: one authorized term per concept, with variants resolving to it — the highest-leverage LIS technique for the harness, shipped as a controlled vocabulary plus an advisory linter."
 resource: "LC Catalogers Learning Workshop (NACO authority training); Open Courseware in LIS research doc"
 tags: [authority-control, controlled-vocabulary, library-science, governance]
 timestamp: "2026-08-09"
@@ -54,8 +54,8 @@ a faceted thesaurus:
 ## The linter
 
 **[`.claude/skills/okf-wikify/scripts/lint_authority.py`](../../.claude/skills/okf-wikify/scripts/lint_authority.py)**
-enforces the profile in **advisory mode** (warnings only; `--strict` to fail a
-build). It sits *beside* the OKF linter, not inside it: OKF is deliberately
+enforces the profile in **advisory mode** for tags (warnings only; `--strict` to fail a
+build); a `type` outside the closed type registry fails it regardless. It sits *beside* the OKF linter, not inside it: OKF is deliberately
 minimal and tolerant of unknown tags, so authority control is an opt-in
 **[application profile](metadata-and-application-profiles.md)** layered on top.
 Run it:

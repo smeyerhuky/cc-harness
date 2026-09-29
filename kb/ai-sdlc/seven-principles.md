@@ -3,7 +3,7 @@
 
 type: "Concept"
 title: "Seven Principles of AI-Native Engineering"
-description: "Core concept from AI-SDLC Manifesto"
+description: "The seven principles of AI-native engineering: the developer is responsible, the spec is the contract, questions are answered in the spec, phases beat marathons, verification is part of the work, shared context stays in the repo, and workflow is centrally managed."
 resource: "AI-SDLC Manifesto"
 tags: ['principles', 'manifesto', 'discipline']
 timestamp: "2026-07-24"

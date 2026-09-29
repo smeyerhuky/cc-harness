@@ -1,53 +1,55 @@
 ---
 type: "Reference"
 title: "Sample Project"
-description: "Template project demonstrating the playground structure and conventions."
-resource: "../sample-project/README.md"
-tags: ["sample", "template", "project"]
-timestamp: "2026-07-15"
+description: "The scaffold every new project is copied from: a complete, validated PDLC project whose own files carry no template prose — every line a new project must write is marked SCAFFOLD:."
+resource: "../../sample-project/CLAUDE.md"
+tags: ["project"]
+timestamp: "2026-09-29"
 ---
 
 # Sample Project
 
-The sample project is a template demonstrating the standard structure for all projects in the playground.
+**The scaffold every new project is copied from.** It is a real, validated project bundle — the
+same gates pass on it as on any project — but its own files describe nothing: every line a new
+project must write itself is marked `SCAFFOLD:`, so a copy that has been renamed and filled
+contains no trace of the scaffold. This card, not the scaffold, is where it is described as a
+template.
 
-## Purpose
-
-This project serves as a reference implementation showing:
-- Recommended directory structure for new projects
-- How to organize project source code
-- How to structure project-specific knowledge bases
-- Project configuration in CLAUDE.md
-- Metadata in version.json
-
-## Structure
+## What a copy starts with
 
 ```
-projects/sample-project/
-├── src/              # Project source code
-├── kb/               # Project-specific knowledge base
-├── CLAUDE.md         # Project configuration
-├── README.md         # Project overview
-└── version.json      # Project metadata
+projects/<name>/
+├── src/                        # source code
+├── kb/
+│   ├── index.md                # KB entry point (the only okf_version)
+│   ├── overview/about.md       # what it is, for whom, out of scope
+│   └── process/
+│       ├── handoff.md          # where it stands now — read first
+│       ├── roadmap.md          # M0 — stand the project up
+│       ├── backlog/            # the first item: <PREFIX>-TICKET-001, write the spec
+│       ├── journal/            # the first entry: the session that created the project
+│       └── definition-of-done.md
+├── CLAUDE.md                   # governs the project, incl. its PDLC section and prefix
+├── README.md
+└── version.json                # status, milestone, updated
 ```
 
-## Getting Started with the Sample Project
+`kb/product/`, `kb/design/`, `kb/alignment/`, `spikes/`, and the coverage-audit file are created
+when they are first needed.
 
-1. **Read the overview:** Start with `projects/sample-project/README.md`
-2. **Check the configuration:** Review `projects/sample-project/CLAUDE.md` for project guidelines
-3. **Explore the KB:** Browse `projects/sample-project/kb/` for project documentation
-4. **Review metadata:** Check `projects/sample-project/version.json` for project status
+## PDLC
 
-## Using as Template
+| | |
+|---|---|
+| Prefix | `SMP` |
+| Handoff — where it stands now | [`kb/process/handoff.md`](../../sample-project/kb/process/handoff.md) |
+| Backlog | [`kb/process/backlog/`](../../sample-project/kb/process/backlog/index.md) |
 
-To create a new project based on this template:
+Static fields only: current milestone and open work are read from the handoff and backlog, so
+this block never goes stale.
 
-1. Copy the directory structure
-2. Update CLAUDE.md with your project-specific instructions
-3. Update README.md with your project overview
-4. Modify version.json with your project metadata
-5. Create your knowledge base in kb/ using OKF format
-6. Add your source code to src/
-7. Update `projects/kb/index.md` to reference your new project
+## Creating a project from it
 
-See [Repository KB - Project Template](../../../kb/architecture/project-template.md) for detailed instructions.
+The steps — copy, choose and reserve a prefix in the [prefix registry](index.md#prefix-registry),
+rename, rewrite the `SCAFFOLD:` lines, register, validate, and the leftovers check — live in one
+place: [`projects/CLAUDE.md`](../../CLAUDE.md), "Adding a new project".

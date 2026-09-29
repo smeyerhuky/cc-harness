@@ -1,7 +1,7 @@
 ---
 type: "Concept"
 title: "Knowledge Base Organization"
-description: "How knowledge bases are organized across the playground."
+description: "How knowledge bases are organized across the harness."
 resource: "README.md"
 tags: ["knowledge-base", "organization"]
 timestamp: "2026-07-15"
@@ -9,7 +9,7 @@ timestamp: "2026-07-15"
 
 # Knowledge Base Organization
 
-The playground uses a three-tier knowledge base system for clear information separation and navigation.
+The harness uses a three-tier knowledge base system for clear information separation and navigation.
 
 ## Tier 1: Repository KB (`/kb/`)
 
@@ -22,10 +22,12 @@ The playground uses a three-tier knowledge base system for clear information sep
 - Common development patterns
 - Environment setup details
 - General coding guidelines
+- How work is planned and recorded — the PDLC method, [`kb/pdlc/`](../pdlc/index.md) — and the
+  harness's own instance of it in `kb/process/`
 
 **Access:** Use `kb/index.md` as entry point for repository-wide knowledge
 
-**When to use:** Reference these when you need general playground information or cross-project guidance
+**When to use:** Reference these when you need general harness information or cross-project guidance
 
 ## Tier 2: Projects Navigation KB (`/projects/kb/`)
 
@@ -33,8 +35,9 @@ The playground uses a three-tier knowledge base system for clear information sep
 
 **Content:**
 - List of all active projects
-- Links to individual project KBs
-- Project status and work-in-progress documentation
+- One card per project: what it is, its work-item prefix, and links to its handoff and backlog
+  (static fields — where a project stands is read from its handoff)
+- The prefix registry, so every project's work-item IDs stay unique
 - Quick links to jump between projects
 
 **Access:** Use `projects/kb/index.md` to navigate to individual projects
@@ -51,7 +54,8 @@ The playground uses a three-tier knowledge base system for clear information sep
 - Architecture and design notes
 - API references and interfaces
 - Troubleshooting guides
-- Project-specific development workflows
+- The project's PDLC instance: `kb/process/` (handoff, roadmap, backlog, running journal,
+  definition of done) and `kb/alignment/` (review ceremonies)
 
 **Access:** Each project maintains its own KB directory with `index.md` as entry point
 
@@ -60,13 +64,15 @@ The playground uses a three-tier knowledge base system for clear information sep
 ## Knowledge Flow
 
 ```
-User enters playground
+User enters the harness
          ↓
 Read /kb/index.md (understand repo purpose)
          ↓
 Check /projects/kb/index.md (find your project)
          ↓
 Enter /projects/[project]/kb/index.md (project details)
+         ↓
+Read /projects/[project]/kb/process/handoff.md (where it stands, the next work item)
          ↓
 Follow project-specific docs as needed
 ```

@@ -19,8 +19,8 @@ they give the harness a full library-science spine: consistent terms (Phases
 1–2), queryable relationships (Phase 3), measurable retrieval (Phase 4), and a
 tended collection (Phase 5). Five tools enforce it: `lint_okf.py`,
 `lint_authority.py`, `relationships.py`, and `weeding.py` all run green on the
-current corpus, and `retrieval_eval.py` reports recall@3 of 0.78 (baseline) /
-0.90 (with vocabulary expansion) — a measurement, not a gate, until a
+current corpus, and `retrieval_eval.py` reports recall@3 of 0.82 (baseline) /
+0.91 (with vocabulary expansion) over 18 questions — a measurement, not a gate, until a
 `--gate-recall` floor is wired into CI.
 
 ---
@@ -93,7 +93,10 @@ which scores a transparent, deterministic TF-IDF retriever over `kb/` by
 precision/recall/F1 at k. The retriever is a reproducible *structural* signal
 (not a stand-in for the LLM), sensitive to exactly what this overlay improves:
 enabling controlled-vocabulary query expansion lifts mean recall@3 from **0.78 to
-0.90**. A `--gate-recall` flag turns it into a CI regression check. **Done:**
+0.90** (the 12-question set at Phase 4's release). A `--gate-recall` flag turns it into a CI regression check.
+The ranker has since moved from TF-IDF to BM25F, which normalizes for document length so a long
+page that repeats a common word no longer outranks the short one that answers; the status above
+has the current numbers. **Done:**
 adding the vocabulary's cross-references moves a measured number, on real data.
 
 ## Phase 5 — Collection-development & weeding policy *(shipped)*
