@@ -14,10 +14,10 @@ src/            source code
 kb/             project-specific OKF knowledge base — see navigation below
   overview/     what the project is, for whom, what is out of scope
   process/      handoff, roadmap, backlog/, journal/, definition of done  (the PDLC instances)
-  product/      the spec — created when it is written
-  design/       architecture, contracts, technology choices — created when first sketched
+  product/      the spec: PRD, game rules, pause and presence rules, controls and layout
+  design/       system and client architecture, UI language, stack and CI
   alignment/    review ceremonies, one folder each — created at the first ceremony
-spikes/         spike journals + throwaway code — created at the first spike
+spikes/         spike journals + throwaway code (proof-of-concept/: the demo pages' source)
 CLAUDE.md       this file (governs the project)
 README.md       overview and setup
 version.json    project metadata (status, current milestone, updated)
@@ -29,6 +29,7 @@ Start at [`kb/index.md`](kb/index.md):
 
 - **[overview/](kb/overview/index.md)** — what the project is, for whom, and what is out of scope
 - **[product/](kb/product/index.md)** — the spec: PRD, game rules, pause and presence rules, controls and layout
+- **[design/](kb/design/index.md)** — system and client architecture, UI language, tech stack and CI
 - **[process/](kb/process/index.md)** — handoff, roadmap, backlog, running journal, definition of done
 
 ## PDLC — how work is planned and recorded here
@@ -42,15 +43,15 @@ the files below are this project's instances of it.
 | Pipeline stage | Lives here |
 |---|---|
 | Spec (what, for whom, out of scope, acceptance criteria) | [`kb/product/`](kb/product/index.md) — the [PRD](kb/product/prd.md) and the rules it cites |
-| Design (architecture, contracts, technology choices) | `kb/design/` — created when the design is sketched |
+| Design (architecture, contracts, technology choices) | [`kb/design/`](kb/design/index.md) — system and client architecture, UI language, stack and CI |
 | Roadmap (milestones, todos, exit criteria) | [`kb/process/roadmap.md`](kb/process/roadmap.md) |
 | Backlog (epics, stories, spikes, tickets) | [`kb/process/backlog/`](kb/process/backlog/index.md) |
 | Running journal (one entry per working session) | [`kb/process/journal/`](kb/process/journal/index.md) |
 | Handoff (where things stand now) | [`kb/process/handoff.md`](kb/process/handoff.md) |
 | Definition of done | [`kb/process/definition-of-done.md`](kb/process/definition-of-done.md) |
 | Review ceremonies | `kb/alignment/` — created at the first ceremony |
-| Spike journals | `spikes/<slug>/JOURNAL.md` — created at the first spike |
-| Coverage-audit sweeps | `kb/process/coverage-audit.md` — created at the first sweep |
+| Spike journals | `spikes/<slug>/JOURNAL.md` — the [proof of concept](spikes/proof-of-concept/JOURNAL.md) so far |
+| Coverage-audit sweeps | [`kb/process/coverage-audit.md`](kb/process/coverage-audit.md) |
 
 **Starting a session:** read the [handoff](kb/process/handoff.md), then the
 [roadmap](kb/process/roadmap.md), then the next work item's *AI PDLC Prompt*
@@ -68,6 +69,12 @@ project)? It goes to the harness backlog — see
   tables of contents; every content file has `type/title/description/resource/tags/timestamp`
   frontmatter. Validate `projects/garbage-day/kb/` with the project
   [gates](../../kb/pdlc/definition-of-done.md#gates).
+- **Code gates** (once `src/` has code, from `projects/garbage-day/`):
+  `pnpm lint && pnpm typecheck && pnpm test && pnpm test:worker && pnpm build`, defined in
+  [stack and CI](kb/design/stack-and-ci.md#code-gates). Until the scaffold item lands, only the KB
+  gates apply.
+- **Dependencies stay current.** Newest versions unless an exception is recorded in
+  [stack and CI](kb/design/stack-and-ci.md#exceptions-to-latest) with the condition for lifting it.
 - **Document as you go.** Keep `kb/`, `README.md`, and `version.json` current as the project
   evolves.
 

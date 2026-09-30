@@ -5,7 +5,7 @@ description: "Write kb/design/stack-and-ci.md: languages, packages and tools, th
 resource: "../../product/prd.md"
 tags: ["backlog", "design", "deploy"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M0"
 relationships:
   - type: DERIVED_FROM
@@ -61,3 +61,15 @@ workflow files or source packages here; the first build milestone does. Done whe
 criteria hold, the project gates pass (`/kb/pdlc/definition-of-done.md`, "Gates"), this item is
 `done` with a Resolution, the backlog index and roadmap agree, and the session's running-journal
 entry records it.
+
+## Resolution
+
+Done in [the design session](../journal/2026-09-30-design.md): [`kb/design/stack-and-ci.md`](../../design/stack-and-ci.md). Versions were read from
+the npm registry on 2026-09-30 and the peer dependencies checked. Two exceptions to "latest" are
+documented with the condition for lifting each: TypeScript 6.0.3 (7.0.2 is out, but
+`typescript-eslint` 8.71 supports `<6.1`) and Vitest 4.1.11 (5.0.2 is out, but
+`@cloudflare/vitest-pool-workers` 0.22 requires `^4.1`). The owner's direction in this session,
+"react based … latest dependencies to account for vulns", set React 19.3, the React Compiler,
+XState, Zustand and React Router 8, and the dependency-security section (audit, dependency
+review, CodeQL, `minimumReleaseAge`, install-script allowlist). The project `CLAUDE.md` now
+lists the code gates.

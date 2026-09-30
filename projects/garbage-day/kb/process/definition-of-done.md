@@ -15,11 +15,17 @@ the generic tiers here — add only what is specific to this project.
 
 ## Project-specific items
 
-None yet. Add them as the project's real risks become clear — for example, a design-token rule
-for a UI, round-trip tests for a file format, a recorded visual story for anything user-facing,
-or a print-test log for a physical part.
+1. **Engine changes keep replays deterministic.** A change under `src/engine/` passes the golden
+   replays; regenerating a golden file is a deliberate, separate commit that says why the rules
+   changed and links the spec edit.
+2. **Colours and type come from tokens.** UI code uses the UI language's CSS custom properties,
+   never literal colours, and the token-contrast test passes.
+3. **User-facing work is checked on a phone and a desktop** (touch and keyboard), with reduced
+   motion on, and the check is recorded in the item's Resolution.
+4. **Dependency versions are current** per the dependency tier of the repo's definition of done,
+   with any held-back version listed in [stack and CI](../design/stack-and-ci.md#exceptions-to-latest).
 
 ## This project's gates
 
-The project [KB gates](../../../../kb/pdlc/definition-of-done.md#gates) on this bundle; add the
-project's build, lint, and test commands here once `src/` has code.
+The project [KB gates](../../../../kb/pdlc/definition-of-done.md#gates) on this bundle, and, once
+`src/` has code, the [code gates](../design/stack-and-ci.md#code-gates).

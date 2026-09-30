@@ -272,11 +272,12 @@ monitor.
 
 ## Open questions
 
-Each has the answer assumed until the owner says otherwise.
+Answered at the owner's check-in on 2026-09-30: question 1 confirmed ("yes tap to rotate"); the
+others were approved as assumed ("go").
 
-| # | Question | Assumed answer |
+| # | Question | Answer |
 |---|---|---|
-| 1 | The owner wrote "top to rotate". Is that "tap to rotate"? | Yes: tap rotates clockwise, a tap on the left third of the board rotates counter-clockwise. |
+| 1 | The owner wrote "top to rotate". Is that "tap to rotate"? | Yes (confirmed): tap rotates clockwise, a tap on the left third of the board rotates counter-clockwise. |
 | 2 | How long before quick match offers a bot? | 20 s. |
 | 3 | How long does an unused private game stay open? | 30 minutes of no activity. |
 | 4 | Is a friend's private game allowed to use Classic mode? | Yes, it is a match setting. |

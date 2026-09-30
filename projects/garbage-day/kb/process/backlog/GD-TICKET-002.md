@@ -5,7 +5,7 @@ description: "Turn the proven proof-of-concept design into kb/design/architectur
 resource: "../../product/prd.md"
 tags: ["backlog", "design", "architecture"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M0"
 relationships:
   - type: DERIVED_FROM
@@ -56,3 +56,19 @@ plus a traceability table from US-01..US-20 to components. Link the design folde
 GD-TICKET-004). Done when the acceptance criteria hold, the project gates pass
 (`/kb/pdlc/definition-of-done.md`, "Gates"), this item is `done` with a Resolution, the backlog
 index and roadmap agree, and the session's running-journal entry records it.
+
+## Resolution
+
+Done in [the design session](../journal/2026-09-30-design.md): [`kb/design/architecture.md`](../../design/architecture.md) with components,
+both message lists, state machines, the determinism contract, the match clock, the garbage ledger,
+presence and pauses, bots, cost, what carries over from the proof of concept, and the US-01 to
+US-20 traceability table; [`kb/design/index.md`](../../design/index.md) linked from `kb/index.md`
+and the PDLC table.
+
+Deviations and additions: the proof of concept's code was first committed to
+`spikes/proof-of-concept/` and recorded as [`GD-SPIKE-001`](GD-SPIKE-001.md), so the design cites
+code in the repo rather than an artifact link. Three changes from the proof of concept are design
+decisions made here: fixed-point gravity instead of `Math.pow` (cross-engine determinism), SQLite
+snapshots so a deploy restart does not lose a match, and the bot as a second client in a Web
+Worker rather than server code. The React client's structure, which the owner asked for in this
+session, went to its own file under [`GD-TICKET-005`](GD-TICKET-005.md).

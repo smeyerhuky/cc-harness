@@ -5,7 +5,7 @@ description: "Write kb/design/ui-language.md: the visual identity (municipal haz
 resource: "../../product/prd.md"
 tags: ["backlog", "design", "UI"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M0"
 relationships:
   - type: DERIVED_FROM
@@ -56,3 +56,15 @@ linked. Keep behaviour out of it: behaviour is the spec's. Done when the accepta
 hold, the project gates pass (`/kb/pdlc/definition-of-done.md`, "Gates"), this item is `done`
 with a Resolution, the backlog index and roadmap agree, and the session's running-journal entry
 records it.
+
+## Resolution
+
+Done in [the design session](../journal/2026-09-30-design.md): [`kb/design/ui-language.md`](../../design/ui-language.md) with identity, tokens for
+both themes (from the proof of concept's `:root` blocks), type, board and widget looks, motion
+with reduced-motion equivalents, sound, touch feedback, annotated desktop and phone layouts, and
+the copy guide.
+
+Deviation from the proof of concept, deliberately: the demo's piece colours matched the Tetris
+guideline colour per shape, which is trade dress the PRD rules out, so v1 uses a new
+"collection streams" palette with a pattern mark per piece (which also serves US-20). The demo's
+XP and badges are recorded as not in v1; it is a check-in question for the owner.

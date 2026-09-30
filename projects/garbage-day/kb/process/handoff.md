@@ -15,25 +15,33 @@ history lives in the [running journal](journal/index.md).
 
 ## Snapshot
 
-- **Active epic:** none yet.
-- **Milestone:** M0 — Stand the project up — active ([roadmap](roadmap.md)).
+- **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
+- **Milestone:** M0 — Stand the project up — exit reached, **at the owner check-in**; M1 —
+  Foundations — minted and waiting for the owner's go-ahead ([roadmap](roadmap.md)).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
-- **Proof of concept, not yet in the repo:** two interactive pages built before the project
-  existed: [Garbage Day](https://claude.ai/artifact/L5SGMhy2aj8qozrDVNSrkT) (step-through replay)
-  and [Garbage Day Live](https://claude.ai/artifact/VcuM8PLqvvcBjYD1n8EPja) (live play vs a bot,
-  simulated Match DO, two bot-vs-bot matches). They are the source material for the spec.
-- **Landed recently:** the spec, `GD-TICKET-001` done: [PRD](../product/prd.md) and the rules
-  files in [`kb/product/`](../product/index.md) ([journal entry](journal/2026-09-30-spec.md)).
-  Before that, the project was created ([journal entry](journal/2026-09-30-project-created.md)).
-- **Waiting on the owner:** a read of the PRD's stories and its five open questions (each has an
-  assumed answer that holds until they say otherwise).
-- **Gates:** see *Verify the baseline*.
+- **Landed recently:** the design session ([journal entry](journal/2026-09-30-design.md)):
+  - the proof of concept committed as [`GD-SPIKE-001`](backlog/GD-SPIKE-001.md), in
+    [`spikes/proof-of-concept/`](../../spikes/proof-of-concept/JOURNAL.md);
+  - [`kb/design/`](../design/index.md): system architecture, React client architecture, UI
+    language, stack and CI (`GD-TICKET-002` to `005` done);
+  - the roadmap's M1–M5, the M1 items `GD-TICKET-006` to `011`, and the first
+    [coverage audit](coverage-audit.md), whose six gaps are `GD-TICKET-012` to `017`.
+  Before that, the spec ([journal entry](journal/2026-09-30-spec.md)).
+- **Waiting on the owner:** the M0 check-in decisions in the design session's journal entry
+  ("Next"); unanswered, their defaults hold.
+- **Gates:** see *Verify the baseline*. No `src/` code yet, so only the KB gates apply.
 
 ## Immediate next step
 
-[`GD-TICKET-002`](backlog/GD-TICKET-002.md) — write the architecture design from the proof of
-concept. Then `GD-TICKET-003` (UI language, which needs only the spec) and `GD-TICKET-004` (stack
-and CI, which waits for the architecture).
+After the owner's go-ahead on M1: [`GD-TICKET-006`](backlog/GD-TICKET-006.md) — scaffold the
+pnpm workspace with the pinned stack. It is the only M1 item with no open dependency; then
+`GD-TICKET-007`, `008` and `010` (each needs only `006`), then `009` and `011`.
+
+## Standing rules for M1
+
+- Re-check every version against the npm registry on the day it is pinned; record any change in
+  [stack and CI](../design/stack-and-ci.md#exceptions-to-latest).
+- Port from `spikes/proof-of-concept/live/live-engine.js`; do not rewrite rules from memory.
 
 ## Verify the baseline
 

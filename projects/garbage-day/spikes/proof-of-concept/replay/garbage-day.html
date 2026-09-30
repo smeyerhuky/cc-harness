@@ -1,0 +1,1857 @@
+<title>Garbage Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: two arcade screens joined by the Match DO lane, transport and story under them,
+   and an "engine room" (state machines + wire log) alongside like a service panel. */
+:root{
+  --bg:#ECEEEA; --surface:#F8F9F6; --surface-2:#E1E5DF; --ink:#1B1F22; --muted:#56606A; --line:#C8CEC7;
+  --accent:#C73E17; --accent-ink:#FFFFFF; --you:#C73E17; --rival:#22629C;
+  --hazard:#F2B90F; --hazard-ink:#1B1F22;
+  --ok:#2A8453; --warn:#9A7208; --bad:#C23A2B;
+  --well:#14181B; --well-grid:#1F2529; --well-ink:#E9ECE7; --cabinet:#262C31;
+  --you-stack:#C0582F; --rival-stack:#3A70A8; --garbage:#6F777D; --garbage-stripe:#5A6167;
+  --p-I:#3FB6DE; --p-O:#EFC030; --p-T:#9A6AD4; --p-S:#4CAF69; --p-Z:#DE5140; --p-J:#4A78D6; --p-L:#EE8A2E;
+  --sm-node:#FFFFFF; --sm-edge:#89939A; --sm-on:#C73E17;
+  --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101315; --surface:#171B1E; --surface-2:#1F2529; --ink:#E6E9E4; --muted:#98A2A8; --line:#2C3338;
+    --accent:#FF6B3D; --accent-ink:#1A0D07; --you:#FF6B3D; --rival:#5DA5E3;
+    --hazard:#F2C12E; --hazard-ink:#111416;
+    --ok:#4CC27F; --warn:#E3B23C; --bad:#F0604F;
+    --well:#0A0D0F; --well-grid:#171C20; --well-ink:#E9ECE7; --cabinet:#0E1113;
+    --you-stack:#C8653D; --rival-stack:#4580BD; --garbage:#646C72; --garbage-stripe:#50575C;
+    --sm-node:#20262A; --sm-edge:#6F7A80; --sm-on:#FF6B3D;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101315; --surface:#171B1E; --surface-2:#1F2529; --ink:#E6E9E4; --muted:#98A2A8; --line:#2C3338;
+  --accent:#FF6B3D; --accent-ink:#1A0D07; --you:#FF6B3D; --rival:#5DA5E3;
+  --hazard:#F2C12E; --hazard-ink:#111416;
+  --ok:#4CC27F; --warn:#E3B23C; --bad:#F0604F;
+  --well:#0A0D0F; --well-grid:#171C20; --well-ink:#E9ECE7; --cabinet:#0E1113;
+  --you-stack:#C8653D; --rival-stack:#4580BD; --garbage:#646C72; --garbage-stripe:#50575C;
+  --sm-node:#20262A; --sm-edge:#6F7A80; --sm-on:#FF6B3D;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.page{max-width:1320px;margin:0 auto;padding-inline:clamp(16px,3vw,32px);padding-block:20px 56px;display:grid;gap:22px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:.95;letter-spacing:.01em}
+p{margin:0}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hazard{background:repeating-linear-gradient(-45deg,var(--hazard) 0 10px,var(--hazard-ink) 10px 20px)}
+
+/* ---------- masthead ---------- */
+.masthead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 32px;align-items:end;padding-bottom:18px;position:relative}
+.masthead::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;border-radius:3px;background:repeating-linear-gradient(-45deg,var(--hazard) 0 10px,var(--hazard-ink) 10px 20px);opacity:.9}
+.masthead h1{font-size:clamp(52px,8vw,96px);font-weight:900;text-transform:uppercase;line-height:.85;margin-top:6px}
+.masthead h1 span{color:var(--accent)}
+.lede{max-width:62ch;margin-top:12px;color:var(--muted);font-size:16px}
+.hud{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.xp{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;min-width:220px;display:grid;gap:6px}
+.xp-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.xp-title{font-family:var(--display);font-size:20px;font-weight:800;text-transform:uppercase}
+.xp-num{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.xp-bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.xp-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:8px;line-height:1.2}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* ---------- main grid ---------- */
+.main{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,1fr);gap:22px;align-items:start}
+.col{display:grid;gap:16px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;min-width:0}
+.card h2{font-size:30px;font-weight:800;text-transform:uppercase}
+.card h3{font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.sub{color:var(--muted);font-size:14px;margin-top:6px;max-width:65ch}
+
+/* ---------- stage ---------- */
+.stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) var(--lane,64px) minmax(0,1fr);gap:10px;background:var(--cabinet);border-radius:14px;padding:12px;color:var(--well-ink);overflow:hidden}
+.stage.narrow{--lane:34px;gap:6px;padding:8px}
+.screen{display:grid;gap:8px;min-width:0;align-content:start}
+.screen-bar{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+.who{font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:.03em;line-height:1}
+#scr-you .who{color:var(--you)}
+#scr-rival .who{color:var(--rival)}
+#scr-rival .screen-bar{justify-content:flex-end}
+.pres{font-family:var(--mono);font-size:11px;display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.07);white-space:nowrap}
+.pres i{width:7px;height:7px;border-radius:50%;background:#4CC27F;display:inline-block}
+.pres[data-s="away"] i,.pres[data-s="silent"] i{background:#F2C12E}
+.pres[data-s="silent"] i{animation:blink .6s steps(2) infinite}
+.pres[data-s="gone"] i,.pres[data-s="forfeit"] i{background:#F0604F}
+.pno{font-family:var(--mono);font-size:11px;opacity:.7;font-variant-numeric:tabular-nums}
+.screen-body{display:flex;gap:6px;align-items:flex-end}
+#scr-you .screen-body{justify-content:flex-end}
+#scr-rival .screen-body{justify-content:flex-start}
+.board-box{position:relative;border-radius:4px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.board-box canvas{display:block;transition:filter .35s}
+.board-box.frozen canvas{filter:blur(3px) saturate(.4) brightness(.7)}
+.meter{position:relative;width:10px;border-radius:3px;background:rgba(255,255,255,.06)}
+.meter-fill{position:absolute;left:0;right:0;bottom:0;height:0;border-radius:3px;background:repeating-linear-gradient(-45deg,#F2C12E 0 5px,#1B1F22 5px 10px);transition:height .35s cubic-bezier(.2,.8,.2,1)}
+.meter-n{position:absolute;left:50%;transform:translate(-50%,-4px);bottom:0;font-family:var(--mono);font-size:11px;font-weight:600;color:#F2C12E;transition:bottom .35s;white-space:nowrap}
+.meter.crack .meter-fill{animation:crack .45s}
+.meter.bump{animation:bump .4s}
+.next{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;opacity:.8}
+#scr-rival .next{justify-content:flex-end}
+.next span{display:flex;gap:6px;align-items:center}
+.lane{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.lane::before{content:"";position:absolute;top:36px;bottom:36px;left:50%;border-left:2px dashed rgba(255,255,255,.14)}
+.do-node{position:relative;z-index:1;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.06em;text-align:center;line-height:1.25;background:#2F363C;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 4px;width:100%}
+.stage.narrow .do-node{font-size:8px;padding:6px 1px;letter-spacing:0}
+.do-node.pulse{animation:pulse .5s}
+.fx{position:absolute;inset:0;pointer-events:none;z-index:5}
+.fx canvas{position:absolute;inset:0;width:100%;height:100%}
+.proj{position:absolute;left:0;top:0;font-family:var(--display);font-weight:900;font-size:22px;color:#1B1F22;background:#F2C12E;border-radius:99px;padding:2px 10px;box-shadow:0 0 0 3px rgba(242,193,46,.35),0 0 22px rgba(242,193,46,.7);white-space:nowrap}
+.ov{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:2}
+.ov-count{font-family:var(--display);font-weight:900;font-size:clamp(48px,9vw,96px);color:#fff;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+.ov-count.pop{animation:pop .55s cubic-bezier(.2,.9,.3,1.3)}
+.popups{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.popup{position:absolute;left:50%;top:42%;transform:translate(-50%,0);font-family:var(--display);font-weight:900;font-size:clamp(20px,3.4vw,34px);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.8);animation:rise 1.3s ease-out forwards}
+.popup.small{font-size:clamp(14px,2vw,18px);font-family:var(--mono);font-weight:600;text-transform:none}
+.popup.hazard-text{color:#F2C12E}
+.popup.bad{color:#FF7A66}
+.msg{position:absolute;left:8px;right:8px;top:10px;z-index:4;background:rgba(18,22,25,.94);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:12px;display:grid;gap:8px;font-size:13px;line-height:1.45;color:var(--well-ink)}
+.msg b{font-family:var(--display);font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.msg .t{font-family:var(--mono);font-size:12px;color:#F2C12E}
+.msg .btn{justify-self:start;background:#F2C12E;border-color:#F2C12E;color:#1B1F22}
+.stage.narrow .msg{left:4px;right:4px;top:4px;padding:8px;font-size:11.5px}
+.stage.narrow .msg b{font-size:16px}
+.stage.narrow .banner{font-size:26px}
+.banner{position:absolute;left:0;right:0;top:38%;z-index:4;text-align:center;font-family:var(--display);font-weight:900;font-size:clamp(34px,6vw,64px);text-transform:uppercase;letter-spacing:.02em;line-height:.9;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.7);animation:pop .6s cubic-bezier(.2,.9,.3,1.3)}
+.banner small{display:block;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.04em;text-transform:none;margin-top:8px;color:var(--well-ink)}
+.waitbar{position:absolute;left:6px;right:6px;bottom:6px;z-index:4;background:rgba(18,22,25,.94);border:1px solid rgba(242,193,46,.5);border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--well-ink)}
+.waitbar .t{font-family:var(--mono);font-weight:600;color:#F2C12E;font-variant-numeric:tabular-nums}
+.waitbar .grow{flex:1 1 90px;min-width:0}
+.waitbar .btn{padding:4px 8px;font-size:12px;background:transparent;border-color:rgba(255,255,255,.25);color:var(--well-ink)}
+.screen.shake{animation:shake .38s}
+.board-box.moving canvas{cursor:pointer}
+
+/* pause popover */
+.modal{position:absolute;z-index:6;left:12px;top:48px;width:calc((100% - var(--lane,64px))/2 - 18px);max-width:340px;background:var(--surface);color:var(--ink);border-radius:12px;box-shadow:0 20px 50px -10px rgba(0,0,0,.6);overflow:hidden;animation:modalIn .32s cubic-bezier(.2,.9,.3,1.1)}
+.stage.narrow .modal{left:6px;right:6px;width:auto;max-width:none;top:auto;bottom:6px;max-height:calc(100% - 12px);overflow:auto}
+.stage.narrow .modal-in{padding:10px 12px 12px;gap:7px}
+.stage.narrow .modal h3{font-size:19px}
+.stage.narrow .modal p{font-size:12.5px}
+.stage.narrow .modal .eyebrow{font-size:10px}
+.stage.narrow .ring{width:46px;height:46px}
+.stage.narrow .ring-note{font-size:11.5px}
+.stage.narrow .modal-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.stage.narrow .modal-actions .wide{grid-column:auto}
+.stage.narrow .modal-actions .btn{padding:7px 6px;font-size:12.5px}
+.modal .hazard{height:8px}
+.modal-in{padding:14px 16px 16px;display:grid;gap:10px}
+.modal h3{font-size:24px}
+.modal p{font-size:13.5px;color:var(--muted)}
+.ring-row{display:flex;align-items:center;gap:14px}
+.ring{width:68px;height:68px;flex:none}
+.ring circle{fill:none;stroke-width:6}
+.ring .bgc{stroke:var(--surface-2)}
+.ring .fgc{stroke:var(--accent);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dasharray .4s}
+.ring text{font-family:var(--mono);font-size:15px;font-weight:600;fill:var(--ink);font-variant-numeric:tabular-nums}
+.ring-note{font-size:12.5px;color:var(--muted)}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal-actions .btn{justify-content:center}
+.modal-actions .wide{grid-column:1/-1}
+.linkbtn{border:0;background:none;padding:0;color:var(--muted);font-size:12px;text-decoration:underline;text-underline-offset:3px;justify-self:start}
+
+/* sequence strip */
+.seq{display:grid;gap:8px}
+.seq-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.seq-strip{display:flex;gap:4px;overflow-x:auto;padding:18px 2px 20px;list-style:none;margin:0;scroll-behavior:smooth}
+.seq-strip li{position:relative;flex:none;width:34px;height:38px;border-radius:6px;background:var(--surface-2);display:grid;place-items:center;align-content:center;gap:3px}
+.seq-strip li.past{opacity:.38}
+.seq-strip .n{font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1}
+.mk{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;white-space:nowrap;color:#fff}
+.mk.you{top:-16px;background:var(--you)}
+.mk.rival{bottom:-17px;background:var(--rival)}
+.seq-strip li.cur-you{box-shadow:inset 0 0 0 2px var(--you)}
+.seq-strip li.cur-rival{box-shadow:inset 0 -3px 0 0 var(--rival)}
+
+/* pause lab */
+.lab-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lab-bar .lbl{font-family:var(--display);font-weight:800;font-size:18px;text-transform:uppercase;margin-right:4px}
+.lab-bar .note{font-size:12.5px;color:var(--muted);flex-basis:100%}
+
+/* transport */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 6px;list-style:none;margin:0}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 9px;display:grid;gap:1px;text-align:left;min-width:62px}
+.chip .ct{font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip .cl{font-size:12.5px;font-weight:600;white-space:nowrap}
+.chip.seen{background:var(--surface-2)}
+.chip.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.chip.on .ct{color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.controls .spacer{flex:1}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;border:1px solid var(--line);border-radius:8px;padding:7px 11px;background:var(--surface)}
+.toggle input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+.state-chip{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:4px 8px}
+.state-chip b{color:var(--ink);font-weight:600}
+
+/* story */
+.story{display:grid;gap:10px}
+.story-meta{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.story-meta .tag{color:var(--accent);font-weight:600}
+.story h2{font-size:clamp(28px,3.4vw,38px)}
+.story-text{font-size:16px;max-width:64ch}
+.interact{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.interact:empty{display:none}
+.q{font-weight:600}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 14px;font-weight:600}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt:disabled{cursor:default}
+.explain{font-size:14px;color:var(--muted);max-width:64ch}
+.explain b{color:var(--ink)}
+.hint{font-size:13.5px;color:var(--warn);font-weight:600;min-height:1.2em}
+.movepad{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;background:var(--bg)}
+.xp-float{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ok)}
+
+/* engine room */
+.machines{display:grid;gap:14px}
+.sm{display:grid;gap:4px;margin:0}
+.sm-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.sm-head h3{font-size:17px}
+.sm-where{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.sm-wrap{overflow-x:auto}
+.sm svg{display:block;width:100%;min-width:340px;height:auto}
+.sm-last{font-family:var(--mono);font-size:11.5px;color:var(--muted);min-height:1.3em}
+.sm-last b{color:var(--sm-on);font-weight:600}
+.sm-node rect{fill:var(--sm-node);stroke:var(--line);stroke-width:1.2;transition:fill .25s,stroke .25s}
+.sm-node text{fill:var(--ink);font-family:var(--mono);font-size:11px;font-weight:600;transition:fill .25s}
+.sm-node.on rect{fill:var(--sm-on);stroke:var(--sm-on)}
+.sm-node.on text{fill:var(--accent-ink)}
+.sm-edge path{fill:none;stroke:var(--sm-edge);stroke-width:1.3}
+.sm-edge.dashed path{stroke-dasharray:3 3}
+.sm-edge text{fill:var(--muted);font-family:var(--mono);font-size:10px}
+.sm-edge.hot path{stroke:var(--sm-on);stroke-width:2.2;stroke-dasharray:6 4;animation:dash .7s linear infinite}
+.sm-edge.hot text{fill:var(--sm-on);font-weight:600}
+.tok{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.tok text{font-family:var(--mono);font-size:10px;font-weight:600;fill:#fff}
+.wire{list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:11.5px;line-height:1.45;max-height:340px;overflow:auto;display:grid;gap:2px;align-content:start}
+.wire li{display:grid;grid-template-columns:3.2em 7.6em minmax(0,1fr);gap:8px;padding:3px 6px;border-radius:4px}
+.wire li.new{animation:flash 1s}
+.wire li.sep{display:block;color:var(--muted);padding-top:8px;border-top:1px dashed var(--line);margin-top:4px}
+.wire .wt{color:var(--muted);font-variant-numeric:tabular-nums}
+.wire .wr{font-weight:600;white-space:nowrap}
+.wire .r-you{color:var(--you)} .wire .r-rival{color:var(--rival)} .wire .r-do{color:var(--warn)}
+.wire code{font-family:inherit;overflow-wrap:anywhere}
+.wire-empty{font-size:13px;color:var(--muted)}
+
+/* lower sections */
+.lower{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}
+.lab-grid{display:grid;gap:14px;margin-top:14px}
+.seg{display:flex;flex-wrap:wrap;gap:6px;border:0;padding:0;margin:0}
+.seg button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 11px;font-size:13.5px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.lab-row{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center}
+.stepper{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.stepper button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-weight:700}
+.stepper output{font-family:var(--mono);min-width:1.5em;text-align:center}
+.range{display:grid;gap:4px;font-weight:600;font-size:14px;min-width:200px;flex:1}
+.range input{accent-color:var(--accent);width:100%}
+.lab-out{margin-top:16px;background:var(--bg);border-radius:10px;padding:14px;display:grid;gap:12px}
+.eq{font-family:var(--mono);font-size:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.eq .term{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+.eq .total{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.lab-viz{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:center}
+.lab-viz .arrow{font-family:var(--display);font-size:28px;font-weight:900;color:var(--accent)}
+.lab-meter{display:grid;gap:6px;min-width:0}
+.lab-meter .cap{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sq{display:flex;flex-wrap:wrap;gap:3px;min-height:16px}
+.sq i{width:14px;height:14px;border-radius:3px;background:repeating-linear-gradient(-45deg,var(--hazard) 0 4px,var(--hazard-ink) 4px 8px);animation:pop .3s}
+.sq i.x{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);position:relative}
+.sq i.x::after{content:"";position:absolute;left:2px;right:2px;top:50%;height:2px;background:var(--bad);transform:rotate(-45deg)}
+.sq i.s{background:var(--accent)}
+.sq .none{font-size:12px;color:var(--muted)}
+.lab-say{font-size:14.5px}
+.rule-grid{display:grid;gap:16px;margin-top:14px}
+.decided{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.decided li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-size:14.5px}
+.decided li::before{content:"";width:14px;height:14px;margin-top:4px;border-radius:3px;background:var(--ok)}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:460px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td code,.sub code,li code,p code{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:1px 4px;border-radius:4px}
+.open{margin:0;padding-left:1.3em;display:grid;gap:8px;font-size:14.5px}
+.open li::marker{font-family:var(--mono);color:var(--accent);font-weight:600}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:14px}
+.badge{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:center;padding:10px;border-radius:10px;border:1px dashed var(--line);background:var(--bg)}
+.badge .ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;background:var(--surface-2)}
+.badge .ic svg{filter:grayscale(1);opacity:.45}
+.badge b{display:block;font-size:13.5px;line-height:1.2}
+.badge span{display:block;font-size:12px;color:var(--muted);line-height:1.3;margin-top:2px}
+.badge.got{border-style:solid;border-color:var(--accent);background:var(--surface)}
+.badge.got .ic{background:var(--cabinet)}
+.badge.got .ic svg{filter:none;opacity:1}
+.badge.fresh{animation:pop .5s}
+.badge-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;z-index:50;background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 16px;font-weight:600;font-size:14px;box-shadow:0 12px 30px -8px rgba(0,0,0,.4);transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast small{display:block;font-weight:400;opacity:.75;font-size:12.5px}
+
+@keyframes blink{50%{opacity:.2}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,14px) scale(.8)}15%{opacity:1;transform:translate(-50%,0) scale(1.08)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-46px) scale(1)}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-4px,2px)}40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,0)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(242,193,46,.8)}100%{box-shadow:0 0 0 14px rgba(242,193,46,0)}}
+@keyframes crack{0%{filter:none}30%{filter:brightness(2.4)}100%{filter:none}}
+@keyframes bump{0%{transform:scaleX(1)}40%{transform:scaleX(1.8)}100%{transform:scaleX(1)}}
+@keyframes dash{to{stroke-dashoffset:-20}}
+@keyframes flash{0%{background:rgba(242,193,46,.35)}100%{background:transparent}}
+@keyframes modalIn{0%{opacity:0;transform:translateY(12px) scale(.96)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+@media (max-width:1100px){.main{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){.lower{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  .masthead{grid-template-columns:minmax(0,1fr)}
+  .hud{justify-content:flex-start}
+  .xp{min-width:0;flex:1}
+  .xp-title{font-size:17px}
+  .who{font-size:20px}
+  .card{padding:14px}
+  .story-text{font-size:15px}
+  .lab-viz{grid-template-columns:minmax(0,1fr)}
+  .lab-viz .arrow{transform:rotate(90deg);justify-self:center}
+}
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Versus mode · interactive replay · seed 0xCDD72</p>
+      <h1>Garbage <span>Day</span></h1>
+      <p class="lede">One two-player match, replayed moment by moment. Clear lines to send garbage, then watch it wait in the meter, get cancelled and land. Halfway through, RIVAL leaves the tab and your pause rule takes over.</p>
+    </div>
+    <div class="hud">
+      <div class="xp" aria-live="polite">
+        <div class="xp-top"><span class="xp-title" id="xpTitle">Rookie stacker</span><span class="xp-num" id="xpNum">0 XP</span></div>
+        <div class="xp-bar"><i id="xpBar"></i></div>
+      </div>
+      <button class="btn" id="soundBtn" aria-pressed="false" type="button">Sound off</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="col">
+      <section class="card" style="padding:12px" aria-label="Match">
+        <div class="stage" id="stage">
+          <div class="screen" id="scr-you">
+            <div class="screen-bar"><span class="who">YOU</span><span class="pres" id="pres-you" data-s="present"><i></i><span>online</span></span><span class="pno" id="pno-you"></span></div>
+            <div class="screen-body">
+              <div class="board-box" id="box-you">
+                <canvas id="cv-you" aria-label="YOU's board"></canvas>
+                <div class="ov"><span class="ov-count" id="cnt-you"></span></div>
+                <div class="popups" id="pop-you"></div>
+              </div>
+              <div class="meter" id="meter-you" title="YOU's incoming garbage"><div class="meter-fill"></div><span class="meter-n">0</span></div>
+            </div>
+            <div class="next">NEXT <span id="next-you"></span></div>
+          </div>
+          <div class="lane"><div class="do-node" id="doNode">MATCH<br>DO</div></div>
+          <div class="screen" id="scr-rival">
+            <div class="screen-bar"><span class="pno" id="pno-rival"></span><span class="pres" id="pres-rival" data-s="present"><i></i><span>online</span></span><span class="who">RIVAL</span></div>
+            <div class="screen-body">
+              <div class="meter" id="meter-rival" title="RIVAL's incoming garbage"><div class="meter-fill"></div><span class="meter-n">0</span></div>
+              <div class="board-box" id="box-rival">
+                <canvas id="cv-rival" aria-label="RIVAL's board"></canvas>
+                <div class="ov"><span class="ov-count" id="cnt-rival"></span></div>
+                <div class="popups" id="pop-rival"></div>
+              </div>
+            </div>
+            <div class="next"><span id="next-rival"></span> NEXT</div>
+          </div>
+          <div class="fx" id="fx"><canvas id="confetti"></canvas></div>
+          <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" hidden>
+            <div class="hazard"></div>
+            <div class="modal-in">
+              <p class="eyebrow">Paused · on YOU's screen</p>
+              <h3 id="mTitle">RIVAL left the game tab</h3>
+              <p id="mText">Both boards are frozen, so nobody loses time. If RIVAL isn't back when the timer runs out, RIVAL forfeits and you win.</p>
+              <div class="ring-row">
+                <svg class="ring" viewBox="0 0 68 68" aria-hidden="true"><circle class="bgc" cx="34" cy="34" r="28"/><circle class="fgc" id="mRing" cx="34" cy="34" r="28"/><text id="mTime" x="34" y="39" text-anchor="middle">2:00</text></svg>
+                <p class="ring-note" id="mNote">Default wait: 2:00. You can add time whenever you like while you wait.</p>
+              </div>
+              <div class="modal-actions">
+                <button class="btn primary wide" id="mWait" type="button">Wait for RIVAL</button>
+                <button class="btn" id="mExtend" type="button">+1:00</button>
+                <button class="btn" id="mLeave" type="button">Leave match</button>
+              </div>
+              <button class="linkbtn" id="mFF" type="button">Demo: fast-forward the timer ×10</button>
+            </div>
+          </div>
+        </div>
+        <div class="seq" style="margin-top:12px">
+          <div class="seq-head"><h3 style="font-size:17px">Shared piece sequence</h3><span class="sm-where">7-bag from seed 0xCDD72, computed live in this page</span></div>
+          <ol class="seq-strip" id="seqStrip" aria-label="Shared piece sequence"></ol>
+        </div>
+        <div class="lab-bar" id="pauseLab">
+          <span class="lbl">Pause lab</span>
+          <button class="btn small" id="plTab" type="button">RIVAL switches tabs</button>
+          <button class="btn small" id="plClose" type="button">RIVAL closes the tab</button>
+          <button class="btn small" id="plWifi" type="button">RIVAL loses Wi-Fi</button>
+          <button class="btn small primary" id="plBack" type="button" hidden>Bring RIVAL back</button>
+          <span class="note" id="plNote">Or switch away from this browser tab yourself while the match is playing.</span>
+        </div>
+      </section>
+
+      <section class="card" aria-label="Timeline">
+        <ol class="chips" id="chips"></ol>
+        <div class="controls">
+          <button class="btn" id="backBtn" type="button">Back</button>
+          <button class="btn primary" id="playBtn" type="button">Play this moment</button>
+          <label class="toggle"><input type="checkbox" id="autoT"> Autoplay</label>
+          <label class="toggle"><input type="checkbox" id="quizT" checked> Quiz me</label>
+          <span class="spacer"></span>
+          <span class="state-chip">page state: <b id="pageState">ready</b></span>
+        </div>
+      </section>
+
+      <section class="card story" aria-live="polite">
+        <div class="story-meta"><span class="tag" id="sTime">0:00</span><span id="sCount">Moment 1 of 11</span></div>
+        <h2 id="sTitle"></h2>
+        <p class="story-text" id="sText"></p>
+        <div class="interact" id="interact"></div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card">
+        <h2>Engine room</h2>
+        <p class="sub">Every animation on the left is driven by these state machines. The filled box is the current state and the orange arrow is the last transition.</p>
+        <div class="machines" style="margin-top:14px">
+          <figure class="sm"><div class="sm-head"><h3>Match</h3><span class="sm-where">lives in the Match DO</span></div><div class="sm-wrap"><svg id="smMatch"></svg></div><p class="sm-last" id="lastMatch"></p></figure>
+          <figure class="sm"><div class="sm-head"><h3>Presence</h3><span class="sm-where">one per player · Y and R</span></div><div class="sm-wrap"><svg id="smPres"></svg></div><p class="sm-last" id="lastPres"></p></figure>
+          <figure class="sm"><div class="sm-head"><h3>Piece</h3><span class="sm-where" id="pieceWhere">runs in each browser</span></div><div class="sm-wrap"><svg id="smPiece"></svg></div><p class="sm-last" id="lastPiece"></p></figure>
+        </div>
+      </section>
+      <section class="card">
+        <h3>Wire</h3>
+        <p class="sub">Messages between the two browsers and the Match DO, as the build would send them.</p>
+        <ol class="wire" id="wire" style="margin-top:10px"></ol>
+      </section>
+    </div>
+  </div>
+
+  <div class="lower">
+    <section class="card" id="lab">
+      <h2>Attack lab</h2>
+      <p class="sub">Pick a clear and see what it sends. These are typical modern values. Your game should pick one table and pin it in the spec.</p>
+      <div class="lab-grid">
+        <div class="seg" id="labClear" role="group" aria-label="Line clear"></div>
+        <div class="lab-row">
+          <label class="toggle"><input type="checkbox" id="labB2b"> Back-to-back active</label>
+          <span class="stepper">Combo <button type="button" id="cMinus" aria-label="Fewer combo clears">−</button><output id="cOut">0</output><button type="button" id="cPlus" aria-label="More combo clears">+</button></span>
+          <label class="range" for="labInc">Rows already in your meter: <output id="incOut">3</output><input type="range" id="labInc" min="0" max="12" value="3"></label>
+        </div>
+      </div>
+      <div class="lab-out">
+        <div class="eq" id="labEq"></div>
+        <div class="lab-viz">
+          <div class="lab-meter"><span class="cap">Your meter</span><div class="sq" id="labYou"></div></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="lab-meter"><span class="cap">Opponent's meter</span><div class="sq" id="labOpp"></div></div>
+        </div>
+        <p class="lab-say" id="labSay"></p>
+      </div>
+    </section>
+
+    <section class="card" id="rule">
+      <h2>The pause rule</h2>
+      <p class="sub">What you decided, how the build would detect each case, and what is still open.</p>
+      <div class="rule-grid">
+        <ul class="decided">
+          <li><span>Leaving the tab or closing it pauses <b>both</b> games at once.</span></li>
+          <li><span>The player who stayed gets a popover that says why the game is paused and asks: wait or leave.</span></li>
+          <li><span>The wait timer defaults to <b>2:00</b>. The waiting player can extend it at any time while waiting.</span></li>
+        </ul>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>What happened</th><th>How the Match DO finds out</th><th>How fast</th></tr></thead>
+          <tbody>
+            <tr><td>Switched tab or app</td><td>Browser fires <code>visibilitychange</code>; the client sends <code>away</code></td><td>Instant</td></tr>
+            <tr><td>Closed the tab</td><td>The WebSocket closes and <code>webSocketClose</code> runs in the DO. <code>pagehide</code> can send a last <code>away</code> first.</td><td>Usually instant</td></tr>
+            <tr><td>Crash, sleep, lost Wi-Fi</td><td>No close arrives. The DO notices missing heartbeats.</td><td>About 5 s. The other player keeps playing until then.</td></tr>
+          </tbody>
+        </table></div>
+        <p class="sub" style="margin-top:0">The countdown lives in the Match DO as an alarm, so both screens show the same deadline and no browser clock can bend it. <b>Extend</b> reschedules the alarm. Rejoining after a closed tab uses a join token kept in the browser; the DO answers with the current state.</p>
+        <div>
+          <h3 id="open-questions">Open questions</h3>
+          <ol class="open" style="margin-top:10px">
+            <li>Does <b>Leave</b> give the waiting player a win, or end as no contest? If it's a win, should it unlock only after a short wait, say 15 s, so a quick tab switch isn't punished at once?</li>
+            <li>Pause abuse: a losing player can leave to break the other's rhythm or buy thinking time. Options: a pause budget (2 per match), and hiding both boards while paused. This demo blurs them.</li>
+            <li>Cap the total pause, for example 10:00, so abandoned matches get cleaned up.</li>
+            <li>Both players away at once: end as no contest?</li>
+            <li>On phones, switching apps, locking the screen and incoming calls all count as leaving. Is 2:00 enough there?</li>
+            <li>Does the returning player see how long they were gone, and how close they came to forfeiting?</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Badges</h2>
+    <p class="sub">Collected in this browser only.</p>
+    <div class="badges" id="badges"></div>
+    <div class="badge-foot"><span class="sm-where" id="badgeCount"></span><button class="btn small" id="resetBtn" type="button">Reset progress</button></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ---- Engine: pure, deterministic, shared by both "browsers" (and testable in Node) ---- */
+const GD = (() => {
+  const W = 10, VIS = 20, H = 24;
+  const SEED = 0xCDD72;
+  const PIECES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
+  const SALT = { you: 0x9E3779B9, rival: 0x85EBCA6B };
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  // 7-bag: shuffle all seven pieces, deal them, repeat.
+  function makeSequence(seed, n) {
+    const rng = mulberry32(seed), out = [];
+    while (out.length < n) {
+      const bag = PIECES.slice();
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      out.push(...bag);
+    }
+    return out.slice(0, n);
+  }
+  // Garbage holes: a separate stream per receiving player, so garbage never shifts the piece sequence.
+  function makeHoles(seed, player, n) {
+    const rng = mulberry32((seed ^ SALT[player]) >>> 0);
+    return Array.from({ length: n }, () => Math.floor(rng() * W));
+  }
+  const SEQ = makeSequence(SEED, 98);
+  const HOLES = { you: makeHoles(SEED, 'you', 8), rival: makeHoles(SEED, 'rival', 8) };
+
+  // Cell offsets [dx, dy], dy grows upward. Spawn orientations, plus a vertical I.
+  const SHAPES = {
+    I: [[0, 0], [1, 0], [2, 0], [3, 0]], IV: [[0, 0], [0, 1], [0, 2], [0, 3]],
+    O: [[0, 0], [1, 0], [0, 1], [1, 1]], T: [[0, 0], [1, 0], [2, 0], [1, 1]],
+    S: [[0, 0], [1, 0], [1, 1], [2, 1]], Z: [[1, 0], [2, 0], [0, 1], [1, 1]],
+    J: [[0, 0], [1, 0], [2, 0], [0, 1]], L: [[0, 0], [1, 0], [2, 0], [2, 1]],
+  };
+
+  const emptyRow = () => Array(W).fill('.');
+  // rows are written top-down (as you'd draw them); the board is stored bottom-up (index 0 = row 1).
+  function board(rowsTopDown = []) {
+    const b = Array.from({ length: H }, emptyRow);
+    const n = rowsTopDown.length;
+    rowsTopDown.forEach((s, i) => { b[n - 1 - i] = s.split(''); });
+    return b;
+  }
+  const clone = (b) => b.map((r) => r.slice());
+  const settle = (b) => b.map((r) => r.map((c) => (c === '.' || c === 'X' ? c : '#')));
+  const cellsOf = (shape, x, y) => SHAPES[shape].map(([dx, dy]) => [x + dx, y + dy]);
+  function fits(b, shape, x, y) {
+    return cellsOf(shape, x, y).every(([cx, cy]) => cx >= 0 && cx < W && cy >= 0 && (cy >= H || b[cy][cx] === '.'));
+  }
+  function dropY(b, shape, x) {
+    let y = VIS;
+    if (!fits(b, shape, x, y)) return null;
+    while (fits(b, shape, x, y - 1)) y--;
+    return y;
+  }
+  const fullRows = (b) => b.map((r, y) => (r.every((c) => c !== '.') ? y : -1)).filter((y) => y >= 0);
+  function clearRows(b, rows) {
+    const keep = b.filter((_, y) => !rows.includes(y));
+    while (keep.length < H) keep.push(emptyRow());
+    return keep;
+  }
+  function garbageRow(hole) { const r = Array(W).fill('X'); r[hole] = '.'; return r; }
+  function insertGarbage(b, n, hole) {
+    const rows = Array.from({ length: n }, () => garbageRow(hole));
+    return rows.concat(b.slice(0, H - n));
+  }
+  const overflow = (b) => b.slice(VIS).some((r) => r.some((c) => c !== '.'));
+  const height = (b) => { for (let y = H - 1; y >= 0; y--) if (b[y].some((c) => c !== '.')) return y + 1; return 0; };
+
+  const BASE = [0, 0, 1, 2, 4];
+  const COMBO = [0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5];
+  const LABEL = ['', 'Single', 'Double', 'Triple', 'Tetris'];
+
+  // One piece lock, start to finish. Returns new player states plus the events the animator plays.
+  function resolveLock(player, me0, opp0, move) {
+    const me = { ...me0, b: clone(me0.b) }, opp = { ...opp0 };
+    const events = [];
+    const y = dropY(me.b, move.shape, move.x);
+    if (y === null) return { me, opp, events: [{ type: 'topout', cause: 'spawn' }] };
+    events.push({ type: 'drop', shape: move.shape, letter: move.letter, x: move.x, y });
+    cellsOf(move.shape, move.x, y).forEach(([cx, cy]) => { me.b[cy][cx] = move.letter; });
+    me.idx += 1;
+    const rows = fullRows(me.b);
+    if (rows.length) {
+      const lines = rows.length;
+      events.push({ type: 'clear', rows, lines });
+      me.b = clearRows(me.b, rows);
+      const difficult = lines === 4;
+      const b2bBonus = difficult && me.b2b ? 1 : 0;
+      me.b2b = difficult;
+      me.combo += 1;
+      const comboBonus = COMBO[Math.min(me.combo, 10)];
+      const attack = BASE[lines] + b2bBonus + comboBonus;
+      const cancel = Math.min(attack, me.meter);
+      me.meter -= cancel;
+      const sent = attack - cancel;
+      opp.meter += sent;
+      events.push({ type: 'attack', lines, base: BASE[lines], b2bBonus, comboBonus, attack, cancel, sent,
+        label: (b2bBonus ? 'B2B ' : '') + LABEL[lines] });
+    } else {
+      me.combo = -1;
+      if (me.meter > 0) {
+        const hole = HOLES[player][me.draws];
+        const n = me.meter;
+        me.draws += 1;
+        me.b = insertGarbage(me.b, n, hole);
+        me.meter = 0;
+        events.push({ type: 'rise', n, hole });
+        if (overflow(me.b)) events.push({ type: 'topout', cause: 'garbage' });
+      }
+    }
+    return { me, opp, events };
+  }
+
+  const player = (rows, idx, meter = 0, extra = {}) => ({ b: board(rows), idx, meter, b2b: false, combo: -1, draws: 0, ...extra });
+
+  /* ---- The match. Each moment's `set` overrides the carried-over state (silent stacking between moments). ---- */
+  const MOMENTS = [
+    { t: '0:00', clock: 0, title: 'Same seed, same pieces', type: 'start',
+      set: { you: { rows: [], idx: 0 }, rival: { rows: [], idx: 0 } },
+      before: 'The Match DO picks one seed and sends it to both browsers. Each browser runs the same shuffle, so both players get the same pieces in the same order.',
+      after: 'Both queues show the same pieces. From here each player moves through the sequence at their own speed. There are no turns.',
+      quiz: { q: 'Who picks the seed?', options: ["YOU's browser", 'The Match DO', 'Each browser, separately'], answer: 1,
+        explain: 'One authority picks it, so the two sequences cannot drift apart. Each browser then generates the pieces locally from that one number.' } },
+    { t: '0:30', clock: 30, title: 'RIVAL clears a Double', type: 'action', actor: 'rival',
+      move: { shape: 'O', letter: 'O', x: 4 },
+      set: {
+        you: { rows: ['######....', '######....', '#########.', '#########.', '#########.', '#########.'], idx: 12 },
+        rival: { rows: ['####......', '####..####', '####..####'], idx: 5 },
+      },
+      before: 'Thirty seconds in. YOU stacks flat and keeps column 10 empty for a Tetris. RIVAL plays safe and clears lines as they go. RIVAL is on piece 6 and YOU on piece 13: same sequence, different pace.',
+      after: "The row lands in YOU's meter, the hazard bar beside the board. It waits there until YOU locks a piece without clearing a line.",
+      quiz: { q: "RIVAL's O completes two lines. How many garbage rows does a Double send?", options: ['0', '1', '2'], answer: 1,
+        explain: "A Double sends 1. A Single sends nothing, which is why playing safe doesn't hurt your opponent much." } },
+    { t: '0:33', clock: 33, title: 'Garbage lands on YOU', type: 'action', actor: 'you',
+      move: { shape: 'O', letter: 'O', x: 6 }, yourMove: { prompt: 'Your move: place the O in columns 7–8, next to your stack. Keep column 10 open. That is your well.',
+        hints: { 8: 'That fills your well. Try columns 7–8.', default: 'Try columns 7–8, right next to your stack.' } },
+      set: { rival: { rows: ['####......', '########..'], idx: 8 } },
+      before: 'YOU has one row waiting in the meter.',
+      after: "No line was cleared, so the waiting row rose from the bottom and pushed YOU's stack up by one. Its hole is in column 3, buried under YOU's blocks. YOU can't clear it without digging." },
+    { t: '0:36', clock: 36, title: 'YOU fires a Tetris', type: 'action', actor: 'you',
+      move: { shape: 'IV', letter: 'I', x: 9 }, yourMove: { prompt: 'Your move: drop the I into the well in column 10.',
+        hints: { default: 'The well is column 10, the empty column on the right.' } },
+      set: { rival: { rows: ['####......', '#######...', '#########.'], idx: 10 } },
+      before: 'Four rows are full except column 10.',
+      after: "Four rows cleared: a Tetris sends 4. YOU's meter was empty, so nothing was cancelled. All 4 went through the Match DO into RIVAL's meter." },
+    { t: '0:41', clock: 41, title: 'RIVAL cancels half', type: 'action', actor: 'rival',
+      move: { shape: 'IV', letter: 'I', x: 9 },
+      set: {
+        you: { rows: ['##........', '##........', '########..', '########..', 'XX.XXXXXXX'], idx: 15 },
+        rival: { rows: ['#####.....', '#########.', '#########.', '#########.'], idx: 13 },
+      },
+      before: 'RIVAL has 4 rows waiting and an I in hand. The drop will clear a Triple, which is worth 2.',
+      after: "RIVAL's meter drops from 4 to 2. A clear either blocks incoming rows or attacks. The same lines never do both.",
+      quiz: { q: 'RIVAL clears a Triple (worth 2) with 4 rows incoming. How many rows reach YOU?', options: ['0', '2', '4'], answer: 0,
+        explain: 'Your own clears cancel your meter first. The 2 cancel 2 of the 4 incoming, and nothing is left over to send.' } },
+    { t: '0:43', clock: 43, title: 'The rest lands on RIVAL', type: 'action', actor: 'rival',
+      move: { shape: 'O', letter: 'O', x: 5 },
+      before: 'RIVAL places an O. It clears nothing, so the 2 remaining rows are about to land.',
+      after: "Two rows rose under RIVAL's stack. One attack means one hole column: both holes are in column 8, and this time nothing covers them." },
+    { t: '0:45', clock: 45, title: 'RIVAL digs and hits back', type: 'action', actor: 'rival',
+      move: { shape: 'IV', letter: 'I', x: 7 },
+      before: 'RIVAL drops an I straight down column 8, through both garbage holes.',
+      after: "RIVAL's Double sends 1 row. It is waiting in YOU's meter.",
+      quiz: { q: 'Clearing garbage rows counts as clearing lines. What does this Double do?', options: ["Nothing, it's cleanup", 'Sends 1 row to YOU', "Refills RIVAL's meter"], answer: 1,
+        explain: "Digging is also attack. If YOU's Tetris had arrived as 4 rows with one open hole, RIVAL could have sent a Tetris straight back. That's why games move the hole between attacks." } },
+    { t: '0:52', clock: 52, title: 'RIVAL leaves the tab', type: 'pause',
+      before: 'RIVAL switches to another tab. Your rule kicks in: both games freeze and YOU gets a popover. Decide what YOU does. You can also act as RIVAL on the right-hand screen.',
+      after: 'RIVAL came back and both boards resumed after a 3-second countdown. Both games were frozen the whole time, so nobody lost time.' },
+    { t: '1:50', clock: 110, title: 'Ninety seconds later', type: 'skip',
+      set: {
+        you: { rows: ['##........', '####......', '#########.', '#########.', '#########.', '#########.', 'XX.XXXXXXX', 'XXXXX.XXXX'], idx: 57, meter: 0, b2b: true, draws: 2 },
+        rival: { rows: ['...##.....', '..###..#..', '.####.##..', '###.####..', '##.######.', '########.#',
+          'XXXX.XXXXX', 'XXXX.XXXXX', 'XXXX.XXXXX', 'XXXX.XXXXX', 'XXXX.XXXXX',
+          'XXXXXXXX.X', 'XXXXXXXX.X', 'XXXXXXXX.X', 'XXXXXXXX.X', 'XXXXXXXX.X'], idx: 44, meter: 0, draws: 3 },
+      },
+      before: "Time skip. YOU landed two more Tetrises, both back-to-back, 5 rows each. RIVAL couldn't cancel them. Ten garbage rows now sit under RIVAL's stack, which reaches row 16 of 20. YOU's well is ready again.",
+      after: "Time skip. YOU landed two more Tetrises, both back-to-back, 5 rows each. RIVAL couldn't cancel them. Ten garbage rows now sit under RIVAL's stack, which reaches row 16 of 20. YOU's well is ready again." },
+    { t: '1:51', clock: 111, title: 'Back-to-back Tetris', type: 'action', actor: 'you',
+      move: { shape: 'IV', letter: 'I', x: 9 }, yourMove: { prompt: 'Your move: drop the I into column 10 for the back-to-back Tetris.',
+        hints: { default: 'Column 10 is the well again.' } },
+      before: 'YOU has an I and a four-row well.',
+      after: "5 rows fly to RIVAL, whose stack already reaches row 16.",
+      quiz: { q: "YOU's last clear was a Tetris. How many rows does another Tetris send now?", options: ['4', '5', '8'], answer: 1,
+        explain: 'Back-to-back: a Tetris or T-spin right after another one earns +1. Any Single, Double or Triple in between breaks the chain.' } },
+    { t: '1:53', clock: 113, title: 'Top out', type: 'action', actor: 'rival',
+      move: { shape: 'T', letter: 'T', x: 3 },
+      before: 'RIVAL locks their next piece without clearing a line. Five rows are waiting.',
+      after: "The garbage pushed RIVAL's stack past the top of the board. RIVAL tops out and YOU win." },
+  ];
+
+  function applySet(st, set) {
+    if (!set) return st;
+    const next = { ...st, b: board(set.rows) };
+    for (const k of ['idx', 'meter', 'b2b', 'draws']) if (k in set) next[k] = set[k];
+    next.combo = -1;
+    return next;
+  }
+  // Pre-compute every moment's "before" and "after" state by replaying the match from the start.
+  function timeline() {
+    let you = player([], 0), rival = player([], 0);
+    return MOMENTS.map((m) => {
+      you = { ...you, b: settle(you.b) }; rival = { ...rival, b: settle(rival.b) };
+      if (m.set) { you = applySet(you, m.set.you); rival = applySet(rival, m.set.rival); }
+      const pre = { you, rival };
+      let events = [];
+      if (m.type === 'action') {
+        const me = m.actor, opp = me === 'you' ? 'rival' : 'you';
+        const r = resolveLock(me, pre[me], pre[opp], m.move);
+        events = r.events;
+        if (me === 'you') { you = r.me; rival = r.opp; } else { rival = r.me; you = r.opp; }
+      }
+      return { pre, post: { you, rival }, events };
+    });
+  }
+
+  return { W, VIS, H, SEED, SEQ, HOLES, SHAPES, PIECES, BASE, COMBO, MOMENTS,
+    board, clone, settle, cellsOf, dropY, fits, fullRows, overflow, height, timeline, resolveLock };
+})();
+
+</script>
+<script>
+(() => {
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const M = GD.MOMENTS, TL = GD.timeline(), SEQ = GD.SEQ, VIS = GD.VIS, W = GD.W;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NAME = { you: 'YOU', rival: 'RIVAL' };
+const other = (p) => (p === 'you' ? 'rival' : 'you');
+const fmt = (s) => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* ---------------- storage (per-viewer convenience only) ---------------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('gd.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('gd.' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
+};
+
+/* ---------------- tiny state machine ---------------- */
+function createMachine(name, states, initial) {
+  const m = { name, state: initial, last: null, subs: [],
+    send(ev) {
+      const to = states[m.state] && states[m.state][ev];
+      if (!to) return false;
+      m.last = { from: m.state, to, ev }; m.state = to;
+      m.subs.forEach((f) => f(m)); return true;
+    },
+    force(s) { m.state = s; m.last = null; m.subs.forEach((f) => f(m)); },
+    on(f) { m.subs.push(f); } };
+  return m;
+}
+const match = createMachine('match', {
+  waiting: { JOINED: 'countdown' }, countdown: { GO: 'playing' },
+  playing: { AWAY: 'paused', GONE: 'paused', TOP_OUT: 'over' },
+  paused: { EXTEND: 'paused', BACK: 'resuming', TIMER_0: 'over', LEAVE: 'over' },
+  resuming: { GO: 'playing' }, over: {},
+}, 'waiting');
+const presDef = {
+  present: { HIDE: 'away', CLOSE: 'gone', NET_DROP: 'silent' },
+  away: { SHOW: 'present', TIMER_0: 'forfeit' },
+  silent: { QUIET_5S: 'gone' },
+  gone: { REJOIN: 'present', TIMER_0: 'forfeit' }, forfeit: {},
+};
+const presence = { you: createMachine('presence-you', presDef, 'present'), rival: createMachine('presence-rival', presDef, 'present') };
+const piece = createMachine('piece', {
+  spawn: { DROP: 'falling' }, falling: { LAND: 'locked' },
+  locked: { LINES: 'clear', NO_LINES: 'rise' }, clear: { ATTACK: 'cancel' },
+  cancel: { NEXT: 'spawn' }, rise: { NEXT: 'spawn', OVERFLOW: 'topout' }, topout: {},
+}, 'spawn');
+const page = createMachine('page', {
+  ready: { QUIZ: 'quiz', MOVE: 'move', RUN: 'animating', PAUSE: 'paused' },
+  quiz: { MOVE: 'move', RUN: 'animating', PAUSE: 'paused' },
+  move: { RUN: 'animating', PAUSE: 'paused' },
+  animating: { DONE: 'settled', PAUSE: 'paused', END: 'over' },
+  settled: { NEXT: 'ready', PAUSE: 'paused', END: 'over' },
+  paused: {}, over: {},
+}, 'ready');
+
+/* ---------------- colors from tokens ---------------- */
+let COL = {};
+const sprites = new Map();
+function readColors() {
+  const cs = getComputedStyle(document.documentElement), g = (n) => cs.getPropertyValue(n).trim();
+  COL = { well: g('--well'), grid: g('--well-grid'), you: g('--you-stack'), rival: g('--rival-stack'),
+    garbage: g('--garbage'), stripe: g('--garbage-stripe'), bad: g('--bad'), ink: g('--well-ink'), P: {} };
+  GD.PIECES.forEach((p) => { COL.P[p] = g('--p-' + p); });
+  sprites.clear();
+}
+readColors();
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors); } catch (e) { /* old browser */ }
+new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+/* ---------------- sound (off until asked) ---------------- */
+let soundOn = false, actx = null;
+function beep(freq, dur = 0.08, type = 'square', vol = 0.05, when = 0, slide) {
+  if (!soundOn) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + when, o = actx.createOscillator(), gn = actx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
+    gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(gn).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+  } catch (e) { /* audio unavailable */ }
+}
+const sfx = {
+  move() { beep(330, 0.03, 'square', 0.025); },
+  drop() { beep(120, 0.08, 'square', 0.06, 0, 70); },
+  clear(n) { [523, 659, 784, 1046].slice(0, n).forEach((f, i) => beep(f, 0.1, 'triangle', 0.05, i * 0.06)); },
+  attack() { beep(260, 0.3, 'sawtooth', 0.025, 0, 1100); },
+  cancel() { beep(820, 0.14, 'square', 0.035, 0, 260); },
+  rise() { beep(95, 0.35, 'sawtooth', 0.05, 0, 50); },
+  tick() { beep(880, 0.05, 'sine', 0.05); },
+  go() { beep(1320, 0.15, 'sine', 0.06); },
+  badge() { [784, 988, 1318].forEach((f, i) => beep(f, 0.1, 'triangle', 0.05, i * 0.08)); },
+  win() { [523, 659, 784, 1046, 1318].forEach((f, i) => beep(f, 0.16, 'triangle', 0.06, i * 0.1)); },
+  bad() { beep(160, 0.22, 'square', 0.05, 0, 90); },
+  pause() { beep(600, 0.12, 'sine', 0.05, 0, 300); },
+};
+
+/* ---------------- animation plumbing ---------------- */
+let runToken = 0;
+class Abort extends Error {}
+const ease = { out: (p) => 1 - Math.pow(1 - p, 3), in: (p) => p * p, inOut: (p) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2), lin: (p) => p };
+function sleep(ms, tok) {
+  return new Promise((res, rej) => setTimeout(() => (tok !== runToken ? rej(new Abort()) : res()), reduceMotion ? Math.min(ms, 120) : ms));
+}
+function tween(ms, fn, tok, e = ease.out) {
+  const dur = reduceMotion ? Math.min(ms, 40) : ms;
+  return new Promise((res, rej) => {
+    const t0 = performance.now();
+    function f(now) {
+      if (tok !== runToken) return rej(new Abort());
+      const p = Math.min(1, (now - t0) / dur); fn(e(p));
+      if (p < 1) requestAnimationFrame(f); else res();
+    }
+    requestAnimationFrame(f);
+  });
+}
+const guard = (p) => p.catch((e) => { if (!(e instanceof Abort)) console.error(e); });
+
+/* ---------------- board views (canvas) ---------------- */
+function glyph(letter, size = 10) {
+  const sh = GD.SHAPES[letter];
+  const w = Math.max(...sh.map((c) => c[0])) + 1, h = Math.max(...sh.map((c) => c[1])) + 1;
+  return `<svg viewBox="0 0 ${w * size} ${h * size}" width="${w * size}" height="${h * size}" aria-hidden="true">${sh.map(([x, y]) =>
+    `<rect x="${x * size + 0.5}" y="${(h - 1 - y) * size + 0.5}" width="${size - 1}" height="${size - 1}" rx="1.5" style="fill:var(--p-${letter[0]})"/>`).join('')}</svg>`;
+}
+class BoardView {
+  constructor(p) {
+    this.p = p; this.cv = $('#cv-' + p); this.ctx = this.cv.getContext('2d');
+    this.b = GD.board(); this.cell = 18; this.active = null; this.ghost = false;
+    this.flashRows = null; this.flashA = 0; this.rowOff = null; this.appear = null;
+    this.lockCells = null; this.lockGlow = 0; this.red = 0; this.greyFrom = GD.H; this.jolt = 0;
+  }
+  resize(cell) {
+    this.cell = cell;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.cv.width = cell * W * dpr; this.cv.height = cell * VIS * dpr;
+    this.cv.style.width = cell * W + 'px'; this.cv.style.height = cell * VIS + 'px';
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    sprites.clear();
+  }
+  reset(b) {
+    this.b = GD.clone(b); this.active = null; this.ghost = false; this.flashRows = null; this.rowOff = null;
+    this.appear = null; this.lockCells = null; this.red = 0; this.greyFrom = GD.H;
+  }
+  garbageSprite(s) {
+    const key = 'g' + s;
+    if (!sprites.has(key)) {
+      const c = document.createElement('canvas'), dpr = Math.min(2, window.devicePixelRatio || 1);
+      c.width = s * dpr; c.height = s * dpr;
+      const x = c.getContext('2d'); x.scale(dpr, dpr);
+      x.fillStyle = COL.garbage; x.fillRect(1, 1, s - 2, s - 2);
+      x.save(); x.beginPath(); x.rect(1, 1, s - 2, s - 2); x.clip();
+      x.strokeStyle = COL.stripe; x.lineWidth = Math.max(2, s * 0.17);
+      for (let i = -s; i < s * 2; i += s * 0.46) { x.beginPath(); x.moveTo(i, s); x.lineTo(i + s, 0); x.stroke(); }
+      x.restore();
+      x.fillStyle = 'rgba(255,255,255,.12)'; x.fillRect(1, 1, s - 2, Math.max(2, s * 0.12));
+      sprites.set(key, c);
+    }
+    return sprites.get(key);
+  }
+  cellAt(px, py, s, color, alpha = 1) {
+    const c = this.ctx, bev = Math.max(2, Math.round(s * 0.14));
+    c.globalAlpha = alpha;
+    c.fillStyle = color; c.fillRect(px + 1, py + 1, s - 2, s - 2);
+    c.fillStyle = 'rgba(255,255,255,.2)'; c.fillRect(px + 1, py + 1, s - 2, bev);
+    c.fillStyle = 'rgba(0,0,0,.24)'; c.fillRect(px + 1, py + s - 1 - bev, s - 2, bev);
+    c.globalAlpha = 1;
+  }
+  draw(now) {
+    const c = this.ctx, s = this.cell, Wp = s * W, Hp = s * VIS;
+    c.fillStyle = COL.well; c.fillRect(0, 0, Wp, Hp);
+    c.strokeStyle = COL.grid; c.lineWidth = 1; c.beginPath();
+    for (let x = 1; x < W; x++) { c.moveTo(x * s + 0.5, 0); c.lineTo(x * s + 0.5, Hp); }
+    for (let y = 1; y < VIS; y++) { c.moveTo(0, y * s + 0.5); c.lineTo(Wp, y * s + 0.5); }
+    c.stroke();
+    const stack = this.p === 'you' ? COL.you : COL.rival;
+    for (let y = 0; y < GD.H; y++) {
+      const off = this.rowOff ? this.rowOff[y] || 0 : 0;
+      const py = (VIS - 1 - y + off) * s;
+      if (py < -s || py > Hp) continue;
+      const row = this.b[y];
+      for (let x = 0; x < W; x++) {
+        const ch = row[x]; if (ch === '.') continue;
+        let a = 1;
+        if (this.appear) { const t = this.appear.get(y * W + x); if (t !== undefined) { a = clamp((now - t) / 200, 0, 1); if (a <= 0) continue; } }
+        const px = x * s;
+        if (y >= this.greyFrom) this.cellAt(px, py, s, '#4B5257', a);
+        else if (ch === 'X') { c.globalAlpha = a; c.drawImage(this.garbageSprite(s), px, py, s, s); c.globalAlpha = 1; }
+        else this.cellAt(px, py, s, ch === '#' ? stack : COL.P[ch] || stack, a);
+      }
+      if (this.flashRows && this.flashRows.has(y) && this.flashA > 0) {
+        c.fillStyle = `rgba(255,255,255,${this.flashA})`; c.fillRect(0, py, Wp, s);
+      }
+    }
+    if (this.lockCells && this.lockGlow > 0) {
+      c.fillStyle = `rgba(255,255,255,${this.lockGlow * 0.7})`;
+      this.lockCells.forEach(([x, y]) => c.fillRect(x * s + 1, (VIS - 1 - y) * s + 1, s - 2, s - 2));
+    }
+    if (this.active) {
+      const A = this.active, col = COL.P[A.letter];
+      if (this.ghost) {
+        const ly = GD.dropY(this.b, A.shape, A.x);
+        if (ly !== null) {
+          c.strokeStyle = col; c.lineWidth = 2; c.globalAlpha = 0.75;
+          GD.cellsOf(A.shape, A.x, ly).forEach(([x, y]) => { if (y < VIS) c.strokeRect(x * s + 2, (VIS - 1 - y) * s + 2, s - 4, s - 4); });
+          c.globalAlpha = 1;
+        }
+      }
+      const jx = this.jolt ? Math.sin(now / 22) * this.jolt : 0;
+      GD.SHAPES[A.shape].forEach(([dx, dy]) => {
+        const y = A.y + dy; if (y >= VIS) return;
+        this.cellAt((A.x + dx) * s + jx, (VIS - 1 - y) * s, s, col);
+      });
+    }
+    if (this.red > 0) { c.globalAlpha = this.red * 0.4; c.fillStyle = COL.bad; c.fillRect(0, 0, Wp, Hp); c.globalAlpha = 1; }
+  }
+}
+const views = { you: new BoardView('you'), rival: new BoardView('rival') };
+
+/* ---------------- layout ---------------- */
+const stage = $('#stage');
+let CELL = 18;
+function layout() {
+  const w = stage.clientWidth;
+  stage.classList.toggle('narrow', w < 620);
+  const lane = w < 620 ? 34 : 64, gap = w < 620 ? 6 : 10, pad = w < 620 ? 8 : 12;
+  const screenW = (w - pad * 2 - lane - gap * 2) / 2;
+  const byW = Math.floor((screenW - 16) / W);
+  const byH = Math.floor((Math.max(window.innerHeight, 560) * 0.62) / VIS);
+  CELL = clamp(Math.min(byW, byH), 10, 22);
+  ['you', 'rival'].forEach((p) => {
+    views[p].resize(CELL);
+    $('#meter-' + p).style.height = CELL * VIS + 'px';
+  });
+  renderMeters();
+}
+new ResizeObserver(() => layout()).observe(stage);
+
+/* ---------------- displayed HUD state ---------------- */
+const disp = { you: { meter: 0, idx: 0 }, rival: { meter: 0, idx: 0 } };
+function renderMeters() {
+  ['you', 'rival'].forEach((p) => {
+    const el = $('#meter-' + p), n = disp[p].meter, h = Math.min(n, VIS) * CELL;
+    el.querySelector('.meter-fill').style.height = h + 'px';
+    const lab = el.querySelector('.meter-n'); lab.textContent = n; lab.style.bottom = (h + 2) + 'px';
+    lab.style.opacity = n ? 1 : 0.45;
+  });
+}
+function renderHud() {
+  renderMeters();
+  ['you', 'rival'].forEach((p) => {
+    const i = disp[p].idx;
+    $('#pno-' + p).textContent = 'piece #' + (i + 1);
+    $('#next-' + p).innerHTML = SEQ.slice(i, i + 3).map((l) => glyph(l, 7)).join('');
+  });
+  const a = disp.you.idx, b = disp.rival.idx;
+  const s = Math.max(0, Math.min(a, b) - 3), e = Math.min(SEQ.length, Math.max(a, b) + 7);
+  const strip = $('#seqStrip');
+  let html = '';
+  for (let i = s; i < e; i++) {
+    const cls = [i < Math.min(a, b) ? 'past' : '', i === a ? 'cur-you' : '', i === b ? 'cur-rival' : ''].join(' ');
+    html += `<li class="${cls}" title="Piece #${i + 1}: ${SEQ[i]}">${i === a ? '<b class="mk you">YOU</b>' : ''}${glyph(SEQ[i], 6)}<span class="n">${i + 1}</span>${i === b ? '<b class="mk rival">RIVAL</b>' : ''}</li>`;
+  }
+  strip.innerHTML = html;
+  const mk = strip.querySelector('.cur-rival') || strip.querySelector('.cur-you');
+  if (mk) strip.scrollLeft = Math.max(0, mk.offsetLeft - 60);
+}
+function showState(st) {
+  ['you', 'rival'].forEach((p) => { views[p].reset(st[p].b); disp[p].meter = st[p].meter; disp[p].idx = st[p].idx; });
+  renderHud();
+}
+
+/* ---------------- fx: popups, projectiles, confetti ---------------- */
+function popup(p, text, cls = '') {
+  const el = document.createElement('div'); el.className = 'popup ' + cls; el.textContent = text;
+  $('#pop-' + p).appendChild(el); setTimeout(() => el.remove(), 1400);
+}
+function shake(p) { if (reduceMotion) return; const s = $('#scr-' + p); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
+function meterFx(p, cls) { const m = $('#meter-' + p); m.classList.remove(cls); void m.offsetWidth; m.classList.add(cls); }
+function centerOf(el) { const r = el.getBoundingClientRect(), sr = stage.getBoundingClientRect(); return [r.left - sr.left + r.width / 2, r.top - sr.top + r.height / 2]; }
+function projectile(from, to, text, tok) {
+  const el = document.createElement('div'); el.className = 'proj'; el.textContent = text;
+  $('#fx').appendChild(el);
+  const [x0, y0] = centerOf($('#box-' + from)), [x1, y1] = centerOf($('#doNode'));
+  const mEl = $('#meter-' + to), [x2] = centerOf(mEl), mr = mEl.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+  const y2 = mr.bottom - sr.top - Math.min(disp[to].meter + 1, VIS) * CELL;
+  const w = el.offsetWidth / 2, h = el.offsetHeight / 2;
+  const kf = [
+    { transform: `translate(${x0 - w}px,${y0 - h}px) scale(.5)`, opacity: 0 },
+    { transform: `translate(${x0 - w}px,${y0 - h - 30}px) scale(1.15)`, opacity: 1, offset: 0.18 },
+    { transform: `translate(${x1 - w}px,${y1 - h}px) scale(1)`, opacity: 1, offset: 0.55 },
+    { transform: `translate(${x2 - w}px,${y2 - h}px) scale(.7)`, opacity: 0.9 },
+  ];
+  const dur = reduceMotion ? 60 : 1050;
+  const anim = el.animate(kf, { duration: dur, easing: 'cubic-bezier(.4,0,.3,1)', fill: 'forwards' });
+  setTimeout(() => { const d = $('#doNode'); d.classList.remove('pulse'); void d.offsetWidth; d.classList.add('pulse'); }, dur * 0.55);
+  return new Promise((res, rej) => {
+    anim.onfinish = () => { el.remove(); tok !== runToken ? rej(new Abort()) : res(); };
+    anim.oncancel = () => { el.remove(); rej(new Abort()); };
+  });
+}
+const confetti = { cv: $('#confetti'), parts: [] };
+function burst(p, n = 60) {
+  if (reduceMotion) return;
+  const [x, y] = centerOf($('#box-' + p));
+  const cols = Object.values(COL.P);
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, v = 2 + Math.random() * 6;
+    confetti.parts.push({ x, y: y - 40, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4, r: Math.random() * 6, c: cols[i % cols.length], life: 90 + Math.random() * 50, s: 4 + Math.random() * 5 });
+  }
+}
+function stepConfetti() {
+  const cv = confetti.cv, ctx = cv.getContext('2d');
+  const w = stage.clientWidth, h = stage.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+  confetti.parts = confetti.parts.filter((q) => q.life > 0);
+  confetti.parts.forEach((q) => {
+    q.vy += 0.18; q.vx *= 0.99; q.x += q.vx; q.y += q.vy; q.r += 0.1; q.life--;
+    ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.r); ctx.globalAlpha = Math.min(1, q.life / 30);
+    ctx.fillStyle = q.c; ctx.fillRect(-q.s / 2, -q.s / 2, q.s, q.s * 0.6); ctx.restore();
+  });
+}
+function countdown(tok, label) {
+  return (async () => {
+    for (const n of ['3', '2', '1', label || 'GO']) {
+      ['you', 'rival'].forEach((p) => { const el = $('#cnt-' + p); el.textContent = n; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); });
+      n.length === 1 ? sfx.tick() : sfx.go();
+      await sleep(n.length === 1 ? 620 : 520, tok);
+    }
+    ['you', 'rival'].forEach((p) => { $('#cnt-' + p).textContent = ''; });
+  })();
+}
+
+/* ---------------- wire log ---------------- */
+const wireEl = $('#wire');
+function wire(from, to, msg) {
+  const li = document.createElement('li'); li.className = 'new';
+  const cls = from === 'DO' ? 'r-do' : 'r-' + from.toLowerCase();
+  li.innerHTML = `<span class="wt">${clockText()}</span><span class="wr ${cls}">${from}${to ? ' → ' + to : ''}</span><code></code>`;
+  li.querySelector('code').textContent = msg;
+  wireEl.appendChild(li);
+  while (wireEl.children.length > 80) wireEl.firstChild.remove();
+  wireEl.scrollTop = wireEl.scrollHeight;
+}
+function wireSep(text) {
+  const li = document.createElement('li'); li.className = 'sep'; li.textContent = text; wireEl.appendChild(li);
+  wireEl.scrollTop = wireEl.scrollHeight;
+}
+function clockText() { return M[cur].t; }
+
+/* ---------------- state machine diagrams ---------------- */
+const SVGNS = 'http://www.w3.org/2000/svg';
+function mk(tag, attrs, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function drawMachine(svg, spec) {
+  svg.setAttribute('viewBox', `0 0 ${spec.w} ${spec.h}`);
+  svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', spec.label);
+  const defs = mk('defs', {}, svg);
+  [['a', 'var(--sm-edge)'], ['h', 'var(--sm-on)']].forEach(([k, c]) => {
+    const m = mk('marker', { id: `${k}-${spec.id}`, viewBox: '0 0 8 8', refX: 7, refY: 4, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+    mk('path', { d: 'M0,0 L8,4 L0,8 z', style: `fill:${c}` }, m);
+  });
+  const nodeEl = {}, edgeEl = {};
+  const N = spec.nodes, hw = (n) => (n.w || 76) / 2, hh = 14;
+  function border(n, tx, ty) {
+    const dx = tx - n.x, dy = ty - n.y;
+    const t = Math.min(Math.abs(dx) > 0.01 ? hw(n) / Math.abs(dx) : 1e9, Math.abs(dy) > 0.01 ? hh / Math.abs(dy) : 1e9);
+    return [n.x + dx * t, n.y + dy * t];
+  }
+  spec.edges.forEach((e) => {
+    const g = mk('g', { class: 'sm-edge' + (e.dashed ? ' dashed' : '') }, svg);
+    let d = e.d;
+    if (!d) {
+      const a = N[e.from], b = N[e.to], [x1, y1] = border(a, b.x, b.y), [x2, y2] = border(b, a.x, a.y);
+      const len = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+      d = `M${(x1 + ux * 2).toFixed(1)},${(y1 + uy * 2).toFixed(1)} L${(x2 - ux * 3).toFixed(1)},${(y2 - uy * 3).toFixed(1)}`;
+    }
+    const path = mk('path', { d }, g);
+    if (!e.noArrow) path.setAttribute('marker-end', `url(#a-${spec.id})`);
+    if (e.label) {
+      const t = mk('text', { x: e.lx, y: e.ly, 'text-anchor': e.anchor || 'middle' }, g);
+      e.label.split('\n').forEach((line, i) => { const ts = mk('tspan', { x: e.lx, dy: i ? 11 : 0 }, t); ts.textContent = line; });
+    }
+    const key = e.from + '>' + e.to;
+    (edgeEl[key] = edgeEl[key] || []).push({ g, path, noArrow: e.noArrow });
+  });
+  Object.entries(N).forEach(([id, n]) => {
+    const g = mk('g', { class: 'sm-node' }, svg);
+    mk('rect', { x: n.x - hw(n), y: n.y - hh, width: hw(n) * 2, height: hh * 2, rx: 7 }, g);
+    const t = mk('text', { x: n.x, y: n.y + 4, 'text-anchor': 'middle' }, g); t.textContent = n.label || id;
+    nodeEl[id] = g;
+  });
+  const tokens = {};
+  (spec.tokens || []).forEach((tk) => {
+    const g = mk('g', { class: 'tok' }, svg);
+    mk('circle', { r: 8, cx: 0, cy: 0, style: `fill:var(--${tk.color})` }, g);
+    const t = mk('text', { x: 0, y: 3.5, 'text-anchor': 'middle' }, g); t.textContent = tk.letter;
+    tokens[tk.id] = g;
+  });
+  return { spec, nodeEl, edgeEl, tokens, hotKey: null };
+}
+function highlight(view, state, last) {
+  Object.entries(view.nodeEl).forEach(([id, g]) => g.classList.toggle('on', id === state));
+  if (view.hotKey) (view.edgeEl[view.hotKey] || []).forEach((e) => { e.g.classList.remove('hot'); if (!e.noArrow) e.path.setAttribute('marker-end', `url(#a-${view.spec.id})`); });
+  view.hotKey = null;
+  if (last) {
+    const key = last.from + '>' + last.to, list = view.edgeEl[key];
+    if (list) { list.forEach((e) => { e.g.classList.add('hot'); if (!e.noArrow) e.path.setAttribute('marker-end', `url(#h-${view.spec.id})`); }); view.hotKey = key; }
+  }
+}
+const smMatch = drawMachine($('#smMatch'), {
+  id: 'match', label: 'Match state machine', w: 420, h: 200,
+  nodes: { waiting: { x: 44, y: 36, w: 72 }, countdown: { x: 150, y: 36, w: 78 }, playing: { x: 262, y: 36, w: 72 },
+    resuming: { x: 150, y: 132, w: 78 }, paused: { x: 262, y: 132, w: 72 }, over: { x: 380, y: 132, w: 64 } },
+  edges: [
+    { from: 'waiting', to: 'countdown', label: 'joined', lx: 97, ly: 27 },
+    { from: 'countdown', to: 'playing', label: 'go', lx: 207, ly: 27 },
+    { from: 'playing', to: 'paused', label: 'away · gone', lx: 255, ly: 88, anchor: 'end' },
+    { from: 'paused', to: 'resuming', label: 'back', lx: 207, ly: 124 },
+    { from: 'resuming', to: 'playing', d: 'M150,117 C150,72 196,56 228,48', label: 'go', lx: 162, ly: 78, anchor: 'start' },
+    { from: 'playing', to: 'over', label: 'top out', lx: 338, ly: 76, anchor: 'start' },
+    { from: 'paused', to: 'over', label: 'timer 0', lx: 323, ly: 124 },
+    { from: 'paused', to: 'over', d: 'M0,0', noArrow: true, label: 'or leave', lx: 323, ly: 148 },
+    { from: 'paused', to: 'paused', d: 'M248,147 C236,184 290,184 277,147', label: 'extend', lx: 262, ly: 195 },
+  ],
+});
+const smPres = drawMachine($('#smPres'), {
+  id: 'pres', label: 'Presence state machine', w: 420, h: 206,
+  nodes: { present: { x: 56, y: 100, w: 76 }, away: { x: 212, y: 30, w: 70 }, silent: { x: 146, y: 176, w: 70 },
+    gone: { x: 290, y: 176, w: 70 }, forfeit: { x: 370, y: 96, w: 84, label: 'forfeited' } },
+  edges: [
+    { from: 'present', to: 'away', d: 'M80,85 C104,40 140,28 175,26', label: 'tab hidden', lx: 98, ly: 44, anchor: 'end' },
+    { from: 'away', to: 'present', d: 'M178,40 C150,56 118,72 94,94', label: 'tab back', lx: 150, ly: 74, anchor: 'start' },
+    { from: 'present', to: 'silent', label: 'Wi-Fi drops', lx: 88, ly: 160, anchor: 'end' },
+    { from: 'silent', to: 'gone', label: '5 s quiet', lx: 218, ly: 194 },
+    { from: 'present', to: 'gone', d: 'M94,110 L253,166', label: 'tab closed', lx: 206, ly: 162 },
+    { from: 'gone', to: 'present', d: 'M270,161 C250,112 150,100 96,101', label: 'rejoin', lx: 262, ly: 120, anchor: 'start' },
+    { from: 'away', to: 'forfeit', label: 'timer 0', lx: 316, ly: 50, anchor: 'start' },
+    { from: 'gone', to: 'forfeit', label: 'timer 0', lx: 348, ly: 150, anchor: 'start' },
+  ],
+  tokens: [{ id: 'you', letter: 'Y', color: 'you' }, { id: 'rival', letter: 'R', color: 'rival' }],
+});
+const smPiece = drawMachine($('#smPiece'), {
+  id: 'piece', label: 'Piece state machine', w: 420, h: 200,
+  nodes: { spawn: { x: 44, y: 36, w: 66 }, falling: { x: 140, y: 36, w: 70 }, locked: { x: 238, y: 36, w: 66 },
+    clear: { x: 362, y: 36, w: 92, label: 'clear lines' }, cancel: { x: 362, y: 122, w: 92, label: 'cancel · send' },
+    rise: { x: 238, y: 122, w: 100, label: 'garbage rises' }, topout: { x: 104, y: 122, w: 70, label: 'top out' } },
+  edges: [
+    { from: 'spawn', to: 'falling' },
+    { from: 'falling', to: 'locked', label: 'lands', lx: 189, ly: 27 },
+    { from: 'locked', to: 'clear', label: 'lines', lx: 294, ly: 27 },
+    { from: 'clear', to: 'cancel', label: 'attack', lx: 368, ly: 84, anchor: 'start' },
+    { from: 'locked', to: 'rise', label: 'no lines', lx: 244, ly: 84, anchor: 'start' },
+    { from: 'rise', to: 'topout', label: 'past top', lx: 164, ly: 114 },
+    { from: 'cancel', to: 'spawn', dashed: true, d: 'M362,137 V176 H44 V53', label: 'next piece', lx: 200, ly: 192 },
+    { from: 'rise', to: 'spawn', dashed: true, noArrow: true, d: 'M238,137 V176' },
+  ],
+});
+function tokenPos() {
+  const pos = {};
+  ['you', 'rival'].forEach((p) => {
+    const n = smPres.spec.nodes[presence[p].state], hw = (n.w || 76) / 2;
+    pos[p] = [n.x + hw - 4, n.y - 14];
+  });
+  if (presence.you.state === presence.rival.state) pos.you[0] -= 18;
+  ['you', 'rival'].forEach((p) => { smPres.tokens[p].style.transform = `translate(${pos[p][0]}px,${pos[p][1]}px)`; });
+}
+const EVENT_TEXT = { JOINED: 'both joined', GO: 'go', AWAY: 'player away', GONE: 'player gone', TOP_OUT: 'top out', EXTEND: 'extend +1:00',
+  BACK: 'player back', TIMER_0: 'timer ran out', LEAVE: 'waiting player left', HIDE: 'tab hidden', SHOW: 'tab visible', CLOSE: 'tab closed',
+  NET_DROP: 'connection dropped', QUIET_5S: '5 s without heartbeat', REJOIN: 'rejoined', DROP: 'hard drop', LAND: 'landed',
+  LINES: 'lines full', NO_LINES: 'no lines', ATTACK: 'attack computed', NEXT: 'next piece', OVERFLOW: 'stack past the top' };
+const lastText = (m, who) => (m.last ? `last: <b>${m.last.ev}</b> (${EVENT_TEXT[m.last.ev] || ''})${who ? ' · ' + who : ''} → ${m.last.to}` : `state: ${m.state}`);
+match.on((m) => { highlight(smMatch, m.state, m.last); $('#lastMatch').innerHTML = lastText(m); });
+['you', 'rival'].forEach((p) => presence[p].on((m) => {
+  highlight(smPres, null, m.last);
+  Object.entries(smPres.nodeEl).forEach(([id, g]) => g.classList.toggle('on', id === presence.you.state || id === presence.rival.state));
+  tokenPos();
+  $('#lastPres').innerHTML = lastText(m, NAME[p]);
+  const chip = $('#pres-' + p), label = { present: 'online', away: 'away', silent: 'silent…', gone: 'gone', forfeit: 'forfeited' }[m.state];
+  chip.dataset.s = m.state; chip.querySelector('span').textContent = label;
+}));
+let pieceActor = 'rival';
+piece.on((m) => { highlight(smPiece, m.state, m.last); $('#lastPiece').innerHTML = lastText(m, NAME[pieceActor]); });
+page.on((m) => { $('#pageState').textContent = m.state; renderControls(); });
+
+/* ---------------- progress: xp + badges ---------------- */
+const LEVELS = [[0, 'Rookie stacker'], [150, 'Line clearer'], [400, 'Garbage collector'], [700, 'Well digger'], [1000, 'B2B machine'], [1400, 'Garbage Day legend']];
+const BADGES = [
+  ['seed', 'Same seed', 'Knew who picks the seed', 'O'], ['wellFed', 'Well fed', 'Made the first Tetris yourself', 'IV'],
+  ['shield', 'Shield up', 'Got the cancel question right', 'T'], ['digger', 'Digger', 'Watched RIVAL dig out', 'J'],
+  ['patient', 'Patient', 'Waited for RIVAL to come back', 'O'], ['timeLord', 'Time lord', 'Extended the pause timer', 'L'],
+  ['caught', 'Caught leaving', 'Left this browser tab mid-match', 'Z'], ['ghost', 'Ghost connection', 'Made RIVAL lose Wi-Fi', 'S'],
+  ['b2b', 'Back-to-back', 'Landed the B2B Tetris yourself', 'I'], ['labRat', 'Lab rat', 'Tried the attack lab', 'J'],
+  ['oracle', 'Oracle', 'All five quizzes right first try', 'T'], ['garbageDay', 'Garbage Day', 'Saw the match to the end', 'L'],
+];
+let xp = store.get('xp', 0), got = new Set(store.get('badges', [])), firstTry = store.get('quiz', {});
+function renderXp() {
+  let lvl = 0; LEVELS.forEach(([t], i) => { if (xp >= t) lvl = i; });
+  const [t0, name] = LEVELS[lvl], t1 = LEVELS[lvl + 1] ? LEVELS[lvl + 1][0] : t0;
+  $('#xpTitle').textContent = name;
+  $('#xpNum').textContent = xp + ' XP' + (LEVELS[lvl + 1] ? ' · next at ' + t1 : '');
+  $('#xpBar').style.width = (LEVELS[lvl + 1] ? ((xp - t0) / (t1 - t0)) * 100 : 100) + '%';
+}
+function addXp(n) { const before = xp; xp += n; store.set('xp', xp); renderXp();
+  const lv = (v) => LEVELS.filter(([t]) => v >= t).length; if (lv(xp) > lv(before)) toast('Level up: ' + LEVELS[lv(xp) - 1][1], `${xp} XP`); }
+function renderBadges(fresh) {
+  $('#badges').innerHTML = BADGES.map(([id, name, how, g]) => `<div class="badge ${got.has(id) ? 'got' : ''} ${fresh === id ? 'fresh' : ''}"><div class="ic">${glyph(g, 7)}</div><div><b>${name}</b><span>${how}</span></div></div>`).join('');
+  $('#badgeCount').textContent = `${got.size} of ${BADGES.length} collected`;
+}
+function award(id) {
+  if (got.has(id)) return;
+  got.add(id); store.set('badges', [...got]);
+  const b = BADGES.find((x) => x[0] === id);
+  renderBadges(id); addXp(100); sfx.badge(); toast('Badge: ' + b[1], b[2] + ' · +100 XP');
+}
+let toastT = 0;
+function toast(title, small) {
+  const t = $('#toast'); t.innerHTML = ''; t.append(title);
+  if (small) { const s = document.createElement('small'); s.textContent = small; t.appendChild(s); }
+  t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ---------------- the replay controller ---------------- */
+let cur = 0, quizOn = true, autoplay = false, moveX = 0, moveTries = 0, note = null;
+const answered = {}, moved = {};
+function renderChips() {
+  const short = ['Start', 'Double', 'Lands', 'Tetris', 'Cancel', 'Rises', 'Dig', 'Pause', 'Skip', 'B2B', 'Top out'];
+  $('#chips').innerHTML = M.map((m, i) => `<li><button type="button" class="chip ${i === cur ? 'on' : ''} ${i < cur ? 'seen' : ''}" data-k="${i}"${i === cur ? ' aria-current="step"' : ''}><span class="ct">${m.t}</span><span class="cl">${short[i]}</span></button></li>`).join('');
+  const on = $('#chips .on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+}
+function renderStory() {
+  const m = M[cur], settled = ['settled', 'over'].includes(page.state);
+  $('#sTime').textContent = m.t + (match.state === 'paused' ? ' · paused' : '');
+  $('#sCount').textContent = `Moment ${cur + 1} of ${M.length}`;
+  $('#sTitle').textContent = note ? note.title : m.title;
+  $('#sText').textContent = note ? note.text : (settled ? m.after : m.before);
+}
+function renderControls() {
+  const s = page.state, pb = $('#playBtn');
+  pb.disabled = !['ready', 'settled', 'over'].includes(s);
+  pb.textContent = s === 'settled' ? 'Next moment' : s === 'over' ? 'Watch again' : s === 'ready' ? 'Play this moment' : s === 'paused' ? 'Paused' : 'Playing…';
+  $('#backBtn').disabled = cur === 0;
+  const canLab = canPause();
+  ['#plTab', '#plClose', '#plWifi'].forEach((id) => { $(id).hidden = !!pz; $(id).disabled = !canLab; });
+  $('#plBack').hidden = !(pz && pz.by === 'rival' && pz.phase === 'paused');
+  $('#plNote').textContent = pz && pz.phase === 'silent' ? "RIVAL's connection went quiet. The Match DO waits for a heartbeat…"
+    : pz ? 'The match is paused. Act as RIVAL with the button, or answer the popover as YOU.'
+    : canLab ? 'Or switch away from this browser tab yourself while the match is playing.'
+    : 'Available while the match is playing and nothing is animating.';
+}
+function renderInteract() {
+  const box = $('#interact'), m = M[cur], s = page.state;
+  box.innerHTML = '';
+  if (s === 'quiz') {
+    const q = m.quiz;
+    box.innerHTML = `<p class="q"></p><div class="opts">${q.options.map((o, i) => `<button type="button" class="opt" data-i="${i}"></button>`).join('')}</div><p class="explain" hidden></p>`;
+    box.querySelector('.q').textContent = 'Predict: ' + q.q;
+    box.querySelectorAll('.opt').forEach((b, i) => { b.textContent = q.options[i]; b.onclick = () => answer(i); });
+  } else if (s === 'move') {
+    box.innerHTML = `<p class="q"></p><div class="movepad">
+      <button class="btn small" type="button" id="mvL" aria-label="Move left">◀</button>
+      <button class="btn small" type="button" id="mvR" aria-label="Move right">▶</button>
+      <button class="btn small primary" type="button" id="mvD">Drop</button>
+      <button class="btn small" type="button" id="mvAuto">Do it for me</button>
+      <span class="sm-where">or hover the board and click · <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">Space</span></span></div><p class="hint" id="mvHint"></p>`;
+    box.querySelector('.q').textContent = m.yourMove.prompt;
+    $('#mvL').onclick = () => nudge(-1); $('#mvR').onclick = () => nudge(1);
+    $('#mvD').onclick = () => tryDrop(); $('#mvAuto').onclick = () => { moveX = m.move.x; views.you.active.x = moveX; tryDrop(true); };
+  } else if (s === 'over' && overInfo) {
+    box.innerHTML = `<div class="movepad"></div>`;
+    overInfo.buttons.forEach(([label, fn, primary]) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn small' + (primary ? ' primary' : ''); b.textContent = label; b.onclick = fn;
+      box.querySelector('.movepad').appendChild(b);
+    });
+  }
+}
+function answer(i) {
+  const m = M[cur], q = m.quiz, right = i === q.answer, box = $('#interact');
+  box.querySelectorAll('.opt').forEach((b, j) => { b.disabled = true; if (j === q.answer) b.classList.add('right'); else if (j === i) b.classList.add('wrong'); });
+  const ex = box.querySelector('.explain'); ex.hidden = false;
+  ex.innerHTML = `<b>${right ? 'Right.' : 'Not quite.'}</b> `; ex.append(q.explain);
+  if (!(cur in firstTry)) { firstTry[cur] = right; store.set('quiz', firstTry); if (right) addXp(50); }
+  answered[cur] = true;
+  right ? sfx.clear(2) : sfx.bad();
+  if (right && cur === 0) award('seed');
+  if (right && cur === 4) award('shield');
+  const quizKs = M.map((mm, k) => (mm.quiz ? k : -1)).filter((k) => k >= 0);
+  if (quizKs.every((k) => firstTry[k] === true)) award('oracle');
+  const go = document.createElement('button'); go.type = 'button'; go.className = 'btn small primary'; go.textContent = 'Continue';
+  go.onclick = () => afterQuiz(); box.appendChild(go); go.focus();
+}
+
+function forceFor(k) {
+  match.force(k === 0 ? 'waiting' : 'playing');
+  presence.you.force('present'); presence.rival.force('present');
+  pieceActor = M[k].actor || 'rival'; piece.force('spawn');
+  $('#pieceWhere').textContent = `runs in each browser · showing ${NAME[pieceActor]}`;
+}
+async function enter(k, { animate = false } = {}) {
+  const tok = ++runToken;
+  clearPause(); note = null; overInfo = null;
+  document.querySelectorAll('.banner,.msg,.waitbar,.proj').forEach((e) => e.remove());
+  $('#modal').hidden = true;
+  const prevK = cur; cur = k;
+  forceFor(k);
+  page.force('animating');
+  renderChips(); renderStory(); renderInteract();
+  const pre = TL[k].pre;
+  wireSep(`${M[k].t} · ${M[k].title}`);
+  try {
+    if (animate && M[k].type === 'skip') await skipTransition(pre, tok);
+    else if (animate && k === prevK + 1) await stackTransition(pre, tok);
+    else showState(pre);
+  } catch (e) { if (e instanceof Abort) return; throw e; }
+  if (M[k].type === 'skip') { page.force('settled'); renderStory(); renderInteract(); if (autoplay) autoNext(tok); return; }
+  page.force('ready'); renderStory(); renderInteract();
+  if (autoplay) { guard(sleep(650, tok).then(() => play())); }
+}
+async function stackTransition(pre, tok) {
+  const now = performance.now();
+  let any = false;
+  ['you', 'rival'].forEach((p) => {
+    const v = views[p], from = GD.settle(v.b), to = pre[p].b, ap = new Map();
+    for (let y = 0; y < GD.H; y++) for (let x = 0; x < W; x++) if (to[y][x] !== '.' && from[y][x] === '.') ap.set(y * W + x, now + y * 45 + x * 8);
+    v.reset(to); if (ap.size) { v.appear = ap; any = true; }
+    disp[p].meter = pre[p].meter; disp[p].idx = pre[p].idx;
+  });
+  renderHud();
+  if (any) await sleep(900, tok);
+  views.you.appear = views.rival.appear = null;
+}
+async function skipTransition(pre, tok) {
+  const lab = document.createElement('div'); lab.className = 'banner'; lab.innerHTML = '+58 s<small>fast-forward</small>';
+  stage.appendChild(lab);
+  await tween(450, (e) => { views.you.red = 0; views.you.greyFrom = GD.H - Math.round(e * GD.H); views.rival.greyFrom = views.you.greyFrom; }, tok, ease.lin);
+  const now = performance.now();
+  ['you', 'rival'].forEach((p) => {
+    const v = views[p], ap = new Map(); v.reset(pre[p].b);
+    for (let y = 0; y < GD.H; y++) for (let x = 0; x < W; x++) if (pre[p].b[y][x] !== '.') ap.set(y * W + x, now + y * 40 + Math.random() * 160);
+    v.appear = ap; disp[p].meter = pre[p].meter; disp[p].idx = pre[p].idx;
+  });
+  renderHud();
+  await sleep(1100, tok);
+  lab.remove(); views.you.appear = views.rival.appear = null;
+}
+
+function play() {
+  if (page.state !== 'ready') return;
+  const m = M[cur];
+  if (m.quiz && quizOn && !autoplay && !answered[cur]) { page.send('QUIZ'); renderInteract(); const b = $('#interact .opt'); if (b) b.focus(); return; }
+  afterQuiz();
+}
+function afterQuiz() {
+  const m = M[cur];
+  if (m.yourMove && !autoplay && !moved[cur]) { page.send('MOVE'); startMove(); return; }
+  runAction();
+}
+function startMove() {
+  const m = M[cur], v = views.you, h = Math.max(...GD.SHAPES[m.move.shape].map((c) => c[1])) + 1;
+  moveX = 4; moveTries = 0;
+  v.active = { shape: m.move.shape, letter: m.move.letter, x: moveX, y: VIS - h }; v.ghost = true;
+  pieceActor = 'you'; $('#pieceWhere').textContent = 'runs in each browser · showing YOU';
+  $('#box-you').classList.add('moving');
+  renderInteract();
+  const d = $('#mvD'); if (d) d.focus();
+}
+function shapeWidth(shape) { return Math.max(...GD.SHAPES[shape].map((c) => c[0])) + 1; }
+function nudge(dx) { setMoveX(moveX + dx); }
+function setMoveX(x) {
+  if (page.state !== 'move') return;
+  const m = M[cur]; x = clamp(x, 0, W - shapeWidth(m.move.shape));
+  if (x !== moveX) { moveX = x; views.you.active.x = x; sfx.move(); }
+}
+function tryDrop(auto) {
+  if (page.state !== 'move') return;
+  const m = M[cur];
+  if (moveX !== m.move.x) {
+    moveTries++;
+    const hint = m.yourMove.hints[moveX] || m.yourMove.hints.default;
+    $('#mvHint').textContent = hint + (moveTries >= 2 ? ' Or press "Do it for me".' : '');
+    views.you.jolt = 3; setTimeout(() => { views.you.jolt = 0; }, 260); sfx.bad();
+    return;
+  }
+  if (!moved[cur] && !auto) { addXp(moveTries === 0 ? 100 : 75); }
+  if (!auto) { if (cur === 3) award('wellFed'); if (cur === 9) award('b2b'); }
+  moved[cur] = true;
+  $('#box-you').classList.remove('moving');
+  views.you.ghost = false;
+  runAction(true);
+}
+async function runAction(fromMove = false) {
+  const tok = ++runToken, m = M[cur];
+  page.send('RUN'); renderInteract();
+  try {
+    if (m.type === 'start') await runStart(tok);
+    else if (m.type === 'action') await runEvents(cur, tok, fromMove);
+    else if (m.type === 'pause') { await sleep(500, tok); storyPause(); return; }
+    settle(tok);
+  } catch (e) { if (!(e instanceof Abort)) console.error(e); }
+}
+function settle(tok) {
+  const end = match.state === 'over';
+  page.send(end ? 'END' : 'DONE');
+  if (end) overInfo = { buttons: [['Watch again', () => enter(0), true]] };
+  renderStory(); renderInteract(); renderChips();
+  if (pendingCaught) { pendingCaught = false; if (document.hidden) startPause('you', 'tab'); }
+  if (autoplay && !end) autoNext(tok);
+  if (end && autoplay) setAutoplay(false);
+}
+function autoNext(tok) { guard(sleep(2800, tok).then(() => { if (page.state === 'settled' && autoplay) next(); })); }
+function next() { if (page.state === 'settled' && cur < M.length - 1) { page.send('NEXT'); enter(cur + 1, { animate: true }); } }
+async function runStart(tok) {
+  wire('YOU', 'DO', 'join{name:"YOU"}'); wire('RIVAL', 'DO', 'join{name:"RIVAL"}');
+  match.send('JOINED');
+  wire('DO', 'both', `start{seed:"0x${GD.SEED.toString(16).toUpperCase()}", in:"3s"}`);
+  await countdown(tok);
+  match.send('GO'); sfx.go();
+}
+async function runEvents(k, tok, fromMove) {
+  const m = M[k], a = m.actor, o = other(a), st = TL[k], v = views[a];
+  pieceActor = a; $('#pieceWhere').textContent = `runs in each browser · showing ${NAME[a]}`;
+  piece.force('spawn');
+  let lockMsg = null;
+  for (const ev of st.events) {
+    if (ev.type === 'drop') {
+      const h = Math.max(...GD.SHAPES[ev.shape].map((c) => c[1])) + 1, y0 = VIS - h;
+      piece.send('DROP');
+      if (!fromMove) {
+        let x = ev.shape === 'O' ? 4 : ev.shape === 'IV' ? 4 : 3;
+        v.active = { shape: ev.shape, letter: ev.letter, x, y: VIS };
+        await tween(160, (e) => { v.active.y = VIS - e * (VIS - y0); }, tok);
+        while (x !== ev.x) { await sleep(85, tok); x += Math.sign(ev.x - x); v.active.x = x; sfx.move(); }
+        await sleep(160, tok);
+      }
+      await tween(90 + (y0 - ev.y) * 14, (e) => { v.active.y = y0 - e * (y0 - ev.y); }, tok, ease.in);
+      const cells = GD.cellsOf(ev.shape, ev.x, ev.y);
+      cells.forEach(([x, y]) => { v.b[y][x] = ev.letter; });
+      v.active = null; v.lockCells = cells; sfx.drop(); piece.send('LAND');
+      disp[a].idx += 1; renderHud();
+      lockMsg = { piece: ev.letter, col: ev.x + 1 };
+      await tween(260, (e) => { v.lockGlow = 1 - e; }, tok);
+      v.lockCells = null;
+    } else if (ev.type === 'clear') {
+      piece.send('LINES');
+      v.flashRows = new Set(ev.rows);
+      await tween(460, (e) => { v.flashA = 0.85 * Math.abs(Math.sin(e * Math.PI * 3)); }, tok, ease.lin);
+      v.flashRows = null;
+      const kept = []; for (let y = 0; y < GD.H; y++) if (!ev.rows.includes(y)) kept.push(y);
+      const post = st.post[a].b; v.b = GD.clone(post);
+      const off = kept.map((orig, y) => -(orig - y)); v.rowOff = off.concat(Array(GD.H - off.length).fill(0));
+      sfx.clear(ev.lines);
+      await tween(220, (e) => { v.rowOff = v.rowOff.map((r, y) => (off[y] || 0) * (1 - e)); }, tok, ease.in);
+      v.rowOff = null;
+    } else if (ev.type === 'attack') {
+      piece.send('ATTACK');
+      popup(a, ev.label, ev.b2bBonus ? 'hazard-text' : '');
+      if (ev.lines === 4) burst(a, 50);
+      const msg = { ...lockMsg, cleared: ev.lines, attack: ev.attack };
+      if (ev.cancel) msg.cancelled = ev.cancel;
+      wire(NAME[a], 'DO', 'lock' + fmtMsg(msg));
+      await sleep(420, tok);
+      if (ev.cancel) {
+        disp[a].meter -= ev.cancel; renderMeters(); meterFx(a, 'crack'); sfx.cancel();
+        popup(a, `−${ev.cancel} cancelled`, 'small hazard-text');
+        wire('DO', null, `${NAME[a]} cancelled ${ev.cancel} of their ${ev.cancel + disp[a].meter} incoming`);
+        await sleep(650, tok);
+      }
+      wire('DO', NAME[o], 'relay lock (board update)');
+      if (ev.sent) {
+        sfx.attack();
+        await projectile(a, o, '+' + ev.sent, tok);
+        disp[o].meter += ev.sent; renderMeters(); meterFx(o, 'bump');
+        wire('DO', NAME[o], `attack{rows:${ev.sent}}`);
+        popup(o, `+${ev.sent} incoming`, 'small hazard-text');
+      } else if (!ev.cancel) popup(a, 'sends 0', 'small');
+      await sleep(350, tok);
+      piece.send('NEXT');
+    } else if (ev.type === 'rise') {
+      piece.send('NO_LINES');
+      wire(NAME[a], 'DO', 'lock' + fmtMsg({ ...lockMsg, cleared: 0, garbage: `{rows:${ev.n}, hole:${ev.hole + 1}}` }));
+      await sleep(250, tok);
+      disp[a].meter = 0; renderMeters();
+      v.b = GD.clone(st.post[a].b);
+      v.rowOff = Array(GD.H).fill(ev.n);
+      sfx.rise(); shake(a);
+      popup(a, `+${ev.n} garbage`, 'small hazard-text');
+      await tween(420, (e) => { v.rowOff = Array(GD.H).fill(ev.n * (1 - e)); }, tok);
+      v.rowOff = null;
+      wire('DO', NAME[o], `relay lock (${NAME[o]} sees ${NAME[a]}'s board rise)`);
+      if (!st.events.some((e) => e.type === 'topout')) piece.send('NEXT');
+      await sleep(250, tok);
+    } else if (ev.type === 'topout') {
+      piece.send('OVERFLOW');
+      popup(a, 'Top out', 'bad');
+      await tween(500, (e) => { v.red = e; }, tok);
+      wire(NAME[a], 'DO', 'topout{}');
+      match.send('TOP_OUT');
+      wire('DO', 'both', `result{winner:"${NAME[o]}", reason:"top out"}`);
+      await tween(700, (e) => { v.greyFrom = Math.round(GD.H * (1 - e)); }, tok, ease.lin);
+      banner(o, 'You win', 'RIVAL topped out at ' + M[k].t);
+      banner(a, 'Top out', '');
+      burst(o, 140); sfx.win(); award('garbageDay');
+    }
+  }
+}
+function fmtMsg(o) { return '{' + Object.entries(o).map(([k, v]) => `${k}:${typeof v === 'string' && !v.startsWith('{') ? '"' + v + '"' : v}`).join(', ') + '}'; }
+function banner(p, big, small) {
+  const el = document.createElement('div'); el.className = 'banner'; el.textContent = big;
+  if (small) { const s = document.createElement('small'); s.textContent = small; el.appendChild(s); }
+  $('#box-' + p).appendChild(el);
+}
+
+/* ---------------- the pause rule ---------------- */
+let pz = null, pendingCaught = false, overInfo = null, hiddenAt = 0, silentTimer = 0;
+function canPause() { return !pz && match.state === 'playing' && ['ready', 'settled', 'quiz', 'move'].includes(page.state); }
+function clearPause() {
+  clearTimeout(silentTimer); pz = null;
+  ['you', 'rival'].forEach((p) => $('#box-' + p).classList.remove('frozen'));
+  $('#modal').hidden = true;
+}
+const REASON = {
+  tab: { title: 'RIVAL left the game tab', ev: 'HIDE', mev: 'AWAY', wire: 'away{reason:"tab-hidden"}' },
+  closed: { title: 'RIVAL closed the game', ev: 'CLOSE', mev: 'GONE', wire: null },
+  wifi: { title: "RIVAL's connection dropped", ev: 'QUIET_5S', mev: 'GONE', wire: null },
+};
+function startPause(by, reason, story = false) {
+  const tok = runToken;
+  pz = { by, reason, total: 120, left: 120, ext: 0, waited: false, ff: 1, story, ret: page.state, t0: performance.now(), phase: 'paused', tok };
+  if (reason === 'closed') wire(NAME[by], null, 'WebSocket closed (1001 going away) → DO webSocketClose()');
+  if (reason === 'tab') wire(NAME[by], 'DO', REASON.tab.wire);
+  presence[by].send(REASON[reason].ev);
+  match.send(REASON[reason].mev);
+  page.force('paused');
+  wire('DO', null, 'setAlarm(now + 2:00)');
+  wire('DO', 'both', `paused{by:"${NAME[by]}", reason:"${reason}", deadline:"2:00"}`);
+  ['you', 'rival'].forEach((p) => $('#box-' + p).classList.add('frozen'));
+  sfx.pause();
+  if (by === 'rival') {
+    showRivalAway();
+    $('#mTitle').textContent = REASON[reason].title;
+    $('#mText').textContent = 'Both boards are frozen, so nobody loses time. If RIVAL isn’t back when the timer runs out, RIVAL forfeits and you win.';
+    $('#mFF').textContent = 'Demo: fast-forward the timer ×10';
+    $('#modal').hidden = false; updateTimerUi();
+    setTimeout(() => { if (!$('#modal').hidden) $('#mWait').focus(); }, 60);
+  } else {
+    msg('rival', 'On RIVAL’s screen', 'A popover says YOU left the game tab. RIVAL chose to wait.', null);
+  }
+  renderStory(); renderControls();
+}
+function storyPause() {
+  if (autoplay) { setAutoplay(false); toast('Autoplay stopped', 'This one is your call.'); }
+  startPause('rival', 'tab', true);
+}
+function msg(p, title, text, btn) {
+  $('#box-' + p).querySelectorAll('.msg').forEach((e) => e.remove());
+  const el = document.createElement('div'); el.className = 'msg';
+  el.innerHTML = '<b></b><span class="tx"></span><span class="t"></span>';
+  el.querySelector('b').textContent = title; el.querySelector('.tx').textContent = text;
+  if (btn) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn small'; b.textContent = btn[0]; b.onclick = btn[1]; el.appendChild(b); }
+  $('#box-' + p).appendChild(el); return el;
+}
+function showRivalAway() {
+  const r = pz.reason;
+  if (r === 'tab') msg('rival', 'RIVAL’s screen', 'You left the tab, so the game is paused. Your opponent is deciding whether to wait.', ['Come back (as RIVAL)', rivalBack]);
+  else if (r === 'closed') msg('rival', 'Tab closed', 'Nothing is running on RIVAL’s side. Reopening the link rejoins with the saved token.', ['Reopen the link (as RIVAL)', rivalBack]);
+  else msg('rival', 'Connection lost', 'RIVAL’s browser keeps trying to reconnect.', ['Reconnect (as RIVAL)', rivalBack]);
+}
+function updateTimerUi() {
+  if (!pz || pz.by !== 'rival') return;
+  const C = 2 * Math.PI * 28, frac = clamp(pz.left / pz.total, 0, 1);
+  $('#mRing').style.strokeDasharray = `${C * frac} ${C}`;
+  $('#mTime').textContent = fmt(pz.left);
+  $('#mNote').textContent = pz.ext ? `Extended ${pz.ext}× · ${fmt(pz.total)} in total. Add more whenever you like.` : 'Default wait: 2:00. You can add time whenever you like while you wait.';
+  const wb = $('#box-you .waitbar .t'); if (wb) wb.textContent = fmt(pz.left);
+  const rt = $('#box-rival .msg .t'); if (rt) rt.textContent = `Come back within ${fmt(pz.left)} or forfeit.`;
+}
+function waitChoice() {
+  if (!pz) return;
+  pz.waited = true; $('#modal').hidden = true;
+  wire('YOU', null, 'chose to wait (local popover, nothing sent)');
+  const el = document.createElement('div'); el.className = 'waitbar';
+  el.innerHTML = '<span class="grow">Waiting for RIVAL <span class="t"></span></span>';
+  const ext = document.createElement('button'); ext.type = 'button'; ext.className = 'btn'; ext.textContent = '+1:00'; ext.onclick = extend;
+  const lv = document.createElement('button'); lv.type = 'button'; lv.className = 'btn'; lv.textContent = 'Leave'; lv.onclick = leave;
+  el.append(ext, lv); $('#box-you').appendChild(el); updateTimerUi();
+  toast('Waiting', 'Act as RIVAL on the right to bring them back.');
+}
+function extend() {
+  if (!pz) return;
+  pz.left += 60; pz.total += 60; pz.ext += 1;
+  match.send('EXTEND');
+  wire('YOU', 'DO', 'extend{by:60}'); wire('DO', null, `setAlarm(now + ${fmt(pz.left)})`); wire('DO', 'both', `deadline{left:"${fmt(pz.left)}"}`);
+  sfx.go(); updateTimerUi(); award('timeLord');
+}
+async function rivalBack() {
+  if (!pz || pz.by !== 'rival') return;
+  if (pz.reason === 'tab') { presence.rival.send('SHOW'); wire('RIVAL', 'DO', 'back{}'); }
+  else { presence.rival.send('REJOIN'); wire('RIVAL', 'DO', 'rejoin{token:"r-7f3a…"}'); wire('DO', 'RIVAL', 'snapshot{board, meter, piece:#' + (disp.rival.idx + 1) + '}'); }
+  if (pz.waited || !$('#modal').hidden) award('patient');
+  await resumeMatch();
+}
+async function resumeMatch() {
+  const p0 = pz; if (!p0) return;
+  const tok = ++runToken;
+  const away = (performance.now() - p0.t0) / 1000;
+  match.send('BACK');
+  wire('DO', null, 'deleteAlarm()'); wire('DO', 'both', 'resume{in:"3s"}');
+  $('#modal').hidden = true;
+  document.querySelectorAll('.msg,.waitbar').forEach((e) => e.remove());
+  p0.phase = 'resuming'; renderControls();
+  ['you', 'rival'].forEach((p) => $('#box-' + p).classList.remove('frozen'));
+  try { await countdown(tok, 'GO'); } catch (e) { return; }
+  match.send('GO');
+  pz = null;
+  if (p0.story) {
+    note = { title: M[cur].title, text: `RIVAL came back after ${fmt(away)}${p0.ext ? `, and YOU extended the timer ${p0.ext}×` : ''}. Both boards resumed after a 3-second countdown. Both games were frozen the whole time, so nobody lost time.` };
+    page.force('settled');
+    if (autoplay) autoNext(tok);
+  } else page.force(p0.ret === 'move' ? 'move' : p0.ret);
+  renderStory(); renderInteract(); renderControls();
+  if (page.state === 'move') { views.you.ghost = true; }
+}
+function expire(by) {
+  const p0 = pz; ++runToken;
+  presence[by].send('TIMER_0'); match.send('TIMER_0');
+  wire('DO', null, 'alarm() fired: ' + NAME[by] + ' did not return');
+  wire('DO', 'both', `result{winner:"${NAME[other(by)]}", reason:"${NAME[by]} forfeited"}`);
+  endPaused(p0, by === 'rival'
+    ? { title: 'RIVAL forfeits', text: 'The timer ran out before RIVAL came back. The Match DO’s alarm fired and YOU won by forfeit. In the real match RIVAL came back, so rewind to see that.', win: 'you' }
+    : { title: 'YOU forfeit', text: `You were away for ${fmt(p0.awayS || 0)}, longer than the 2:00 timer. In a real match RIVAL would have won by forfeit.`, win: 'rival' });
+}
+function leave() {
+  if (!pz) return;
+  const p0 = pz; ++runToken;
+  match.send('LEAVE');
+  wire('YOU', 'DO', 'leave{}'); wire('DO', null, 'deleteAlarm()');
+  wire('DO', 'RIVAL', 'result{winner:"YOU", reason:"RIVAL was away"}');
+  endPaused(p0, { title: 'YOU left the match', text: 'YOU left while RIVAL was away. This demo scores it as a forfeit by RIVAL, but that is the first open question in the pause rule below.', win: 'you' });
+}
+function endPaused(p0, info) {
+  ['you', 'rival'].forEach((p) => $('#box-' + p).classList.remove('frozen'));
+  $('#modal').hidden = true; document.querySelectorAll('.msg,.waitbar').forEach((e) => e.remove());
+  banner(info.win, info.win === 'you' ? 'You win' : 'RIVAL wins', 'by forfeit');
+  banner(other(info.win), 'Forfeit', '');
+  pz = null; page.force('over'); note = { title: info.title, text: info.text };
+  const k = cur;
+  overInfo = { buttons: [['Rewind to before the pause', () => enter(k), true]] };
+  if (M[k].type === 'pause') overInfo.buttons.push(['Skip ahead to 1:50', () => enter(k + 1, { animate: true })]);
+  renderStory(); renderInteract(); renderControls(); sfx.bad();
+}
+function rivalWifi() {
+  if (!canPause()) return;
+  const ret = page.state, t0 = performance.now(), tok = runToken;
+  presence.rival.send('NET_DROP');
+  pz = { phase: 'silent', by: 'rival', ret };
+  page.force('paused');
+  wire('RIVAL', null, 'connection lost (no close frame reaches the DO)');
+  award('ghost');
+  const tick = () => {
+    if (tok !== runToken || !pz || pz.phase !== 'silent') return;
+    const secs = (performance.now() - t0) / 1000;
+    $('#pres-rival span').textContent = `silent ${Math.min(5, Math.floor(secs))}s`;
+    if (secs >= 5) {
+      wire('DO', null, 'no heartbeat from RIVAL for 5 s');
+      pz = null; page.force(ret); startPause('rival', 'wifi');
+      return;
+    }
+    silentTimer = setTimeout(tick, 250);
+  };
+  tick();
+}
+function youLeft() {
+  hiddenAt = Date.now();
+  if (page.state === 'animating') { pendingCaught = true; return; }
+  if (!canPause()) return;
+  startPause('you', 'tab');
+}
+async function youReturned() {
+  if (!pz || pz.by !== 'you') return;
+  const awayS = (Date.now() - hiddenAt) / 1000; pz.awayS = awayS;
+  award('caught');
+  if (awayS > pz.total) { expire('you'); return; }
+  presence.you.send('SHOW');
+  wire('YOU', 'DO', 'back{}');
+  msg('you', 'Welcome back', `You left the tab for ${fmt(awayS)}. Both games froze the moment you left, and RIVAL got the wait-or-leave popover.`, null);
+  const tok = runToken;
+  await new Promise((r) => setTimeout(r, reduceMotion ? 300 : 2600));
+  if (tok !== runToken || !pz) return;
+  await resumeMatch();
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) youLeft();
+  else if (pz && pz.by === 'you') youReturned();
+});
+
+/* ---------------- main loop ---------------- */
+let lastT = performance.now();
+function loop(now) {
+  const dt = Math.min(250, now - lastT); lastT = now;
+  views.you.draw(now); views.rival.draw(now);
+  if (pz && pz.by === 'rival' && pz.phase === 'paused' && match.state === 'paused') {
+    pz.left -= (dt / 1000) * pz.ff;
+    updateTimerUi();
+    if (pz.left <= 0) expire('rival');
+  }
+  if (confetti.parts.length || confetti.dirty) { stepConfetti(); confetti.dirty = confetti.parts.length > 0; }
+  requestAnimationFrame(loop);
+}
+
+/* ---------------- wiring up controls ---------------- */
+$('#playBtn').onclick = () => {
+  if (page.state === 'ready') play();
+  else if (page.state === 'settled') { if (cur < M.length - 1) next(); }
+  else if (page.state === 'over') enter(0);
+};
+$('#backBtn').onclick = () => { if (cur > 0) enter(cur - 1); };
+$('#chips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) enter(+b.dataset.k); });
+function setAutoplay(on) { autoplay = on; $('#autoT').checked = on; }
+$('#autoT').onchange = (e) => {
+  autoplay = e.target.checked;
+  if (autoplay && page.state === 'ready') play();
+  else if (autoplay && page.state === 'settled') next();
+};
+$('#quizT').onchange = (e) => { quizOn = e.target.checked; };
+$('#soundBtn').onclick = (e) => { soundOn = !soundOn; e.currentTarget.setAttribute('aria-pressed', soundOn); e.currentTarget.textContent = soundOn ? 'Sound on' : 'Sound off'; if (soundOn) sfx.go(); };
+$('#mWait').onclick = waitChoice; $('#mExtend').onclick = extend; $('#mLeave').onclick = leave;
+$('#mFF').onclick = () => { if (!pz) return; pz.ff = pz.ff === 1 ? 10 : 1; $('#mFF').textContent = pz.ff === 1 ? 'Demo: fast-forward the timer ×10' : 'Demo: back to real time'; };
+$('#plTab').onclick = () => { if (canPause()) startPause('rival', 'tab'); };
+$('#plClose').onclick = () => { if (canPause()) startPause('rival', 'closed'); };
+$('#plWifi').onclick = () => rivalWifi();
+$('#plBack').onclick = () => rivalBack();
+$('#resetBtn').onclick = () => { xp = 0; got = new Set(); firstTry = {}; store.set('xp', 0); store.set('badges', []); store.set('quiz', {}); renderXp(); renderBadges(); toast('Progress reset'); };
+const cvYou = $('#cv-you');
+cvYou.addEventListener('pointermove', (e) => {
+  if (page.state !== 'move' || e.pointerType !== 'mouse') return;
+  const r = cvYou.getBoundingClientRect(), w = shapeWidth(M[cur].move.shape);
+  setMoveX(Math.floor((e.clientX - r.left) / CELL - (w - 1) / 2));
+});
+cvYou.addEventListener('pointerdown', (e) => {
+  if (page.state !== 'move') return;
+  const r = cvYou.getBoundingClientRect(), w = shapeWidth(M[cur].move.shape);
+  const x = clamp(Math.floor((e.clientX - r.left) / CELL - (w - 1) / 2), 0, W - w);
+  if (e.pointerType === 'mouse' || x === moveX) { setMoveX(x); tryDrop(); } else setMoveX(x);
+});
+document.addEventListener('keydown', (e) => {
+  if (page.state === 'move') {
+    if (e.key === 'ArrowLeft') { nudge(-1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { nudge(1); e.preventDefault(); }
+    else if ((e.key === ' ' || e.key === 'ArrowDown') && !(e.target instanceof HTMLButtonElement && e.key === ' ')) { tryDrop(); e.preventDefault(); }
+  } else if (e.key === 'Escape' && pz && !$('#modal').hidden) waitChoice();
+});
+
+/* ---------------- attack lab ---------------- */
+const CLEARS = { Single: [0, false], Double: [1, false], Triple: [2, false], Tetris: [4, true], 'T-spin Double': [4, true], 'Perfect clear': [10, false] };
+const lab = { clear: 'Tetris', b2b: false, combo: 0, inc: 3 };
+$('#labClear').innerHTML = Object.keys(CLEARS).map((k) => `<button type="button" data-c="${k}" aria-pressed="${k === lab.clear}">${k}</button>`).join('');
+function renderLab() {
+  const [base, difficult] = CLEARS[lab.clear];
+  const b2b = lab.b2b && difficult ? 1 : 0, combo = GD.COMBO[Math.min(lab.combo, 10)];
+  const attack = base + b2b + combo, cancel = Math.min(attack, lab.inc), sent = attack - cancel, left = lab.inc - cancel;
+  const terms = [`<span class="term">${base} ${lab.clear}</span>`];
+  if (lab.b2b && difficult) terms.push('+', '<span class="term">1 back-to-back</span>');
+  if (combo) terms.push('+', `<span class="term">${combo} combo ×${lab.combo + 1}</span>`);
+  terms.push('=', `<span class="term total">${attack} attack</span>`);
+  $('#labEq').innerHTML = terms.join(' ');
+  $('#labYou').innerHTML = lab.inc ? Array.from({ length: lab.inc }, (_, i) => `<i class="${i >= left ? 'x' : ''}"></i>`).join('') : '<span class="none">empty</span>';
+  $('#labOpp').innerHTML = sent ? Array.from({ length: sent }, () => '<i class="s"></i>').join('') : '<span class="none">nothing arrives</span>';
+  let say = attack === 0 ? `A ${lab.clear.toLowerCase()} sends nothing.`
+    : cancel && sent ? `Cancels ${cancel} of your ${lab.inc} incoming rows, then sends ${sent} to your opponent.`
+    : cancel ? `All ${attack} go to cancelling your own meter${left ? `, and ${left} ${left === 1 ? 'row still waits' : 'rows still wait'} for you` : ', which is now empty'}. Your opponent receives nothing.`
+    : `Your meter is empty, so all ${sent} rows go to your opponent.`;
+  if (lab.b2b && !difficult) say += ' Back-to-back only boosts Tetrises and T-spins, and this clear ends the chain.';
+  if (lab.clear === 'Perfect clear') say += ' A perfect clear empties your whole board.';
+  $('#labSay').textContent = say;
+  $('#cOut').textContent = lab.combo; $('#incOut').textContent = lab.inc;
+}
+let labTouches = 0;
+function labTouched() { labTouches++; if (labTouches === 3) award('labRat'); renderLab(); }
+$('#labClear').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; lab.clear = b.dataset.c; $('#labClear').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b)); labTouched(); });
+$('#labB2b').onchange = (e) => { lab.b2b = e.target.checked; labTouched(); };
+$('#cMinus').onclick = () => { lab.combo = Math.max(0, lab.combo - 1); labTouched(); };
+$('#cPlus').onclick = () => { lab.combo = Math.min(10, lab.combo + 1); labTouched(); };
+$('#labInc').oninput = (e) => { lab.inc = +e.target.value; labTouched(); };
+
+/* ---------------- boot ---------------- */
+function start(data) {
+  layout(); renderXp(); renderBadges(); renderLab();
+  highlight(smMatch, match.state, null); highlight(smPiece, piece.state, null);
+  Object.entries(smPres.nodeEl).forEach(([id, g]) => g.classList.toggle('on', id === 'present'));
+  tokenPos();
+  $('#lastMatch').innerHTML = lastText(match); $('#lastPres').innerHTML = 'both players: present'; $('#lastPiece').innerHTML = lastText(piece);
+  requestAnimationFrame(loop);
+  const k = data && Number.isInteger(data.k) ? clamp(data.k, 0, M.length - 1) : 0;
+  enter(k);
+}
+if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === 'function') {
+  try { window.claude.hot.snapshot(() => ({ k: cur })); } catch (e) { /* not available */ }
+}
+const hot = window.claude && window.claude.hot;
+if (hot && typeof hot.ready === 'function') hot.ready(start); else start((hot && hot.data) || {});
+})();
+</script>
