@@ -84,3 +84,12 @@
   --garbage-stripe: #50575c;
   color-scheme: dark;
 }
+
+/* The page itself follows the theme; nothing outside the app shows the browser's defaults. */
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+}

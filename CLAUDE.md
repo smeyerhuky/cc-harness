@@ -18,7 +18,7 @@ A template repository for multi-project development: clone it, then build your p
   - `skills/scad-design-to-print/` - SCAD Design to Print skill
 
 - **.github/** - CI, one workflow set per project that has code
-  - `workflows/garbage-day.yml`, `workflows/garbage-day-codeql.yml`, `actions/garbage-day-setup/` - Garbage Day's pipeline (`projects/garbage-day/kb/design/stack-and-ci.md`)
+  - `workflows/garbage-day*.yml`, `actions/garbage-day-setup/` - Garbage Day's pipeline: checks, CodeQL, deploys and preview cleanup (`projects/garbage-day/kb/design/stack-and-ci.md`)
 
 
 

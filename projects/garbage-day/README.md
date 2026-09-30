@@ -4,19 +4,22 @@ Garbage Day is a two-player, real-time falling-block versus game (a Tetris-style
 
 ## Getting started
 
-M1 (foundations) is under way: the workspace builds, but there is no game in it yet. With Node
-22.22 or newer, from `projects/garbage-day/`:
+M1 (foundations) is under way: the engine, the protocol and an app shell exist, but there is no
+playable game in the browser yet. With Node 22.22 or newer, from `projects/garbage-day/`:
 
 ```
 corepack enable            # or prefix every command with: npx pnpm@12.8.1
 pnpm install
-pnpm dev                   # the client on Vite's dev server
-pnpm test                  # engine, protocol, ui and client tests
+pnpm dev                   # the app, the Worker and both Durable Objects, locally in workerd
+pnpm test                  # engine (with golden replays), protocol, ui and client tests
+pnpm test:worker           # the Worker and Durable Object tests, inside workerd
 pnpm lint && pnpm typecheck && pnpm test && pnpm test:worker && pnpm build   # the code gates
 ```
 
-The code lives in `src/`, one package per folder: `engine`, `protocol`, `ui` (the shared
-commons) and `app` (the React client, and the Worker from `GD-TICKET-011`). To understand what is
+The code lives in `src/`, one package per folder: `engine` (the deterministic rules, bots and
+referee), `protocol` (the wire messages), `ui` (the shared commons) and `app` (the React client
+in `client/`, the Worker and Durable Objects in `worker/`). Deploys run from CI: a Worker Preview
+per pull request, production on `main` ([stack and CI](kb/design/stack-and-ci.md#deployment)). To understand what is
 being built, read, in order:
 
 - [the PRD](kb/product/prd.md) and the rules files beside it: what v1 does;

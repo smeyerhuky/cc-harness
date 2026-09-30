@@ -5,7 +5,7 @@ description: "Stand up the app package (a React shell page, the Worker serving s
 resource: "../../design/stack-and-ci.md"
 tags: ["backlog", "deploy"]
 timestamp: "2026-09-30"
-state: "open"
+state: "blocked"
 milestone: "M1"
 relationships:
   - type: PART_OF
@@ -54,3 +54,43 @@ add the two deploy jobs to `.github/workflows/garbage-day.yml`, and ask the owne
 secrets and open both URLs. Done when the criteria hold (including the owner's confirmation,
 recorded in the journal), the KB and code gates pass, this item is `done` with a Resolution, the
 backlog index and roadmap agree, and the journal records it.
+
+## Progress
+
+Blocked on the owner since the [scaffold session](../journal/2026-09-30-scaffold.md). Everything
+that needs no Cloudflare account is done and verified:
+
+- **The shell.** `src/app/worker/index.ts` has the Worker and the `LobbyDO` and `MatchDO`
+  classes; `/api/health` answers from both over RPC. `src/app/wrangler.jsonc` sets the asset SPA
+  fallback, both DO bindings, the first migration with `new_sqlite_classes`, and a `previews`
+  block. The React page shows the name in Big Shoulders Display (self-hosted through the `ui`
+  package's `fonts.css`) and a status line read from `/api/health` with `use()`.
+- **Local verify, per the repo's deploy KB.** `vite dev` and `vite preview` of the production
+  build both ran the Worker and both DOs in workerd. `curl` got health from both DOs, the page,
+  the SPA fallback for `/g/GD-7KQ4`, the font as `font/woff2`, and 404 for `/api/nope` and
+  `/ws/lobby`. Headless Chromium screenshots at desktop and phone width, light and dark, show the
+  page as designed.
+- **Tests.** 4 Worker tests run inside workerd (`pnpm test:worker`), and 4 client tests.
+- **CI.** `deploy-preview` (a Worker Preview per pull request, with its URL commented),
+  `deploy-production` (`main`, GitHub environment `production`), and
+  `garbage-day-preview-cleanup.yml`. Each skips with a notice while the secrets are missing.
+
+Waiting on the owner:
+
+1. Add the repository secrets `CLOUDFLARE_API_TOKEN` (Workers Scripts and Durable Objects edit
+   on one account) and `CLOUDFLARE_ACCOUNT_ID`.
+2. Open the preview URL that `deploy-preview` then comments on the pull request, and the
+   production URL after the first push to `main`, which means merging. Say whether both show the
+   shell with "Server ready".
+
+Found on the way, fixed inside this item and recorded in
+[stack and CI](../../design/stack-and-ci.md):
+
+- **Preview design.** Cloudflare makes no version URL for a Worker with Durable Objects, so the
+  design's `wrangler versions upload` preview could never work. Worker Previews replace it.
+- **Test pool.** `@cloudflare/vitest-pool-workers` stopped at 0.22.0 (August), and its bundled
+  runtime rejects the compatibility date. It was renamed `@cloudflare/vitest-plugin` (1.3.1 used).
+- **Build allowlist.** pnpm 11 renamed `onlyBuiltDependencies` to `allowBuilds`; the scaffold's
+  setting was being ignored. It is now `allowBuilds: { esbuild, workerd }`.
+- **Audit.** Wrangler's miniflare pinned `undici` 7.29.0, with ten advisories. A recorded override
+  sets 7.29.1 until Wrangler 4.143.1 or later is in.

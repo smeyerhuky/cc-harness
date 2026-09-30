@@ -14,7 +14,7 @@ src/            source code: a pnpm workspace, one package per folder
   engine/       @garbage-day/engine — the deterministic game rules (pure TypeScript, no DOM)
   protocol/     @garbage-day/protocol — message types and Zod schemas
   ui/           @garbage-day/ui — the commons: tokens, primitives, game widgets, hooks
-  app/          @garbage-day/app — the React client (client/) and, from GD-TICKET-011, the Worker
+  app/          @garbage-day/app — the React client (client/), the Worker and Durable Objects (worker/)
 kb/             project-specific OKF knowledge base — see navigation below
   overview/     what the project is, for whom, what is out of scope
   process/      handoff, roadmap, backlog/, journal/, definition of done  (the PDLC instances)

@@ -53,7 +53,7 @@ is deleted when the session ends.
 | **Engine** (`@garbage-day/engine`) | client, Match DO, bot worker, tests | Pure, deterministic TypeScript: RNG streams, 7-bag, pieces and wall kicks, the per-player board simulation, attacks and cancelling, garbage landing, speed curve, power-ups, the **referee** (match, presence and pause rules), the bot, and replay |
 | **Protocol** (`@garbage-day/protocol`) | client, Worker, DOs | Message types, their runtime schemas (validated on every message the server receives), the protocol version |
 | **Client** (the `app` package, `client/`) | browser | The React app: screens, input, rendering, the network client with reconnect and outbox, clock sync, the bot worker. See [client architecture](client-architecture.md) |
-| **Worker** (the `app` package, `worker/`) | Cloudflare edge | Serves the built SPA as static assets with an SPA fallback; `POST /api/games` creates a private game; `GET /api/games/:code` looks one up; upgrades `/ws/lobby` and `/ws/match/:id` to the right DO; rate-limits by IP |
+| **Worker** (the `app` package, `worker/`) | Cloudflare edge | Serves the built SPA as static assets with an SPA fallback; `GET /api/health` answers from both DOs (since `GD-TICKET-011`); `POST /api/games` creates a private game; `GET /api/games/:code` looks one up; upgrades `/ws/lobby` and `/ws/match/:id` to the right DO; rate-limits by IP |
 | **Lobby DO** | Cloudflare | The quick-match queue, first come first served; pairs two players, creates a match id and two join tokens, tells both; publishes the waiting count |
 | **Match DO** | Cloudflare | Hosts one match, private or quick: the lobby phase for private games, then the referee; WebSocket Hibernation for sockets, alarms for every timer, SQLite storage for the snapshot |
 

@@ -1,0 +1,36 @@
+.page {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: 16px;
+  padding: 16px;
+  text-align: center;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(40px, 14vw, 128px);
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.tagline {
+  margin: 0;
+  font-size: 20px;
+  text-wrap: balance;
+}
+
+.status {
+  margin: 0;
+  text-wrap: balance;
+  font-family: var(--font-data);
+  font-size: 14px;
+  color: var(--muted);
+}

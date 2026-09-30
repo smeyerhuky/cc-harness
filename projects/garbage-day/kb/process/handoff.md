@@ -38,21 +38,27 @@ history lives in the [running journal](journal/index.md).
     Firefox and WebKit, the browser half of M1's exit check;
   - the protocol, [`GD-TICKET-010`](backlog/GD-TICKET-010.md): schemas for every message, the
     codec (engine shapes ↔ wire), a board encoding of at most 161 bytes, settings, and a
-    typecheck test that keeps the protocol and the engine's types in agreement.
+    typecheck test that keeps the protocol and the engine's types in agreement;
+  - the app shell, [`GD-TICKET-011`](backlog/GD-TICKET-011.md) (**blocked on the owner**): the
+    Worker with `LobbyDO` and `MatchDO`, the React page, Worker tests in workerd, verified locally
+    with `vite dev` and `vite preview`; CI jobs for a Worker Preview per pull request, production
+    on `main`, and preview cleanup, which skip until the secrets exist.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
-- **Waiting on the owner:** installing the Renovate GitHub app on the repository (until then
-  `renovate.json` is inert); a ruleset or branch protection on `main` requiring the
-  `garbage-day-ok` check ([the pipeline](../design/stack-and-ci.md#the-pipeline)); later, for
-  `GD-TICKET-011`, the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+- **Waiting on the owner:**
+  - for `GD-TICKET-011`: the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository
+    secrets, then opening the preview URL CI comments on the pull request and, after merging to
+    `main`, the production URL;
+  - installing the Renovate GitHub app (until then `renovate.json` is inert);
+  - a ruleset or branch protection on `main` requiring the `garbage-day-ok` check
+    ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the
   [code gates](../design/stack-and-ci.md#code-gates) — all pass, locally and in CI.
 
 ## Immediate next step
 
-[`GD-TICKET-011`](backlog/GD-TICKET-011.md) — the app shell and the deploy pipelines: the first
-open M1 item whose dependencies are done. Its last steps need the owner: the
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets, then opening the preview
-and production URLs. Then `019` (the golden replays in browsers), then M1's exit.
+[`GD-TICKET-019`](backlog/GD-TICKET-019.md) — run the golden replays in Chromium, Firefox and
+WebKit: the only M1 item not done or blocked. `011` resumes when the owner has added the
+Cloudflare secrets. M1's exit needs both.
 
 ## Standing rules for M1
 
@@ -62,7 +68,8 @@ and production URLs. Then `019` (the golden replays in browsers), then M1's exit
 - Port from `spikes/proof-of-concept/live/live-engine.js`; do not rewrite rules from memory. The
   engine's deliberate differences from it are listed in `GD-TICKET-008`'s Resolution.
 - Run pnpm as `npx -y pnpm@12.8.1 <script>` in a session container (or `corepack enable`).
-- `GD-TICKET-011` pins the Cloudflare packages that were too new for the scaffold.
+- Remove the `undici` override in `pnpm-workspace.yaml` once Wrangler 4.143.1 or later is in
+  ([exceptions](../design/stack-and-ci.md#exceptions-to-latest)).
 - A change to the engine that changes any golden replay is regenerated on purpose
   (`pnpm --filter @garbage-day/engine golden:update`) in its own commit, saying why (definition
   of done, project item 1).
