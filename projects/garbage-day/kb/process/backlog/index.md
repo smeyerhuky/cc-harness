@@ -47,7 +47,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-021](GD-TICKET-021.md) — Take the next Cloudflare tooling set and delete the undici override · done
 - [GD-TICKET-023](GD-TICKET-023.md) — Build the ui commons: tokens, primitives, game widgets and hooks · done
 - [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · done
-- [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · open
+- [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · done
 - [GD-STORY-002](GD-STORY-002.md) — See the fight: garbage, power-ups, showdowns and the result · open
 - [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · open
 - [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · open

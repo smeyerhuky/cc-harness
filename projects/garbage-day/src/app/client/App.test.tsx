@@ -60,10 +60,11 @@ describe('routes', () => {
     const router = renderAt('/');
     fireEvent.click(await screen.findByRole('button', { name: 'Play a bot' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
-    expect(await screen.findByRole('heading', { name: 'Bot · Regular' })).toBeDefined();
+    expect(await screen.findByRole('region', { name: 'Bot · Regular' })).toBeDefined();
     expect(router.state.location.pathname).toBe('/play');
-    expect(screen.getByRole('status').textContent).toBe('countdown');
-    fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+    expect(screen.getByRole('img', { name: 'Your board' })).toBeDefined();
+    expect(screen.getByRole('timer').textContent).toBe('3');
+    fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
     expect(await screen.findByRole('heading', { name: 'Garbage Day' })).toBeDefined();
   });
 

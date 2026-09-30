@@ -9,8 +9,11 @@ import { drawBoard, drawGarbageCell, type BoardView } from './draw';
 import styles from './BoardCanvas.module.css';
 
 export interface BoardCanvasProps {
-  /** Called every frame for the board to draw; `null` draws an empty well. */
-  readonly source: () => BoardView | null;
+  /**
+   * Called every frame, with the frame's time, for the board to draw; `null` draws an empty
+   * well. A match session steps its simulation here, so the board shows this frame's state.
+   */
+  readonly source: (now: number) => BoardView | null;
   /** Names the board for screen readers ("Your board", "RIVAL's board"). */
   readonly label: string;
   /** A fixed cell size in CSS pixels; without it the board fills its container. */
@@ -75,7 +78,7 @@ export function BoardCanvas({
     const key = `${cell}/${dpr}/${theme}`;
     if (sprite.current?.key !== key)
       sprite.current = { key, image: garbageSprite(cell, dpr, palette) };
-    drawBoard(c, source() ?? EMPTY_VIEW, {
+    drawBoard(c, source(now) ?? EMPTY_VIEW, {
       cell,
       palette,
       now,

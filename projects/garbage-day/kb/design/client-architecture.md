@@ -126,6 +126,10 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   line-clear flash, garbage-rise offset, fog.
 - HUD numbers (lines, sent, speed) come from `useMatch` selectors that change only on events, so
   they re-render a few times a second at most.
+- The session steps inside the canvas's own frame callback (`source(now)` calls
+  `session.frame(now)`, which steps once per frame time). Effects run child-first, so a separate
+  loop in `MatchScreen` would draw each board one frame late. A pending key press runs one tick
+  early, so a move always shows in the first frame after the key (US-05).
 - Motion that the DOM does well (popups, the attack flying through the centre column, countdown
   pops) uses CSS and the Web Animations API, and turns off with reduced motion.
 
