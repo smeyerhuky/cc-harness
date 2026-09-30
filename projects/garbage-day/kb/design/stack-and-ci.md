@@ -229,12 +229,12 @@ deployable Worker and its config to `dist/`, which `wrangler deploy` and `wrangl
   and `CLOUDFLARE_ACCOUNT_ID` as repository secrets; never in files. Without them (before the
   owner adds them, and on pull requests from forks) both deploy jobs record a notice and pass. See
   [`/kb/platforms/cloudflare-credentials.md`](../../../../kb/platforms/cloudflare-credentials.md).
-- **An account needs a `workers.dev` subdomain first.** The first run with the secrets
-  (2026-09-30) authenticated and reached the preview deployment. Then Cloudflare refused it with
-  code 10063 ("You need a workers.dev subdomain in order to proceed"), because a new account has
-  none until someone opens Workers & Pages in the dashboard. That is a one-time owner step, not a
-  job change. No preview or production deploy has succeeded yet. If previews still fail before
-  the Worker exists in production, one production deploy comes first.
+- **The first deploys (2026-09-30).** The first preview needed the account's `workers.dev`
+  subdomain (code 10063), which the owner created in the dashboard. After that it deployed with
+  no production Worker yet: a preview doesn't need one. `wrangler preview --json` prints progress
+  lines ahead of its JSON, so the job reads the URL from the line that opens the document. See
+  [`/kb/lessons/first-deploy-new-account.md`](../../../../kb/lessons/first-deploy-new-account.md).
+  Production hasn't deployed yet; it first runs on the merge to `main`.
 - **Known traps from this repo's lessons:** a sandboxed agent session cannot reach its own
   `*.workers.dev` URL (error 1042), so live checks after a deploy happen in the owner's browser
   ([`/kb/lessons/sandbox-egress-limits.md`](../../../../kb/lessons/sandbox-egress-limits.md)), and

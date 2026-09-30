@@ -289,10 +289,12 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           NAME: pr-${{ github.event.pull_request.number }}
           SHA: ${{ github.event.pull_request.head.sha }}
+        # `--json` still prints Wrangler's progress lines to stdout ahead of the JSON document,
+        # so jq reads only from the line that opens it.
         run: |
-          pnpm exec wrangler preview --name "$NAME" --message "$SHA" --json > "$RUNNER_TEMP/preview.json"
-          cat "$RUNNER_TEMP/preview.json"
-          url=$(jq -r '.preview.urls[0] // empty' "$RUNNER_TEMP/preview.json")
+          pnpm exec wrangler preview --name "$NAME" --message "$SHA" --json > "$RUNNER_TEMP/preview.out"
+          cat "$RUNNER_TEMP/preview.out"
+          url=$(sed -n '/^{/,$p' "$RUNNER_TEMP/preview.out" | jq -r '.preview.urls[0] // empty')
           if [ -z "$url" ]; then echo "::error::No preview URL in the output"; exit 1; fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
       - if: steps.creds.outputs.ok == 'true'

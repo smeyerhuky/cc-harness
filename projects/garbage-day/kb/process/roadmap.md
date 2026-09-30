@@ -20,7 +20,7 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 | Milestone | Goal | State |
 |---|---|---|
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
-| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | active — `GD-TICKET-011` waiting on the owner (`workers.dev` subdomain) |
+| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | active — `GD-TICKET-011` preview live, waiting on the owner's check |
 | **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | planned |
 | **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |

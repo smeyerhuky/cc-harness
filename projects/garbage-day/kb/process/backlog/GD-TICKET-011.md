@@ -62,9 +62,15 @@ Workers" template, one account, expiring 2026-12-29) and `CLOUDFLARE_ACCOUNT_ID`
 secrets on 2026-09-30, so the item is active again. The first run with them (`ee8d031`) passed
 every check. `deploy-preview` built and authenticated, then Cloudflare refused the preview
 deployment with code 10063: "You need a workers.dev subdomain in order to proceed". A new account
-has none until someone opens Workers & Pages in the dashboard. The job needs no fix; the owner
-does that once, and then the failed job is rerun (not an empty commit). When the preview is up,
-this gotcha goes into `/kb/lessons/` with the step that fixed it.
+has none until someone opens Workers & Pages in the dashboard. The owner did that
+(`smeyerhuky.workers.dev`), and a rerun of the failed job **deployed the first preview**:
+`https://pr-10-garbage-day.smeyerhuky.workers.dev`. It is preview `pr-10`, deployment 1, with
+migration `v1` creating both SQLite classes and `ENVIRONMENT` set to `preview`. The job still
+failed after that, reading the URL: `wrangler preview --json` prints progress lines ahead of its
+JSON, and `jq` stopped at the first word (`Invalid numeric literal at line 1, column 6`). The job
+now parses from the line that opens the JSON document, which was checked against the logged
+output. Both gotchas are in
+[`/kb/lessons/first-deploy-new-account.md`](../../../../../kb/lessons/first-deploy-new-account.md).
 
 Before that, everything that needed no Cloudflare account was done and verified:
 
@@ -86,8 +92,7 @@ Before that, everything that needed no Cloudflare account was done and verified:
 Waiting on the owner:
 
 1. ~~Add the repository secrets~~ (done 2026-09-30).
-2. Open **Workers & Pages** in the Cloudflare dashboard once, which creates the account's
-   `workers.dev` subdomain (code 10063 above), and say so, so the failed job can be rerun.
+2. ~~Create the account's `workers.dev` subdomain~~ (done 2026-09-30: `smeyerhuky.workers.dev`).
 3. Open the preview URL that `deploy-preview` then comments on the pull request, and the
    production URL after the first push to `main`, which means merging. Say whether both show the
    shell with "Server ready".
