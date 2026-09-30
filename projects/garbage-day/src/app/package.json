@@ -10,10 +10,14 @@
     "test:worker": "vitest run --config vitest.worker.config.ts"
   },
   "dependencies": {
+    "@garbage-day/engine": "workspace:*",
     "@garbage-day/protocol": "workspace:*",
     "@garbage-day/ui": "workspace:*",
+    "@xstate/react": "6.1.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "react-router": "8.4.0",
+    "xstate": "5.33.2"
   },
   "devDependencies": {
     "@babel/core": "8.0.6",

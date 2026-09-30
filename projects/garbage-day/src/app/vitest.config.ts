@@ -4,7 +4,7 @@ export default defineProject({
   test: {
     name: 'app',
     environment: 'happy-dom',
-    include: ['client/**/*.test.tsx', 'test/**/*.test.ts'],
+    include: ['client/**/*.test.{ts,tsx}', 'test/**/*.test.ts'],
     setupFiles: ['./test/setup.ts'],
   },
 });

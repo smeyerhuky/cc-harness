@@ -92,7 +92,8 @@ needs it.
 ## Contexts
 
 Few, narrow, and holding stable objects rather than changing values, so a context change never
-re-renders the tree:
+re-renders the tree. `createStoreContext` (`client/state/storeContext.tsx`) builds one around an
+external store, with a selector hook on `useSyncExternalStore`:
 
 | Context | Provides | Provided by |
 |---|---|---|
