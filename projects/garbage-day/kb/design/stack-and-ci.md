@@ -104,6 +104,11 @@ are in their packages' tsconfigs; the root `tsconfig.json` exists only to hold t
 in `src/ui`, where they are a peer dependency plus test-only development dependencies that Knip
 cannot see being used.
 
+**One Vitest.** Packages that plug into Vitest (`@vitest/browser-playwright`, Playwright) are root
+development dependencies, beside Vitest itself. Declared in a package instead, they made pnpm
+build a second copy of Vitest for that package, and the Workers test plugin then met a different
+copy from the runner ("Cannot read properties of undefined (reading 'config')", `GD-TICKET-019`).
+
 ## Local development
 
 - Install once with `corepack enable` (then `pnpm install`), or run every command as
