@@ -28,6 +28,7 @@ version.json    project metadata (status, current milestone, updated)
 Start at [`kb/index.md`](kb/index.md):
 
 - **[overview/](kb/overview/index.md)** — what the project is, for whom, and what is out of scope
+- **[product/](kb/product/index.md)** — the spec: PRD, game rules, pause and presence rules, controls and layout
 - **[process/](kb/process/index.md)** — handoff, roadmap, backlog, running journal, definition of done
 
 ## PDLC — how work is planned and recorded here
@@ -40,7 +41,7 @@ the files below are this project's instances of it.
 
 | Pipeline stage | Lives here |
 |---|---|
-| Spec (what, for whom, out of scope, acceptance criteria) | `kb/product/` — created when the spec is written |
+| Spec (what, for whom, out of scope, acceptance criteria) | [`kb/product/`](kb/product/index.md) — the [PRD](kb/product/prd.md) and the rules it cites |
 | Design (architecture, contracts, technology choices) | `kb/design/` — created when the design is sketched |
 | Roadmap (milestones, todos, exit criteria) | [`kb/process/roadmap.md`](kb/process/roadmap.md) |
 | Backlog (epics, stories, spikes, tickets) | [`kb/process/backlog/`](kb/process/backlog/index.md) |

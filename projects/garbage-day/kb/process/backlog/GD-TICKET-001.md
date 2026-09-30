@@ -5,7 +5,7 @@ description: "Write Garbage Day's spec with the owner — what it is, for whom, 
 resource: "../journal/2026-09-30-project-created.md"
 tags: ["backlog", "workflow"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M0"
 relationships:
   - type: DERIVED_FROM
@@ -48,3 +48,19 @@ PDLC table in `CLAUDE.md`. Do not start the design here — that is the next M0 
 acceptance criteria hold, the project gates pass
 (`/kb/pdlc/definition-of-done.md`, "Gates"), this item is `done` with a Resolution, the backlog
 index and roadmap agree, and the session's running-journal entry records it.
+
+## Resolution
+
+Done in the spec session (see [its journal entry](../journal/2026-09-30-spec.md)). `kb/product/`
+holds the spec: [the PRD](../../product/prd.md) (what it is, for whom, goals, match settings,
+user stories US-01 to US-20 with acceptance criteria, non-functional requirements, out of scope,
+open questions with assumed answers), and the three files its criteria cite:
+[game rules](../../product/game-rules.md), [pause and presence rules](../../product/pause-and-presence.md)
+and [controls and layout](../../product/controls-and-layout.md). Linked from `kb/index.md` and
+the PDLC table in `CLAUDE.md`.
+
+Deviation from the criteria: the owner agreed to the decisions and defaults the stories are
+built from ("go, accept everything", plus four notes, all written in), but has not yet read the
+stories' detailed wording. It goes to the owner at this session's check-in; any change is a spec
+edit, not a new item. The design the owner also asked for (architecture, UI language, stack and
+CI) was deliberately not started here and is minted as GD-TICKET-002 to 004.

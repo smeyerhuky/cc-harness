@@ -22,14 +22,18 @@ history lives in the [running journal](journal/index.md).
   existed: [Garbage Day](https://claude.ai/artifact/L5SGMhy2aj8qozrDVNSrkT) (step-through replay)
   and [Garbage Day Live](https://claude.ai/artifact/VcuM8PLqvvcBjYD1n8EPja) (live play vs a bot,
   simulated Match DO, two bot-vs-bot matches). They are the source material for the spec.
-- **Landed recently:** the project was created
-  ([journal entry](journal/2026-09-30-project-created.md)).
+- **Landed recently:** the spec, `GD-TICKET-001` done: [PRD](../product/prd.md) and the rules
+  files in [`kb/product/`](../product/index.md) ([journal entry](journal/2026-09-30-spec.md)).
+  Before that, the project was created ([journal entry](journal/2026-09-30-project-created.md)).
+- **Waiting on the owner:** a read of the PRD's stories and its five open questions (each has an
+  assumed answer that holds until they say otherwise).
 - **Gates:** see *Verify the baseline*.
 
 ## Immediate next step
 
-[`GD-TICKET-001`](backlog/GD-TICKET-001.md) — write the spec with the owner: what this is, for
-whom, what is out of scope, and user stories with acceptance criteria.
+[`GD-TICKET-002`](backlog/GD-TICKET-002.md) — write the architecture design from the proof of
+concept. Then `GD-TICKET-003` (UI language, which needs only the spec) and `GD-TICKET-004` (stack
+and CI, which waits for the architecture).
 
 ## Verify the baseline
 

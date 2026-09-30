@@ -23,9 +23,12 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 
 ## M0 — Stand the project up
 
-- [ ] Write the spec in `kb/product/` — what this is, for whom, out of scope, user stories with
+- [x] Write the spec in `kb/product/` — what this is, for whom, out of scope, user stories with
   acceptance criteria (pipeline stage 1) — [`GD-TICKET-001`](backlog/GD-TICKET-001.md)
-- [ ] Sketch the high-level design in `kb/design/` (pipeline stage 2a)
+- [ ] Sketch the high-level design in `kb/design/` (pipeline stage 2a), in three parts:
+  - [ ] Architecture from the proof of concept — [`GD-TICKET-002`](backlog/GD-TICKET-002.md)
+  - [ ] UI language design notes — [`GD-TICKET-003`](backlog/GD-TICKET-003.md)
+  - [ ] Tech stack, build and CI pipeline — [`GD-TICKET-004`](backlog/GD-TICKET-004.md)
 - [ ] Add the next milestones to this roadmap, and mint the first build milestone's work items
   (the remaining M0 todos are minted as the spec settles them)
 - [ ] Decide whether the project warrants a kickoff ceremony
