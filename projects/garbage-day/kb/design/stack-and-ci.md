@@ -181,8 +181,14 @@ codeql and delete-preview (their own workflows)
   `kb/authority/`). Pushes are already path-filtered, and a manual run checks everything. When
   the project is untouched, every other job is skipped.
 - **`install`** runs once first, so the store is cached before the parallel jobs restore it.
-- **`test-browser`** installs the three Playwright browsers on the runner and replays the golden
-  matches in each. Chromium shares Node's V8, so the check that matters is Firefox and WebKit.
+- **`test-browser`** replays the golden matches in Chromium, Firefox and WebKit. It runs in
+  Playwright's own image (`mcr.microsoft.com/playwright`, at the workspace's Playwright version,
+  pinned by digest, as user 1001), which already has the browsers and their system libraries.
+  Installing them on the runner took a few hundred megabytes from the Ubuntu mirror each run, and
+  once ran past the 15-minute timeout ([`GD-TICKET-020`](../process/backlog/GD-TICKET-020.md)).
+  Renovate updates the image and `playwright` in one group, because Playwright can't find its
+  browsers when the two differ. Chromium shares Node's V8, so the check that matters is Firefox
+  and WebKit.
   In an agent session, where only a Chromium is installed, run it as
   `GD_BROWSERS=chromium PW_CHROMIUM=<path to chrome> pnpm test:browser`.
 - **`garbage-day-ok`** needs every job, runs even when one fails, and fails if any failed or was

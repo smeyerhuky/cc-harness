@@ -62,6 +62,8 @@ to build first. → **Owner check-in** (held 2026-09-30: "Continue", every defau
   [`GD-TICKET-011`](backlog/GD-TICKET-011.md)
 - [x] The golden replays run in Chromium, Firefox and WebKit, in CI —
   [`GD-TICKET-019`](backlog/GD-TICKET-019.md)
+- [x] The browser replays run in Playwright's container image, so a slow mirror can't fail them —
+  [`GD-TICKET-020`](backlog/GD-TICKET-020.md)
 
 **Exit:** a pull request runs every required check green; golden replays give identical hashes on
 two runs and in Node and the browser; the shell is live on a preview URL and in production, opened

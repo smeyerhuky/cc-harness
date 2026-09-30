@@ -12,7 +12,7 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | `GD-EPIC` | 002 |
 | `GD-STORY` | 001 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 020 |
+| `GD-TICKET` | 021 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -40,6 +40,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-010](GD-TICKET-010.md) — Build the protocol package · done
 - [GD-TICKET-011](GD-TICKET-011.md) — Deploy the app shell with preview and production pipelines · active
 - [GD-TICKET-019](GD-TICKET-019.md) — Run the golden replays in real browsers · done
+- [GD-TICKET-020](GD-TICKET-020.md) — Run the browser replays in Playwright's container image · done
 
 *Later milestones (gaps from the [coverage audit](../coverage-audit.md), part of GD-EPIC-001):*
 

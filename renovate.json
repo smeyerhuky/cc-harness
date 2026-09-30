@@ -87,6 +87,14 @@
       "matchManagers": [
         "github-actions"
       ]
+    },
+    {
+      "description": "Playwright's container image (the test-browser job) must match the workspace's playwright, so they update together.",
+      "groupName": "playwright",
+      "matchPackageNames": [
+        "playwright",
+        "mcr.microsoft.com/playwright"
+      ]
     }
   ]
 }

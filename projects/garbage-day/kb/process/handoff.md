@@ -37,7 +37,9 @@ history lives in the [running journal](journal/index.md).
     and presence rule, snapshots, bots with skill and speed 1–10, and ten golden replays in
     `src/engine/test/golden/`; an ESLint guard for the determinism contract;
   - the golden replays in Chromium, Firefox and WebKit,
-    [`GD-TICKET-019`](backlog/GD-TICKET-019.md): green in CI, the same hashes as Node;
+    [`GD-TICKET-019`](backlog/GD-TICKET-019.md): green in CI, the same hashes as Node; since
+    [`GD-TICKET-020`](backlog/GD-TICKET-020.md) the job runs in Playwright's image, pinned by
+    digest, after a slow Ubuntu mirror timed it out;
   - the protocol, [`GD-TICKET-010`](backlog/GD-TICKET-010.md): schemas for every message, the
     codec (engine shapes ↔ wire), a board encoding of at most 161 bytes, settings, and a
     typecheck test that keeps the protocol and the engine's types in agreement;
@@ -54,7 +56,8 @@ history lives in the [running journal](journal/index.md).
   - for `GD-TICKET-011`: merging pull request #10, which runs `deploy-production`, then opening
     `https://garbage-day.smeyerhuky.workers.dev` and saying whether it shows "Server ready ·
     production" (the preview was confirmed 2026-09-30; the token expires 2026-12-29);
-  - installing the Renovate GitHub app (until then `renovate.json` is inert);
+  - (the Renovate GitHub app is installed as of 2026-09-30; its first run reads `renovate.json`
+    from `main`, so it takes effect after the merge);
   - a ruleset or branch protection on `main` requiring the `garbage-day-ok` check
     ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the
