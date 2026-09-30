@@ -53,19 +53,22 @@ history lives in the [running journal](journal/index.md).
     ([lessons](../../../../kb/lessons/worker-previews-in-ci.md)).
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:**
-  - for `GD-TICKET-011`: merging pull request #10, which runs `deploy-production`, then opening
+  - for `GD-TICKET-011`: merging the pull request with the deploy-condition fix (pull request
+    #10 merged, but it skipped `deploy-production`), then opening
     `https://garbage-day.smeyerhuky.workers.dev` and saying whether it shows "Server ready ·
     production" (the preview was confirmed 2026-09-30; the token expires 2026-12-29);
   - (the Renovate GitHub app is installed as of 2026-09-30; its first run reads `renovate.json`
     from `main`, so it takes effect after the merge);
-  - a ruleset or branch protection on `main` requiring the `garbage-day-ok` check
-    ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
+  - (the `main-protect` ruleset requires `garbage-day-ok` from GitHub Actions, with branches up
+    to date, as of 2026-09-30, checked through the API;
+    [the pipeline](../design/stack-and-ci.md#the-pipeline)).
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the
   [code gates](../design/stack-and-ci.md#code-gates) — all pass, locally and in CI.
 
 ## Immediate next step
 
-[`GD-TICKET-011`](backlog/GD-TICKET-011.md): after the owner merges pull request #10, check that
+[`GD-TICKET-011`](backlog/GD-TICKET-011.md): pull request #10 is merged, but it skipped
+`deploy-production` (a skipped job upstream). After the owner merges the fix, check that
 `deploy-production` passed on `main`. It is the first production deploy, so watch that migration
 `v1` applies to production as it did to the preview. Get the owner's confirmation of the
 production URL, then close the item with a Resolution. Then M1's
