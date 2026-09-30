@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "sideEffects": false,
   "scripts": {
     "gen:speed-table": "node scripts/gen-speed-table.ts",
     "golden:update": "vitest run --update src/golden.test.ts",

@@ -1,6 +1,7 @@
 import { PIECE_TYPES, POWER_KINDS, scoreClear } from '@garbage-day/engine';
 import { z } from 'zod';
 import { MAX_ENCODED_BOARD } from './board-codec';
+import { HANDLE_MAX_LENGTH, HANDLE_PATTERN } from './handle';
 
 /** Bumped when a message changes shape; each side rejects other versions. */
 export const PROTOCOL_VERSION = 1;
@@ -56,10 +57,7 @@ const dealtPiece = z.object({
 const awayReason = z.enum(['tab', 'step', 'closed', 'lost']);
 
 /** A handle as the client generates it: two capitalized words and a number (PRD US-04). */
-export const handle = z
-  .string()
-  .max(32)
-  .regex(/^[A-Z][a-z]+ [A-Z][a-z]+ [0-9]{1,2}$/);
+export const handle = z.string().max(HANDLE_MAX_LENGTH).regex(HANDLE_PATTERN);
 /** A join token: opaque, URL-safe. */
 export const token = z.string().regex(/^[A-Za-z0-9_-]{16,128}$/);
 /** A match id: a private game's code (`GD-7KQ4`) or a quick match's generated id. */

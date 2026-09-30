@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./handle": "./src/handle.ts"
   },
+  "sideEffects": false,
   "dependencies": {
     "@garbage-day/engine": "workspace:*",
     "zod": "4.6.5"

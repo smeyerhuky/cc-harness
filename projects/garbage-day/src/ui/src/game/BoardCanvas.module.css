@@ -1,0 +1,12 @@
+.frame {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+.canvas {
+  display: block;
+  border-radius: 4px;
+}

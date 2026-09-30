@@ -16,8 +16,14 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M2 — Play solo — **active**, starting with
-  [`GD-TICKET-021`](backlog/GD-TICKET-021.md) ([roadmap](roadmap.md)). M1 closed at its owner
+- **Milestone:** M2 — Play solo — **active**; [`GD-TICKET-021`](backlog/GD-TICKET-021.md) and
+  [`GD-TICKET-023`](backlog/GD-TICKET-023.md) (the `ui` commons, with a gallery at `/gallery`) and
+  [`GD-TICKET-014`](backlog/GD-TICKET-014.md) (the app machine, routes and contexts),
+  [`GD-STORY-001`](backlog/GD-STORY-001.md) (a local match by keyboard against a bot),
+  [`GD-STORY-007`](backlog/GD-STORY-007.md) (home, handles, preferences, settings) and
+  [`GD-STORY-003`](backlog/GD-STORY-003.md) (rebinding and the repeat timings) are done
+  ([roadmap](roadmap.md)). The owner asked for **no pull request until keyboard play and its
+  interactions work**; with those three done, it is pull request #13. M1 closed at its owner
   check-in on 2026-09-30: "let's go", every default approved
   ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
   `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
@@ -54,9 +60,9 @@ history lives in the [running journal](journal/index.md).
     skips upstream ([lessons](../../../../kb/lessons/index.md)). Pull requests #10 and #11 are
     merged.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
-- **Waiting on the owner:** merging pull request #12 (the M1-exit records), and replacing the
-  Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)). Settled on
-  2026-09-30:
+- **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29
+  ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)). Pull requests #10, #11 and #12 are merged.
+  Settled on 2026-09-30:
   - the Cloudflare secrets (the token expires 2026-12-29: rotate it before then);
   - the Renovate GitHub app, reading `renovate.json` from `main`;
   - the `main-protect` ruleset, requiring `garbage-day-ok` from GitHub Actions with branches up
@@ -66,11 +72,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-021`](backlog/GD-TICKET-021.md) (**active**): Wrangler 4.143.1, the Vite plugin 1.62.1
-and the test plugin 1.3.2 are in, and the `undici` override is deleted. The code gates pass.
-Watch pull request #12's CI and preview, and after the owner merges it, the production deploy;
-then close the item. After that, the [rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks
-[`GD-TICKET-023`](backlog/GD-TICKET-023.md), the `ui` commons.
+The owner tries pull request #13 (keyboard play: home → settings → Play a bot → a match, their
+keys) on its Worker Preview. Then [`GD-STORY-002`](backlog/GD-STORY-002.md), the fight layer
+(garbage, power-ups, showdowns and the full result), which the
+[rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks next in M2's index.
 
 ## Standing rules for M1
 

@@ -4,10 +4,10 @@
   "workspaces": {
     "src/ui": {
       "ignoreDependencies": [
-        "react",
         "react-dom",
-        "@types/react",
-        "@fontsource/big-shoulders-display"
+        "@fontsource/big-shoulders-display",
+        "@fontsource/ibm-plex-mono",
+        "@fontsource/public-sans"
       ]
     },
     "src/app": {

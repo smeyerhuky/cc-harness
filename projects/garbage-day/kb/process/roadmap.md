@@ -21,7 +21,7 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 |---|---|---|
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
 | **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | done |
-| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | active — `GD-TICKET-021` first |
+| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | active |
 | **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
 | **M5** — Launch | Verified on real devices and networks, within budget, deployed to production | planned |
@@ -71,13 +71,13 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 
 ## M2 — Play solo
 
-- [ ] The `ui` commons: tokens (UI language palette, pattern marks, self-hosted fonts), primitives,
+- [x] The `ui` commons: tokens (UI language palette, pattern marks, self-hosted fonts), primitives,
   game widgets, hooks, and the token-contrast test — [`GD-TICKET-023`](backlog/GD-TICKET-023.md)
 - [ ] `MatchSession` over a local referee, and the match screen: `BoardCanvas`, panels, centre
   column, meter, speed chip, showdown banner, clear labels, attack flight, results (US-05, US-08,
   US-09, US-10, US-11, US-15 locally) — [`GD-STORY-001`](backlog/GD-STORY-001.md),
   [`GD-STORY-002`](backlog/GD-STORY-002.md)
-- [ ] Keyboard controls with rebinding and DAS/ARR settings (US-16) —
+- [x] Keyboard controls with rebinding and DAS/ARR settings (US-16) —
   [`GD-STORY-003`](backlog/GD-STORY-003.md)
 - [ ] Touch gestures per the gesture table, the optional button pad, haptics (US-17) —
   [`GD-STORY-004`](backlog/GD-STORY-004.md)
@@ -85,15 +85,15 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
   scrolling during a match, wake lock (US-18, US-19) — [`GD-STORY-005`](backlog/GD-STORY-005.md)
 - [ ] Bot setup with presets and separate skill and speed, the skill test (US-03 locally) —
   [`GD-STORY-006`](backlog/GD-STORY-006.md)
-- [ ] Home screen, generated handles, preferences store, settings sheet (US-04) —
+- [x] Home screen, generated handles, preferences store, settings sheet (US-04) —
   [`GD-STORY-007`](backlog/GD-STORY-007.md)
 - [ ] Reduced motion, sound toggle, keyboard operability, axe scan (US-20); the developer overlay
   — [`GD-STORY-008`](backlog/GD-STORY-008.md), [`GD-TICKET-024`](backlog/GD-TICKET-024.md)
-- [ ] App flow machine, routes and contexts — [`GD-TICKET-014`](backlog/GD-TICKET-014.md)
+- [x] App flow machine, routes and contexts — [`GD-TICKET-014`](backlog/GD-TICKET-014.md)
 - [ ] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
 - [ ] Name the four-row clear without the Tetris name ("Quad", the owner's choice) —
   [`GD-TICKET-018`](backlog/GD-TICKET-018.md)
-- [ ] The next Cloudflare tooling set, and the `undici` override deleted —
+- [x] The next Cloudflare tooling set, and the `undici` override deleted —
   [`GD-TICKET-021`](backlog/GD-TICKET-021.md)
 - [ ] The Cloudflare API token replaced before it expires on 2026-12-29 —
   [`GD-TICKET-022`](backlog/GD-TICKET-022.md)

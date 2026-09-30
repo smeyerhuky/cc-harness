@@ -17,6 +17,16 @@ export default tseslint.config(
     files: ['src/ui/**/*.{ts,tsx}', 'src/app/**/*.{ts,tsx}'],
     ...reactHooks.configs.flat.recommended,
   },
+  {
+    // React Router's loaders throw a Response to reach the route's error boundary.
+    files: ['src/app/client/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        { allow: [{ from: 'lib', name: 'Response' }], allowRethrowing: true },
+      ],
+    },
+  },
   // The engine's determinism contract (kb/design/architecture.md): ticks, not the clock; seeded
   // streams, not Math.random; no functions JavaScript engines may round differently.
   {

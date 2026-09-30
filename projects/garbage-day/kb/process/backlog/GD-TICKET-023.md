@@ -5,7 +5,7 @@ description: "Fill the ui package with the UI language's tokens (both themes, th
 resource: "../../design/ui-language.md"
 tags: ["backlog", "UI", "react"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -57,3 +57,54 @@ with component tests in happy-dom and the contrast test. Check each new dependen
 npm registry (newest, at least a day old). Run the code gates. Done when the criteria hold, the KB
 gates pass, this item is `done` with a Resolution, the backlog index and roadmap agree, and the
 journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). The `ui` package now holds the
+whole commons, exported from `src/ui/src/index.ts`, with 128 tests (it had 1):
+
+- **Tokens.** `tokens.ts` is the one source: every colour in both themes, the collection-streams
+  piece palette and pattern marks, power-up colours, the three faces, the type scale, motion
+  durations and vibration lengths. `tokens.css` is generated from it
+  (`pnpm --filter @garbage-day/ui tokens:update`), and a test fails if they differ. The contrast
+  test checks 35 pairs in each theme: 4.5:1 for text, 3:1 for pieces, gems, garbage and status
+  colours. It also checks that no piece uses a guideline colour.
+- **Fonts.** Public Sans 400–700 and IBM Plex Mono 400–600 join Big Shoulders Display 800–900,
+  all `@fontsource` 5.3.0, the newest release at least a day old.
+- **Primitives:** `Button`, `IconButton`, `Chip`, `Card`, `Dialog` (native `<dialog>`, with the
+  hazard band), `Sheet`, `Popover` (the Popover API), `Toggle` (a real switch), `Select`,
+  `Slider`, `Stepper`, `Toast`, `Kbd` and `VisuallyHidden`, with one focus ring throughout.
+- **Game widgets:** `BoardCanvas` draws each frame outside React through `draw.ts`, ported from
+  the proof of concept's renderer: bevels, pattern marks, the hatched garbage sprite, pulsing gems,
+  the ghost, the clear flash, the garbage rise and fog, each with its reduced-motion version. Also
+  `PieceGlyph`, `PowerIcon`, `Meter`, `SpeedChip`, `PresenceChip`, `HoldSlot`, `NextQueue`,
+  `PowerSlot`, `Countdown`, `ShowdownBanner`, `Popup`, `AttackFlight` and `BoardCover`.
+- **Layout:** `StageLayout` (marked `data-stage`, with the feed at 1600 px), `ScreenFrame` and
+  `ThumbZone`.
+- **Hooks:** `useReducedMotion` (with the player's override), `usePageVisibility`, `useWakeLock`,
+  `useHaptics`, `useResizeObserver`, `useAnimationFrame` and `useInterval`, plus
+  `useColorScheme` and `useMediaQuery`.
+- **Gallery:** `src/ui/src/gallery/Gallery.tsx` shows every token and widget in its states on
+  the page and on a stage, with theme and motion switches. The app loads it lazily at `/gallery`.
+
+Deviations and findings:
+
+- **`useKeyBindings` and `useGestures` are not here.** The criteria asked for every hook in the
+  client architecture, but [`GD-STORY-003`](GD-STORY-003.md) and [`GD-STORY-004`](GD-STORY-004.md)
+  already build them with the input they serve. The client architecture now says so.
+- **The stage's content colours.** Light-theme status colours fail on the always-dark cabinet
+  (light `--bad` is 2.65:1). Inside `[data-stage]` the content colours take their dark values, and
+  the UI language records the rule. The test checks the stage pairs on each theme's own cabinet.
+- **Two tokens the UI language lacked:** `--well-ink` (from the demo) and `--accent-ink` (already
+  in `tokens.css`) are now in its table.
+- **Tree-shaking.** Importing `Kbd` pulled every widget into the shell's bundle (221 → 248 KB).
+  The package now declares `"sideEffects": ["**/*.css"]`, the main bundle is 223 KB again, and the
+  widgets load with the gallery.
+
+Checks: the code gates pass (398 unit tests in all, 4 Worker tests, build). Screenshots of
+`/gallery` from `vite preview` at phone portrait (390 × 844, light), phone landscape (844 × 390,
+dark), 1280 × 900 (light) and 1920 × 1080 (dark) show the fonts, both themes, the stage in dark
+content colours, and no page errors. They also led to one fix: the meter's count now sits above
+the waiting rows. Keyboard and reduced-motion behaviour is covered by the tests. The board's size
+on a phone stage is [`GD-STORY-005`](GD-STORY-005.md)'s job, and no physical-device check was
+possible from the session; the owner can open `/gallery` on the next preview.

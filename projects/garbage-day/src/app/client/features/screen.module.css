@@ -1,0 +1,24 @@
+/* A plain centred screen for the routes that are not built yet or are simple forms. */
+.page {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  text-align: center;
+}
+.title {
+  margin: 0;
+  font: 800 var(--fs-40) / 1 var(--font-display);
+  text-transform: uppercase;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}

@@ -5,7 +5,7 @@ description: "Move Wrangler, the Vite plugin, the Workers test plugin and the Wo
 resource: "../coverage-audit.md"
 tags: ["backlog", "dependencies", "security"]
 timestamp: "2026-09-30"
-state: "active"
+state: "done"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -71,3 +71,14 @@ miniflare, with no overrides section; `pnpm audit --audit-level moderate` finds 
 gates pass (271 tests, 4 Worker tests in the new miniflare, build), and so do the golden replays
 in Chromium. `stack-and-ci.md` no longer lists the override. Left: CI, the preview on pull
 request #12, and the production deploy when it merges.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md) (`883ce92`, merged with pull
+request #12 as `30f90fc`). Wrangler 4.143.1, `@cloudflare/vite-plugin` 1.62.1 and
+`@cloudflare/vitest-plugin` 1.3.2 are in, and the `undici` override is gone: miniflare's own pin
+gives 7.29.1, and the audit is clean. Every check on pull request #12 passed, 31 in all. Its
+preview deployed at `https://pr-12-garbage-day.smeyerhuky.workers.dev`, and after the merge
+`deploy-production` ran on Wrangler 4.143.1 (version `e2bb1873`, both Durable Object bindings).
+No deviation from the criteria; `@cloudflare/workers-types` was already the newest version a day
+old.

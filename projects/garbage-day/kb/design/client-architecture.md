@@ -45,8 +45,10 @@ projects/garbage-day/src/
 │   ├── game/          BoardCanvas, PieceGlyph, PowerIcon, Meter, SpeedChip, PresenceChip, HoldSlot,
 │   │                  NextQueue, PowerSlot, Countdown, ShowdownBanner, Popup, AttackFlight, BoardCover
 │   ├── layout/        StageLayout (slots: left, centre, right, feed), ScreenFrame, ThumbZone
-│   └── hooks/         useReducedMotion, usePageVisibility, useWakeLock, useHaptics, useResizeObserver,
-│                      useGestures, useKeyBindings, useAnimationFrame, useInterval
+│   ├── hooks/         useReducedMotion, usePageVisibility, useWakeLock, useHaptics, useResizeObserver,
+│   │                  useGestures, useKeyBindings, useAnimationFrame, useInterval, useColorScheme,
+│   │                  useMediaQuery
+│   └── gallery/       every token and widget in its states, served at /gallery (a visual check)
 └── app/           @garbage-day/app       one Vite project: the client and the Worker
     ├── client/
     │   ├── main.tsx, App.tsx, routes.tsx
@@ -66,7 +68,12 @@ projects/garbage-day/src/
 ```
 
 Each feature folder exports one public `index.ts`; its components, hooks and machine pieces stay
-private to it.
+private to it. Every workspace package declares its side effects: `ui` has none apart from its
+CSS, so a screen that uses one widget doesn't ship the rest, and `engine` and `protocol` have
+none, so the first page carries only the constants it imports and the engine loads with the
+match. `useKeyBindings` arrived with [`GD-STORY-001`](../process/backlog/GD-STORY-001.md) and
+takes the player's keys since [`GD-STORY-003`](../process/backlog/GD-STORY-003.md);
+`useGestures` arrives with [`GD-STORY-004`](../process/backlog/GD-STORY-004.md).
 
 ## Where state lives
 
@@ -84,10 +91,16 @@ before the countdown), which is what a state machine is for. Preferences are sma
 persisted, which is what Zustand does with the least code. Server data belongs to the route that
 needs it.
 
+Saved preferences are checked field by field on load, and an invalid field takes its default, so
+a stale or edited entry never breaks the page. The check does not use Zod: the first page loads
+without it, and `@garbage-day/protocol/handle` gives the handle rule without the schema library
+(the socket code brings Zod when online play needs it).
+
 ## Contexts
 
 Few, narrow, and holding stable objects rather than changing values, so a context change never
-re-renders the tree:
+re-renders the tree. `createStoreContext` (`client/state/storeContext.tsx`) builds one around an
+external store, with a selector hook on `useSyncExternalStore`:
 
 | Context | Provides | Provided by |
 |---|---|---|
@@ -120,6 +133,10 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   line-clear flash, garbage-rise offset, fog.
 - HUD numbers (lines, sent, speed) come from `useMatch` selectors that change only on events, so
   they re-render a few times a second at most.
+- The session steps inside the canvas's own frame callback (`source(now)` calls
+  `session.frame(now)`, which steps once per frame time). Effects run child-first, so a separate
+  loop in `MatchScreen` would draw each board one frame late. A pending key press runs one tick
+  early, so a move always shows in the first frame after the key (US-05).
 - Motion that the DOM does well (popups, the attack flying through the centre column, countdown
   pops) uses CSS and the Web Animations API, and turns off with reduced motion.
 
@@ -129,6 +146,10 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   ARR per tick. The engine reads it once per tick.
 - `useKeyBindings` maps the player's bindings to controller actions and blocks page scrolling
   during a match.
+- `input/bindings.ts` holds the rules for changing a binding, which the settings and the stored
+  preferences share: a key another action uses is refused, Tab and Esc can't be bound, an action
+  has one to three keys. Delay and rate are kept in milliseconds that are whole ticks (50 to 333
+  ms, 17 to 100 ms), so what the settings show is what the engine counts.
 - `useGestures` implements the gesture table in
   [controls and layout](../product/controls-and-layout.md#touch-gestures) with Pointer Events on
   the `TouchSurface`: axis lock after 12 px, a column per cell of horizontal travel, tap to rotate

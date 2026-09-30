@@ -5,7 +5,7 @@ description: "The home screen with Quick match, Create game and Play a bot; a ge
 resource: "../../product/prd.md"
 tags: ["backlog", "UI", "react"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -45,3 +45,43 @@ Goal: the home screen and preferences. Read `kb/design/client-architecture.md` (
 on (definition of done, project item 3). Done when the quoted criteria hold, the KB gates pass,
 this item is `done` with a Resolution recording the device check, the backlog index and roadmap
 agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). Home now says **Playing as
+Nimble Kestrel 21** with a **New name** button, and **Settings** has sound and motion; both are
+kept in this browser and survive a reload.
+
+- **Handles** (`client/state/handles.ts`): 40 adjectives, 40 birds and a number from 1 to 99,
+  from `crypto.getRandomValues`: 158,400 names. Each pick is unbiased (`secureInt` keeps only
+  the bits it needs and draws again when out of range), after CodeQL flagged the first version's
+  scaled draw on pull request #13. A test runs every word pair with the longest
+  number through the protocol's `handle` schema. There is no text field anywhere, so a handle
+  can be regenerated but never typed.
+- **The preferences store** (`client/state/prefs.ts`): Zustand 5.0.15 with `persist`, under
+  `garbage-day:prefs`, versioned. On load each saved field is checked and an invalid one takes
+  its default, so an edited or stale entry can't break the page. If the browser refuses storage
+  (a private window, storage turned off), it falls back to memory: the game works and forgets on
+  reload. Sound is off until turned on (US-20). The control stories add their own fields.
+- **Motion.** The setting is "Follow my device" or "Reduce motion". `PrefsEffects` passes it to
+  the `ui` widgets (`setMotionPreference`, new in `useReducedMotion`) and sets
+  `data-motion="reduce"` on the root, which the generated `tokens.css` uses to stop CSS
+  animations and transitions.
+- **Settings** (`features/settings`): a `SettingsPanel` with the Sound and Motion sections, on
+  its own page at `/settings` for now. The in-match sheet uses the same panel when pausing
+  arrives, and `GD-STORY-003` adds the Controls section.
+- **One found on the way:** checking a stored handle with the protocol's Zod schema put all of
+  Zod on the first page (main bundle 111 → 148 KB gzipped). The protocol now has a Zod-free
+  `@garbage-day/protocol/handle` (`isHandle`, and the pattern the schema is built from), with a
+  test that it agrees with the schema. The main bundle is back to 112 KB.
+
+Checks: 16 new tests (handles 4, preferences 6, the handle check 1, the `ui` motion preference 1,
+and 4 route tests driving home and settings through the UI), and the code gates pass (452 unit tests, 4 Worker tests, build). In Chromium, on the production build:
+
+- **Desktop, 1280 × 800.** New name gave a new valid handle. Sound on and Reduce motion set
+  `data-motion`, and all three came back after a reload. With `localStorage` throwing, home still
+  rendered and New name worked. No page errors.
+- **Phone, Pixel 7 profile, dark, reduced motion on.** Home and settings fit with no sideways
+  scroll, and the switch works by tap. Android's default tap highlight flashes over the switch's
+  row; whether controls replace it with their own pressed state is left to `GD-STORY-004`'s
+  phone pass.
