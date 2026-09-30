@@ -42,8 +42,9 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-019](GD-TICKET-019.md) — Run the golden replays in real browsers · done
 - [GD-TICKET-020](GD-TICKET-020.md) — Run the browser replays in Playwright's container image · done
 
-*M2 — Play solo (part of GD-EPIC-001; minted at the M1 exit):*
+*M2 — Play solo (part of GD-EPIC-001; minted at the M1 exit; the owner put `GD-TICKET-021` first):*
 
+- [GD-TICKET-021](GD-TICKET-021.md) — Take the next Cloudflare tooling set and delete the undici override · open
 - [GD-TICKET-023](GD-TICKET-023.md) — Build the ui commons: tokens, primitives, game widgets and hooks · open
 - [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · open
 - [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · open
@@ -57,7 +58,6 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · open
 - [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · open
 - [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · open (owner chose "Quad")
-- [GD-TICKET-021](GD-TICKET-021.md) — Take the next Cloudflare tooling set and delete the undici override · open
 - [GD-TICKET-022](GD-TICKET-022.md) — Replace the Cloudflare API token before it expires on 2026-12-29 · open
 
 *Later milestones (gaps from the [coverage audit](../coverage-audit.md), part of GD-EPIC-001):*

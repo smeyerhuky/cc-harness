@@ -20,8 +20,8 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 | Milestone | Goal | State |
 |---|---|---|
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
-| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | active — exit met; the check-in awaits the owner |
-| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | planned |
+| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | done |
+| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | active — `GD-TICKET-021` first |
 | **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
 | **M5** — Launch | Verified on real devices and networks, within budget, deployed to production | planned |
@@ -67,7 +67,7 @@ to build first. → **Owner check-in** (held 2026-09-30: "Continue", every defau
 
 **Exit:** a pull request runs every required check green; golden replays give identical hashes on
 two runs and in Node and the browser; the shell is live on a preview URL and in production, opened
-by the owner. → **Owner check-in.** (Exit met 2026-09-30; the check-in is open.)
+by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default approved).
 
 ## M2 — Play solo
 
