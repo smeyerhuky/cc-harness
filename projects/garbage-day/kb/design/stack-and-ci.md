@@ -12,25 +12,30 @@ relationships:
 
 # Garbage Day — Tech Stack, Build and CI
 
-The owner's rule: **React, on the latest dependencies, to stay ahead of vulnerabilities.** Every
-version below was the newest release on the npm registry on 2026-09-30, except two, which are
+The owner's rule: **React, on the latest dependencies, to stay ahead of vulnerabilities.**
+"Latest" means the newest release on the npm registry that is **at least one day old**: the
+workspace refuses anything younger (`minimumReleaseAge`, under
+[dependency security](#dependency-security)), so a version published today is picked up
+tomorrow. Every version below was the newest by that rule on 2026-09-30, except two, which are
 held back one major by a peer dependency and are listed as exceptions with the condition for
-lifting them. Exact versions are pinned in `package.json` and the lockfile by the scaffold item.
+lifting them. Exact versions are pinned in `package.json` files and the committed lockfile
+(`GD-TICKET-006`); a row marked *at 011* is pinned when the app shell needs it.
 
 ## The stack
 
 | Area | Choice | Version | Why |
 |---|---|---|---|
-| Runtime (dev, CI) | Node.js LTS | 24.x | Current LTS; React Router and the React plugin need ≥ 22.12 |
-| Package manager | pnpm workspaces | 12.8 | Fast, strict, workspace protocol; blocks install scripts unless allowed |
+| Runtime (dev, CI) | Node.js LTS | 24.x in CI; `engines` ≥ 22.22 | Current LTS in CI; 22.22 is the floor that still runs every tool, so an older local Node works |
+| Package manager | pnpm workspaces | 12.8.1 | Fast, strict, workspace protocol; blocks install scripts unless allowed. Pinned in `packageManager`; run through Corepack or `npx pnpm@12.8.1` |
 | Language | TypeScript, strict | **6.0.3** (exception) | See exceptions |
 | UI | React + React DOM | 19.3.0 | Latest; `<Activity>`, `useEffectEvent`, `useActionState`, `useOptimistic` |
 | Memoization | React Compiler (`babel-plugin-react-compiler`) | 1.0.0 | Stable; removes hand-written memoization |
+| Compiler route | `@rolldown/plugin-babel` + `@babel/core` | 0.2.4 · 8.0.6 | `@vitejs/plugin-react` 6 no longer runs Babel itself; its `reactCompilerPreset()` runs through this plugin. The native (oxc) compiler route is still experimental |
 | Build and dev server | Vite | 8.3.1 | Latest; Rolldown bundler |
 | React plugin | `@vitejs/plugin-react` | 6.1.1 | Needs Vite 8; hosts the React Compiler |
-| Cloudflare in Vite | `@cloudflare/vite-plugin` | 1.62.2 | Runs the Worker and Durable Objects in workerd during `vite dev` and builds both |
-| Deploy tool | Wrangler | 4.144.0 | Latest; required by the Vite plugin |
-| Worker types | `@cloudflare/workers-types` | 5.20260930.1 | Matches the compatibility date |
+| Cloudflare in Vite | `@cloudflare/vite-plugin` | 1.62.2 *at 011* | Runs the Worker and Durable Objects in workerd during `vite dev` and builds both |
+| Deploy tool | Wrangler | 4.144.0 *at 011* | Latest; required by the Vite plugin |
+| Worker types | `@cloudflare/workers-types` | 5.20260930.1 *at 011* | Matches the compatibility date |
 | Routing | React Router (data mode) | 8.4.0 | Loaders and actions for private-game lookups; lazy routes |
 | Screen-flow state | XState + `@xstate/react` | 5.33.2 · 6.1.0 | Real states and guards for the app flow ([client architecture](client-architecture.md)) |
 | Preferences state | Zustand (with `persist`) | 5.0.15 | Smallest correct tool for a persisted flat store |
@@ -38,10 +43,12 @@ lifting them. Exact versions are pinned in `package.json` and the lockfile by th
 | Styling | CSS Modules + CSS custom properties | built in | Tokens from [UI language](ui-language.md); no runtime cost |
 | Fonts | `@fontsource` (Big Shoulders Display, Public Sans, IBM Plex Mono) | latest at scaffold | Self-hosted |
 | Unit and component tests | Vitest | **4.1.11** (exception) | See exceptions |
-| Durable Object tests | `@cloudflare/vitest-pool-workers` | 0.22.0 | Runs DO tests inside workerd |
+| Durable Object tests | `@cloudflare/vitest-pool-workers` | 0.22.0 *at 011* | Runs DO tests inside workerd |
 | DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 20.14.5 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
 | End-to-end | Playwright + `@axe-core/playwright` | 1.63.0 · 4.13.0 | Two browsers play a real match; accessibility scan |
-| Lint | ESLint + `typescript-eslint` + `eslint-plugin-react-hooks` | 10.11.0 · 8.71.0 · 7.1.1 | Hooks rules including the React Compiler's |
+| Lint | ESLint + `typescript-eslint` + `eslint-plugin-react-hooks` | 10.11.0 · 8.71.0 · 7.1.1 | Hooks rules including the React Compiler's; type-aware rules through the project service |
+| Lint support | `@eslint/js` · `globals` | 10.0.1 · 17.12.0 | ESLint's recommended rules; browser and Node globals |
+| Node types | `@types/node` | 24.19.0 | Matches the CI runtime; only the root config and Vitest configs use it |
 | Format | Prettier | 3.9.9 | One style, no debate |
 | Unused code and dependencies | Knip | 6.38.0 | Keeps the dependency surface small |
 | Dependency updates | Renovate | hosted app | Weekly grouped updates, patch updates merged automatically when CI is green |
@@ -57,26 +64,50 @@ Both exceptions are checked by Renovate automatically: the upgrade PR stays open
 the blocker moves. The TypeScript 7 compiler (`@typescript/native-preview`) may be added later as
 a faster second typecheck without touching lint.
 
+**Waiting a day is not an exception.** On 2026-09-30 the three Cloudflare packages marked
+*at 011* were under a day old (Wrangler 4.144.0 and the Vite plugin 1.62.2 were published the
+evening before, the Worker types that night), so `minimumReleaseAge` refused them. Nothing needs
+them before the app shell, [`GD-TICKET-011`](../process/backlog/GD-TICKET-011.md), which pins the
+newest versions old enough on its own day.
+
 ## Workspace layout
 
 ```
 projects/garbage-day/
-├── package.json            scripts: dev, build, lint, typecheck, test, test:worker, e2e, audit
-├── pnpm-workspace.yaml     packages: src/*; minimumReleaseAge; onlyBuiltDependencies allowlist
+├── package.json            scripts: dev, build, lint, format, typecheck, test, test:worker, audit (+ e2e later)
+├── pnpm-workspace.yaml     packages: src/*; minimumReleaseAge 1440; onlyBuiltDependencies allowlist
 ├── pnpm-lock.yaml          committed
-├── tsconfig.base.json      strict, noUncheckedIndexedAccess, project references
-├── eslint.config.js · .prettierrc · knip.json
+├── tsconfig.base.json      shared strict options; each package's tsconfig.json extends it
+├── tsconfig.json           the root config, for the Vitest workspace file only
+├── vitest.config.ts        one Vitest run over every package (`projects: ['src/*']`)
+├── eslint.config.js · .prettierrc.json · .prettierignore · knip.json
 ├── src/
-│   ├── engine/  protocol/  ui/        libraries, each its own package
-│   └── app/                           client/ + worker/ in one Vite project, wrangler.jsonc
-└── e2e/                               Playwright specs
+│   ├── engine/   @garbage-day/engine    src/, tsconfig.json, vitest.config.ts (Node)
+│   ├── protocol/ @garbage-day/protocol  same shape; depends on zod
+│   ├── ui/       @garbage-day/ui        src/tokens, src/primitives; happy-dom tests
+│   └── app/      @garbage-day/app       index.html, client/, vite.config.ts (+ worker/, wrangler.jsonc at 011)
+└── e2e/                                 Playwright specs (from M3)
 ```
+
+Packages export their TypeScript source (`"exports": "./src/index.ts"`) rather than build
+output: Vite and Vitest compile it on the fly, so there is no library build step and no
+declaration files. For the same reason the typecheck is `tsc --noEmit -p <package>` for each
+package in turn, not `tsc -b` over project references, which would need every package to emit.
+
+**Configuration notes.** ESLint's type-aware rules find each file's tsconfig through the project
+service, so every file ESLint lints must sit inside some tsconfig. The packages' Vitest configs
+are in their packages' tsconfigs; the root `tsconfig.json` exists only to hold the root
+`vitest.config.ts`. Knip ignores `react`, `react-dom` and `@types/react`
+in `src/ui`, where they are a peer dependency plus test-only development dependencies that Knip
+cannot see being used.
 
 ## Local development
 
-- `pnpm dev` starts Vite with the Cloudflare plugin: the React app, the Worker and both Durable
-  Objects run locally in workerd. Open two tabs, or one normal and one private window, to play
-  yourself. Local verification follows the repo's
+- Install once with `corepack enable` (then `pnpm install`), or run every command as
+  `npx pnpm@12.8.1 <script>`; both honour the `packageManager` pin.
+- `pnpm dev` starts Vite with the Cloudflare plugin (from `GD-TICKET-011`; until then plain Vite):
+  the React app, the Worker and both Durable Objects run locally in workerd. Open two tabs, or
+  one normal and one private window, to play yourself. Local verification follows the repo's
   [`/kb/platforms/cloudflare-local-verify.md`](../../../../kb/platforms/cloudflare-local-verify.md).
 - `pnpm test` runs engine, protocol, ui and client tests; `pnpm test:worker` the Durable Object
   tests; `pnpm e2e` the Playwright suite against `vite preview`.
@@ -101,7 +132,7 @@ projects/garbage-day/
 - **CodeQL** (JavaScript/TypeScript) runs weekly and on pull requests.
 - `minimumReleaseAge` of one day in `pnpm-workspace.yaml` stops a just-published (possibly
   hijacked) version from being installed. `onlyBuiltDependencies` allows install scripts only for
-  named packages (workerd, esbuild).
+  named packages; the list is empty until `workerd` arrives with the app shell.
 - The lockfile is frozen in CI (`pnpm install --frozen-lockfile`).
 
 ## The pipeline
@@ -111,7 +142,7 @@ requests that touch `projects/garbage-day/**`.
 
 ```
             ┌─ lint (eslint, prettier --check, knip) ─┐
-install ────┼─ typecheck (tsc -b)                     ├─► build ─► e2e ─► deploy-preview (PR)
+install ────┼─ typecheck (tsc per package)            ├─► build ─► e2e ─► deploy-preview (PR)
             ├─ test (vitest: engine, replays, ui) ────┤                └► deploy-production (main)
             ├─ test-worker (pool-workers) ────────────┤
             ├─ audit (pnpm audit) ────────────────────┘
@@ -152,5 +183,6 @@ gates:
 pnpm lint && pnpm typecheck && pnpm test && pnpm test:worker && pnpm build
 ```
 
-CI adds `pnpm e2e` and `pnpm audit`. Until the scaffold item lands there is no `src/` code and
-only the KB gates apply.
+CI adds `pnpm e2e` and `pnpm audit`. Until the app shell (`GD-TICKET-011`) brings the first
+Durable Object tests, `pnpm test:worker` only prints that there are none yet, so the gate line
+stays the same from the start.

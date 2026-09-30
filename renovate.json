@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "includePaths": ["projects/garbage-day/**"],
+  "timezone": "UTC",
+  "schedule": ["before 6am on monday"],
+  "minimumReleaseAge": "1 day",
+  "rangeStrategy": "pin",
+  "lockFileMaintenance": { "enabled": true, "schedule": ["before 6am on monday"] },
+  "vulnerabilityAlerts": { "labels": ["security"], "schedule": ["at any time"] },
+  "packageRules": [
+    { "matchUpdateTypes": ["patch"], "automerge": true },
+    {
+      "groupName": "react",
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"]
+    },
+    { "groupName": "cloudflare", "matchPackageNames": ["wrangler", "@cloudflare/**"] },
+    {
+      "groupName": "lint and format",
+      "matchPackageNames": [
+        "eslint",
+        "@eslint/**",
+        "typescript-eslint",
+        "eslint-plugin-react-hooks",
+        "globals",
+        "prettier",
+        "knip"
+      ]
+    },
+    {
+      "groupName": "test",
+      "matchPackageNames": ["vitest", "@vitest/**", "happy-dom", "@testing-library/**"]
+    },
+    {
+      "groupName": "build",
+      "matchPackageNames": [
+        "vite",
+        "@vitejs/**",
+        "@rolldown/**",
+        "@babel/core",
+        "babel-plugin-react-compiler"
+      ]
+    }
+  ]
+}

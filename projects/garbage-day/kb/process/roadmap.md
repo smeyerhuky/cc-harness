@@ -19,8 +19,8 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 
 | Milestone | Goal | State |
 |---|---|---|
-| **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done — at the owner check-in |
-| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | planned — minted |
+| **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
+| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | active |
 | **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | planned |
 | **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
@@ -44,11 +44,11 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 - [x] Run the coverage audit ([`coverage-audit.md`](coverage-audit.md), sweep 2026-09-30)
 
 **Exit:** a fresh session could read the spec, the design sketch, and this roadmap and know what
-to build first. → **Owner check-in.**
+to build first. → **Owner check-in** (held 2026-09-30: "Continue", every default kept).
 
 ## M1 — Foundations
 
-- [ ] Scaffold the pnpm workspace with the pinned stack, lint, format, typecheck, Knip, Renovate,
+- [x] Scaffold the pnpm workspace with the pinned stack, lint, format, typecheck, Knip, Renovate,
   `minimumReleaseAge` and a clean audit — [`GD-TICKET-006`](backlog/GD-TICKET-006.md)
 - [ ] The GitHub Actions workflow with the required checks, dependency review and CodeQL —
   [`GD-TICKET-007`](backlog/GD-TICKET-007.md)

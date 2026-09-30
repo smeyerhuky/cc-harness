@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": ["spikes/**"],
+  "workspaces": {
+    "src/ui": {
+      "ignoreDependencies": ["react", "react-dom", "@types/react"]
+    }
+  }
+}

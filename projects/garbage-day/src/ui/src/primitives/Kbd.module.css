@@ -1,0 +1,10 @@
+.kbd {
+  font-family: var(--font-data);
+  font-size: 0.8em;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 0.35em;
+  background: var(--bg);
+  color: var(--ink);
+}

@@ -2,7 +2,7 @@
   "version": "0.1.0",
   "name": "Garbage Day",
   "description": "A two-player, real-time falling-block versus game with garbage attacks, matched and relayed by Cloudflare Durable Objects",
-  "status": "planning",
-  "milestone": "M0",
+  "status": "active",
+  "milestone": "M1",
   "updated": "2026-09-30"
 }

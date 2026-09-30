@@ -11,6 +11,7 @@ A template repository for multi-project development: clone it, then build your p
 - **projects/<name>/CLAUDE.md** - Governs a specific project
 - **README.md** - Repository overview
 - **LICENSE** - Project license
+- **renovate.json** - Renovate dependency-update config (scoped to `projects/garbage-day/`; Renovate reads it only from the repo root)
 
 - **.claude/** - Claude skill definitions
   - `skills/okf-wikify/` - OKF deep-wiki skill
@@ -40,7 +41,7 @@ A template repository for multi-project development: clone it, then build your p
 
 - **projects/** - All project containers — each with its own `kb/process/` (handoff, roadmap, backlog, running journal, definition of done) and, once it runs one, `kb/alignment/`
   - `common/` - Shared utilities and code used across projects
-  - `garbage-day/` - A two-player, real-time falling-block versus game on Cloudflare Durable Objects (planning); prefix `GD`
+  - `garbage-day/` - A two-player, real-time falling-block versus game on Cloudflare Durable Objects (`src/` pnpm workspace: engine, protocol, ui, app); prefix `GD`
   - `hello-worker/` - A minimal Cloudflare Worker (`src/`, `wrangler.jsonc`) — the deploy recipes' worked example; prefix `HW`
   - `sample-project/` - The scaffold every new project is copied from ([`projects/CLAUDE.md`](projects/CLAUDE.md), "Adding a new project")
   - `kb/` - Projects directory KB index

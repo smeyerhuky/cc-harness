@@ -16,37 +16,43 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M0 — Stand the project up — exit reached, **at the owner check-in**; M1 —
-  Foundations — minted and waiting for the owner's go-ahead ([roadmap](roadmap.md)).
+- **Milestone:** M1 — Foundations — **active** ([roadmap](roadmap.md)). M0 closed at its owner
+  check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
+  new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
-- **Landed recently:** the design session ([journal entry](journal/2026-09-30-design.md)):
-  - the proof of concept committed as [`GD-SPIKE-001`](backlog/GD-SPIKE-001.md), in
-    [`spikes/proof-of-concept/`](../../spikes/proof-of-concept/JOURNAL.md);
-  - [`kb/design/`](../design/index.md): system architecture, React client architecture, UI
-    language, stack and CI (`GD-TICKET-002` to `005` done);
-  - the roadmap's M1–M5, the M1 items `GD-TICKET-006` to `011`, and the first
-    [coverage audit](coverage-audit.md), whose six gaps are `GD-TICKET-012` to `017`.
-  Before that, the spec ([journal entry](journal/2026-09-30-spec.md)).
-- **Waiting on the owner:** the M0 check-in decisions in the design session's journal entry
-  ("Next"); unanswered, their defaults hold.
-- **Gates:** see *Verify the baseline*. No `src/` code yet, so only the KB gates apply.
+- **Landed recently:** the workspace scaffold, [`GD-TICKET-006`](backlog/GD-TICKET-006.md)
+  ([journal entry](journal/2026-09-30-scaffold.md)): a pnpm workspace in `src/` with the
+  `engine`, `protocol`, `ui` and `app` packages, the pinned stack, lint, typecheck, tests, build,
+  a clean audit, and `renovate.json` at the repo root. Before that, the design session
+  ([journal entry](journal/2026-09-30-design.md)).
+- **Waiting on the owner:** installing the Renovate GitHub app on the repository (until then
+  `renovate.json` is inert); later, for `GD-TICKET-011`, the `CLOUDFLARE_API_TOKEN` and
+  `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+- **Gates:** the KB gates and, from `projects/garbage-day/`, the
+  [code gates](../design/stack-and-ci.md#code-gates) — all pass.
 
 ## Immediate next step
 
-After the owner's go-ahead on M1: [`GD-TICKET-006`](backlog/GD-TICKET-006.md) — scaffold the
-pnpm workspace with the pinned stack. It is the only M1 item with no open dependency; then
-`GD-TICKET-007`, `008` and `010` (each needs only `006`), then `009` and `011`.
+[`GD-TICKET-007`](backlog/GD-TICKET-007.md) — the GitHub Actions workflow with the required
+checks, dependency review and CodeQL: the first open M1 item whose dependencies are done. After it,
+`GD-TICKET-008` and `010` (each needs only `006`), then `009` (needs `008`) and `011` (needs
+`007` and `010`).
 
 ## Standing rules for M1
 
-- Re-check every version against the npm registry on the day it is pinned; record any change in
+- Re-check every version against the npm registry on the day it is pinned; "latest" means the
+  newest release at least a day old. Record any held-back version in
   [stack and CI](../design/stack-and-ci.md#exceptions-to-latest).
 - Port from `spikes/proof-of-concept/live/live-engine.js`; do not rewrite rules from memory.
+- Run pnpm as `npx -y pnpm@12.8.1 <script>` in a session container (or `corepack enable`).
+- `GD-TICKET-011` pins the Cloudflare packages that were too new for the scaffold.
 
 ## Verify the baseline
 
 The project [gates](../../../../kb/pdlc/definition-of-done.md#gates) on this bundle
-(`B=projects/garbage-day/kb/`), from the repo root — all must pass before new work.
+(`B=projects/garbage-day/kb/`), from the repo root, and the
+[code gates](../design/stack-and-ci.md#code-gates) from `projects/garbage-day/` — all must pass
+before new work.
 
 ## Cold-start prompt
 
@@ -56,8 +62,8 @@ garbage-day — resume work.
 2. Read projects/garbage-day/kb/process/handoff.md (this file), then roadmap.md, then the
    next work item's "AI PDLC Prompt" in kb/process/backlog/ (which one: /kb/pdlc/work-items.md,
    "Which item is next"). The method is in /kb/pdlc/.
-3. Run the project gates on this bundle (/kb/pdlc/definition-of-done.md, "Gates"); everything
-   must pass before new work.
+3. Run the project gates on this bundle (/kb/pdlc/definition-of-done.md, "Gates") and the code
+   gates (kb/design/stack-and-ci.md, "Code gates"); everything must pass before new work.
 4. Work only the current milestone. At its exit, apply the milestone tier of the definition of
    done (kb/process/definition-of-done.md), which ends with the owner check-in. Before ending any
    session, follow /kb/pdlc/journals.md, "Closing a session".

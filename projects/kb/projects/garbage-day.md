@@ -1,7 +1,7 @@
 ---
 type: "Reference"
 title: "Garbage Day"
-description: "A two-player, real-time falling-block versus game with garbage attacks, matched and relayed by Cloudflare Durable Objects; in planning, with a proven proof of concept."
+description: "A two-player, real-time falling-block versus game with garbage attacks, matched and relayed by Cloudflare Durable Objects, built in React from a proven proof of concept."
 resource: "../../garbage-day/CLAUDE.md"
 tags: ["project", "cloudflare", "workers"]
 timestamp: "2026-09-30"

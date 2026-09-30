@@ -1,0 +1,8 @@
+packages:
+  - src/*
+
+# Supply-chain guards (kb/design/stack-and-ci.md, "Dependency security"):
+# never install a version published less than a day ago, and run no install scripts
+# except for the packages named here.
+minimumReleaseAge: 1440
+onlyBuiltDependencies: []

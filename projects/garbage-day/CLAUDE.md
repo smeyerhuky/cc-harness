@@ -10,7 +10,11 @@ product docs and a real build.
 ## Structure
 
 ```
-src/            source code
+src/            source code: a pnpm workspace, one package per folder
+  engine/       @garbage-day/engine — the deterministic game rules (pure TypeScript, no DOM)
+  protocol/     @garbage-day/protocol — message types and Zod schemas
+  ui/           @garbage-day/ui — the commons: tokens, primitives, game widgets, hooks
+  app/          @garbage-day/app — the React client (client/) and, from GD-TICKET-011, the Worker
 kb/             project-specific OKF knowledge base — see navigation below
   overview/     what the project is, for whom, what is out of scope
   process/      handoff, roadmap, backlog/, journal/, definition of done  (the PDLC instances)
@@ -18,6 +22,8 @@ kb/             project-specific OKF knowledge base — see navigation below
   design/       system and client architecture, UI language, stack and CI
   alignment/    review ceremonies, one folder each — created at the first ceremony
 spikes/         spike journals + throwaway code (proof-of-concept/: the demo pages' source)
+package.json    workspace scripts; pnpm-workspace.yaml, pnpm-lock.yaml, tsconfig.base.json,
+                eslint.config.js, .prettierrc.json, knip.json, vitest.config.ts beside it
 CLAUDE.md       this file (governs the project)
 README.md       overview and setup
 version.json    project metadata (status, current milestone, updated)
@@ -69,10 +75,10 @@ project)? It goes to the harness backlog — see
   tables of contents; every content file has `type/title/description/resource/tags/timestamp`
   frontmatter. Validate `projects/garbage-day/kb/` with the project
   [gates](../../kb/pdlc/definition-of-done.md#gates).
-- **Code gates** (once `src/` has code, from `projects/garbage-day/`):
-  `pnpm lint && pnpm typecheck && pnpm test && pnpm test:worker && pnpm build`, defined in
-  [stack and CI](kb/design/stack-and-ci.md#code-gates). Until the scaffold item lands, only the KB
-  gates apply.
+- **Code gates** (from `projects/garbage-day/`, before every commit that touches `src/` or a
+  workspace config): `pnpm lint && pnpm typecheck && pnpm test && pnpm test:worker && pnpm build`,
+  defined in [stack and CI](kb/design/stack-and-ci.md#code-gates). Run pnpm through Corepack or
+  as `npx pnpm@12.8.1`; the version is pinned in `package.json`.
 - **Dependencies stay current.** Newest versions unless an exception is recorded in
   [stack and CI](kb/design/stack-and-ci.md#exceptions-to-latest) with the condition for lifting it.
 - **Document as you go.** Keep `kb/`, `README.md`, and `version.json` current as the project

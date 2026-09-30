@@ -1,0 +1,34 @@
+{
+  "name": "garbage-day",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @garbage-day/app dev",
+    "build": "pnpm --filter @garbage-day/app build",
+    "lint": "eslint . && prettier --check . && knip",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p src/engine && tsc --noEmit -p src/protocol && tsc --noEmit -p src/ui && tsc --noEmit -p src/app",
+    "test": "vitest run",
+    "test:worker": "node -e \"console.log('No Worker tests yet: they arrive with the app shell, GD-TICKET-011.')\"",
+    "audit": "pnpm audit --audit-level moderate"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "24.19.0",
+    "eslint": "10.11.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.12.0",
+    "happy-dom": "20.14.5",
+    "knip": "6.38.0",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "4.1.11"
+  }
+}
