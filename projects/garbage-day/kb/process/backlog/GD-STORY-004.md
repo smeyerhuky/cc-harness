@@ -5,7 +5,7 @@ description: "Touch play by the gesture table: swipes move column by column, tap
 resource: "../../product/prd.md"
 tags: ["backlog", "UI", "react"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M2"
 relationships:
   - type: PART_OF

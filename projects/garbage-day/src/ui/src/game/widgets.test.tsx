@@ -161,11 +161,18 @@ describe('overlays', () => {
 
   it('AttackFlight animates for 700 ms and finishes when the animation does', () => {
     reducedMotion(false);
-    const animation = { onfinish: null as (() => void) | null, cancel: vi.fn() };
+    const animation = {
+      onfinish: null as (() => void) | null,
+      cancel: vi.fn(),
+      // As in browsers: cancelling rejects `finished`.
+      finished: new Promise<never>(() => undefined),
+    };
     const animate = vi.fn(() => animation);
     Object.defineProperty(HTMLElement.prototype, 'animate', { value: animate, configurable: true });
     const done = vi.fn();
-    render(<AttackFlight from={{ x: 0, y: 50 }} to={{ x: 200, y: 50 }} onDone={done} />);
+    const { unmount } = render(
+      <AttackFlight from={{ x: 0, y: 50 }} to={{ x: 200, y: 50 }} onDone={done} />,
+    );
     expect(animate).toHaveBeenCalledWith(
       expect.any(Array),
       expect.objectContaining({ duration: 700 }),
@@ -173,6 +180,8 @@ describe('overlays', () => {
     expect(done).not.toHaveBeenCalled();
     animation.onfinish?.();
     expect(done).toHaveBeenCalledOnce();
+    unmount();
+    expect(animation.cancel).toHaveBeenCalledOnce();
     Reflect.deleteProperty(HTMLElement.prototype, 'animate');
   });
 

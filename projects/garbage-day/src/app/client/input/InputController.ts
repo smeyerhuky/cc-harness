@@ -30,6 +30,8 @@ export class InputController implements Controller {
   private dasT = 0;
   /** A new direction moves once on the next tick, before auto-repeat starts. */
   private first = false;
+  /** A direction pressed and released between two ticks still moves once. */
+  private tap: -1 | 0 | 1 = 0;
   private das = toTicks(DEFAULT_TIMING.dasMs);
   private arr = toTicks(DEFAULT_TIMING.arrMs);
 
@@ -53,6 +55,7 @@ export class InputController implements Controller {
   up(a: Action): void {
     this.held.delete(a);
     if ((a === 'left' && this.dir === -1) || (a === 'right' && this.dir === 1)) {
+      if (this.first) this.tap = this.dir;
       this.dir = this.held.has('left') ? -1 : this.held.has('right') ? 1 : 0;
       this.dasT = 0;
       this.first = this.dir !== 0;
@@ -65,17 +68,22 @@ export class InputController implements Controller {
     this.pressed.clear();
     this.dir = 0;
     this.first = false;
+    this.tap = 0;
   }
 
   /** Whether a press or a new direction is waiting for the next tick. */
   hasPending(): boolean {
-    return this.pressed.size > 0 || this.first;
+    return this.pressed.size > 0 || this.first || this.tap !== 0;
   }
 
   tick(): Input {
     const p = this.pressed;
     let dx: -1 | 0 | 1 = 0;
-    if (this.dir) {
+    if (this.tap) {
+      // A tap moves first; a direction pressed or still held moves on the next tick.
+      dx = this.tap;
+      this.tap = 0;
+    } else if (this.dir) {
       if (this.first) {
         dx = this.dir;
         this.first = false;

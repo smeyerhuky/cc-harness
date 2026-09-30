@@ -127,7 +127,7 @@ Durations from the demo; each has a reduced-motion version that keeps the inform
 | Hard drop | piece travels at 14 ms per row, then a 260 ms white lock glow | instant, glow only |
 | Line clear | 3 white pulses in 200 ms, rows collapse in 220 ms | a single fade |
 | Garbage lands | rows slide up from below in 150 ms and the screen shakes for 380 ms | rows appear, no shake |
-| Attack sent | a yellow token flies from the board through the centre column to the other meter in 700 ms, and the column's Match DO badge pulses | the meter count ticks up |
+| Attack sent | a yellow token flies from the board through the centre column to the other meter in 700 ms, and the column's referee badge pulses | the meter count ticks up |
 | Clear label | QUAD, T-SPIN DOUBLE and so on rise and fade over 1.3 s | shown for 1 s, no movement |
 | Countdown | 3-2-1-GO numbers pop in over 550 ms | numbers change in place |
 | Win | confetti from the winner's board | none |
@@ -157,8 +157,8 @@ Recorded sounds can replace them later without changing the events.
 ├──────────┬───────────────────────┬──┬───────────┬──┬───────────────────────┬──────────┤
 │ HOLD     │                       │▒▒│   1:24    │▒▒│                       │ HOLD     │
 │ POWER  E │                       │▒▒│ ┌───────┐ │  │                       │ POWER    │
-│ NEXT     │     your board        │  │ │MATCH  │ │  │    RIVAL's board      │ NEXT     │
-│  ▪▪▪▪    │     (fills height)    │  │ │ DO    │ │  │    (same size)        │ [hidden] │
+│ NEXT     │     your board        │  │ │REFEREE│ │  │    RIVAL's board      │ NEXT     │
+│  ▪▪▪▪    │     (fills height)    │  │ │       │ │  │    (same size)        │ [hidden] │
 │  ▪▪      │                       │  │ └───────┘ │  │                       │          │
 │  ...     │                       │  │ attacks   │  │                       │          │
 │          │                       │  │ fly here  │  │                       │          │
@@ -207,7 +207,9 @@ labels.
 | Full game | This game is full. Start a quick match instead? |
 
 Names are always shown as the players see them (a handle, or "Bot · Regular"); the words
-"Durable Object" and "WebSocket" never appear outside the developer overlay.
+"Durable Object" and "WebSocket" never appear outside the developer overlay. The centre column's badge
+says **Referee**, which is true both against a local bot and online, where the referee is the
+server.
 
 ## What changes from the demos
 

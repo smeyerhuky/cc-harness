@@ -43,11 +43,13 @@ projects/garbage-day/src/
 │   ├── primitives/    Button, IconButton, Chip, Card, Dialog (native <dialog>), Popover (popover API),
 │   │                  Sheet, Toggle, Select, Slider, Stepper, Toast, Kbd, VisuallyHidden
 │   ├── game/          BoardCanvas, PieceGlyph, PowerIcon, Meter, SpeedChip, PresenceChip, HoldSlot,
-│   │                  NextQueue, PowerSlot, Countdown, ShowdownBanner, Popup, AttackFlight, BoardCover
+│   │                  NextQueue, PowerSlot, Countdown, ShowdownBanner, Popup, AttackFlight, BoardCover,
+│   │                  Confetti, clearLabel (the words for clears: "Quad", "T-spin Double")
+│   ├── sound/         Sfx: the synthesized tones, played only while sound is on
 │   ├── layout/        StageLayout (slots: left, centre, right, feed), ScreenFrame, ThumbZone
 │   ├── hooks/         useReducedMotion, usePageVisibility, useWakeLock, useHaptics, useResizeObserver,
 │   │                  useGestures, useKeyBindings, useAnimationFrame, useInterval, useColorScheme,
-│   │                  useMediaQuery
+│   │                  useMediaQuery, useShake
 │   └── gallery/       every token and widget in its states, served at /gallery (a visual check)
 └── app/           @garbage-day/app       one Vite project: the client and the Worker
     ├── client/
@@ -139,6 +141,13 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   early, so a move always shows in the first frame after the key (US-05).
 - Motion that the DOM does well (popups, the attack flying through the centre column, countdown
   pops) uses CSS and the Web Animations API, and turns off with reduced motion.
+- Moments go out as **effects**, not state: `MatchSession.onEffect` reports a clear (with its
+  words from `clearLabel`), a cancel, a gem banked, garbage landing, an attack routed, a shield
+  block, a power-up used or applied, a showdown's announce, start and end, a top-out, and the
+  player's own moves and locks. Each consumer plays them once: `BoardFx` (labels and the shake),
+  `AttackLayer` (the flight, and the referee badge's pulse), and `useMatchSound` (the synth, while
+  sound is on, and a vibration when garbage lands). State that lasts (the meter, the showdown
+  banner, the stats) stays in the snapshot.
 
 ## Input
 

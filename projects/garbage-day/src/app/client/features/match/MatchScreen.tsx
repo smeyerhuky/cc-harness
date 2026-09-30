@@ -1,5 +1,5 @@
 import { Button, ScreenFrame, StageLayout, useKeyBindings } from '@garbage-day/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { keyMap } from '../../input/bindings';
 import { InputController } from '../../input/InputController';
@@ -7,59 +7,14 @@ import { AppActorContext } from '../../state/appActor';
 import { MatchSession } from '../../state/MatchSession';
 import { InputContext, MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
-import { mmss } from './format';
-import { CentreColumn, OpponentPanel, PlayerPanel } from './Panels';
+import { AttackLayer } from './AttackLayer';
+import { CentreColumn, MatchBanner, OpponentPanel, PlayerPanel } from './Panels';
+import { ResultCard } from './ResultCard';
+import { useMatchSound } from './useMatchSound';
 import styles from './Match.module.css';
 
 function randomSeed(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
-}
-
-/** The result over the stage: who won and why, then Rematch or Home. GD-STORY-002 adds stats. */
-function ResultCard({ opponent }: { opponent: string }) {
-  const app = AppActorContext.useActorRef();
-  const navigate = useNavigate();
-  const result = AppActorContext.useSelector((s) => s.context.result);
-  const clock = MatchSessionContext.useSelector((v) => v.clock);
-  if (!result) return null;
-  const title =
-    result.winner === 0 ? 'You win' : result.winner === 1 ? `${opponent} wins` : 'No contest';
-  const who = result.winner === 0 ? opponent : 'You';
-  const why =
-    result.reason === 'topout'
-      ? `${who} topped out at ${mmss(clock)}.`
-      : result.reason === 'left'
-        ? 'You left the match.'
-        : '';
-  return (
-    <div className={styles.overlay}>
-      <div className={styles.result} role="dialog" aria-label={title}>
-        <h2>{title}</h2>
-        {why && <p>{why}</p>}
-        <div className={styles.actions}>
-          <Button
-            variant="primary"
-            autoFocus
-            onClick={() => {
-              app.send({ type: 'REMATCH' });
-              // A bot always accepts at once; between people this waits for both (M3).
-              app.send({ type: 'REMATCH_ACCEPTED' });
-            }}
-          >
-            Rematch
-          </Button>
-          <Button
-            onClick={() => {
-              app.send({ type: 'HOME' });
-              void navigate('/');
-            }}
-          >
-            Home
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 /**
@@ -89,6 +44,8 @@ export function MatchScreen() {
   const arrMs = usePrefs((s) => s.arrMs);
   useEffect(() => input.setTiming(dasMs, arrMs), [input, dasMs, arrMs]);
   useKeyBindings(keys, input, !over);
+  const stage = useRef<HTMLDivElement>(null);
+  const sound = useMatchSound(session);
 
   const leave = () => {
     if (!over) app.send({ type: 'ENDED', result: { winner: 1, reason: 'left' } });
@@ -114,15 +71,17 @@ export function MatchScreen() {
             </div>
           }
         >
-          <div className={styles.stageBox}>
+          <div className={styles.stageBox} ref={stage}>
             <StageLayout
               leftLabel="You"
               rightLabel={opponent}
+              banner={<MatchBanner />}
               left={<PlayerPanel session={session} />}
               centre={<CentreColumn />}
               right={<OpponentPanel session={session} name={opponent} />}
             />
-            {over && <ResultCard opponent={opponent} />}
+            <AttackLayer session={session} stage={stage} />
+            {over && <ResultCard opponent={opponent} stage={stage} onSound={sound} />}
           </div>
         </ScreenFrame>
       </InputContext>

@@ -5,7 +5,7 @@ description: "The match screen's fight layer against the local referee: the garb
 resource: "../../product/prd.md"
 tags: ["backlog", "UI", "react"]
 timestamp: "2026-09-30"
-state: "active"
+state: "done"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -69,3 +69,62 @@ Goal: show the fight. Read `kb/design/ui-language.md` ("The board and its widget
 on (definition of done, project item 3). Done when the quoted criteria hold, the KB gates pass,
 this item is `done` with a Resolution recording the device check, the backlog index and roadmap
 agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). A match against a bot now
+shows the fight the engine was already running: every clear named over its board, attacks
+flying through the referee to the other meter, garbage landing with a shake, power-ups banked
+and applied, showdowns announced, and a result card with both players' stats.
+
+- **Effects from the session.** `MatchSession.onEffect` reports each moment once: a clear (its
+  words from `clearLabel`, [`GD-TICKET-018`](GD-TICKET-018.md)), a cancel, a gem banked, garbage
+  landing, an attack routed (from the referee's `route` event), a shield block, a power-up used
+  and applied, a showdown's announce, start and end, a top-out, and the player's moves and locks.
+  The snapshot gains the showdown (`startsIn` counting down, then under way) and each player's
+  totals. [Client architecture](../../design/client-architecture.md#rendering) records the split:
+  what lasts is state, what happens once is an effect.
+- **On screen.** `BoardFx` puts labels over a board ("Quad" in hazard yellow, "−2 cancelled",
+  "+ Fog", "Fogged for 6 s", "Blocked by shield", "Topped out"; the rival's smaller and not read
+  aloud) and shakes it when garbage lands or its own Bomb goes off. `AttackLayer` flies a token
+  from the sender's board to the receiver's meter and pulses the centre column's **Referee** badge.
+  `MatchBanner` shows "Double garbage in 3", then "Double garbage", and "Sudden death". Live stats
+  sit under each board: lines, sent, pieces per second, Quads, T-spins.
+- **The result** (`ResultCard`): who won and why, for every ending the referee can reach
+  (topped out, timed out, grace, left, left while paused, abandoned), a stats table (lines,
+  garbage sent, Quads, T-spins, power-ups used, pieces per second), Rematch and Home. A win plays
+  the fanfare and throws confetti from the player's board.
+- **Sound and haptics.** `Sfx` in `ui` ports the proof of concept's Web Audio tones; the match
+  plays them only while sound is on. Garbage landing on the player's board vibrates for 30 ms
+  where the device can.
+- **Reduced motion:** no shake, flights finish at once, no confetti, labels show for 1 s without
+  moving, the Sudden death banner doesn't pulse.
+- **The UI language corrected:** its centre-column badge was "Match DO", which its own copy rules
+  forbid outside the developer overlay; it is now the **Referee** badge.
+- **Found on the way, fixed here:**
+  - **A quick tap didn't move the piece.** A direction pressed and released within one 16 ms
+    tick was forgotten before the engine read it. Found when a scripted playtest's arrow taps
+    left every piece in the middle. `InputController` now keeps a tap for the next tick, and
+    taps and held keys move in the order they came.
+  - **Space at the end started a rematch.** The result card focused Rematch, and a player still
+    pressing Space to drop would start the next match without seeing the result. Focus now goes
+    to the card; Rematch is the first Tab stop.
+  - **A cancelled flight rejected its promise.** `AttackFlight` now handles the `finished`
+    rejection when a flight is cut short.
+
+Checks: 33 new tests (the session's effects: a clear, an attack and its landing, moves, a
+showdown's three phases; labels for every effect; the result wording for every ending; the result
+card's stats, sound and focus; the banner; the referee pulse; the synth, confetti, popups, shake;
+taps), and the code gates pass (515 unit tests, 4 Worker tests, build). The first page stays at
+114 KB gzipped; the match chunk is 18 KB. In Chromium, on the production build:
+
+- **Desktop, 1280 × 800, against Rookie for 40 s:** 16 labels (Singles, Doubles, combos up to ×4,
+  "+ Shield", "Topped out"), 7 attack flights, garbage landing under my pieces, the result card
+  with both players' stats. Mashing Space through the end left the result up, focused, with
+  Rematch the first Tab stop. No page errors.
+- **Phone, Pixel 7 profile, dark, reduced motion:** a match runs with no page scroll; the meter
+  shows incoming rows, the rival's labels show over their board.
+- **Not seen live:** a showdown. Both bot matches ended before 1:00, so the banner is covered by
+  the session and render tests rather than a playtest.
+- **Handed to [`GD-STORY-005`](GD-STORY-005.md):** the phone portrait layout (my board is small,
+  the rival's labels spill past their board, the live stats wrap to four lines).

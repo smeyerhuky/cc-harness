@@ -47,21 +47,43 @@ export function ShowdownBanner({
   );
 }
 
+export type PopupTone = 'plain' | 'strong' | 'power' | 'bad';
+
 /**
- * A clear label ("QUAD", "T-SPIN DOUBLE") that rises and fades over 1.3 s, or shows for 1 s
- * without moving under reduced motion. `onDone` fires when it has finished.
+ * A label over a board that rises and fades over 1.3 s, or shows for 1 s without moving under
+ * reduced motion: a clear ("QUAD", "T-SPIN DOUBLE", in hazard yellow when `strong`), or a smaller
+ * note ("−2 cancelled", "Shield up"). `onDone` fires when it has finished. A `quiet` one isn't
+ * announced to screen readers: the rival's labels, which would talk over the player's own.
  */
-export function Popup({ text, onDone }: { text: string; onDone: () => void }) {
+export function Popup({
+  text,
+  onDone,
+  tone = 'plain',
+  small = false,
+  quiet = false,
+}: {
+  text: string;
+  onDone: () => void;
+  tone?: PopupTone;
+  small?: boolean;
+  quiet?: boolean;
+}) {
   const reduced = useReducedMotion();
   const done = useEffectEvent(onDone);
   useEffect(() => {
     const id = setTimeout(() => done(), reduced ? MOTION.clearLabelReduced : MOTION.clearLabel);
     return () => clearTimeout(id);
   }, [text, reduced]);
+  const cls = [
+    styles.popup,
+    !reduced && styles.rise,
+    tone !== 'plain' && styles[tone],
+    small && styles.note,
+  ];
   return (
     <div
-      className={[styles.popup, !reduced && styles.rise].filter(Boolean).join(' ')}
-      role="status"
+      className={cls.filter(Boolean).join(' ')}
+      {...(quiet ? { 'aria-hidden': true } : { role: 'status' })}
     >
       {text}
     </div>
@@ -100,7 +122,11 @@ export function AttackFlight({ from, to, onDone }: { from: Point; to: Point; onD
       { duration: MOTION.attackFlight, easing: 'cubic-bezier(0.3, 0, 0.3, 1)', fill: 'forwards' },
     );
     animation.onfinish = () => done();
-    return () => animation.cancel();
+    return () => {
+      // Cancelling rejects `finished`; a flight cut short is not an error.
+      animation.finished.catch(() => undefined);
+      animation.cancel();
+    };
   }, [x0, y0, x1, y1, reduced]);
   return <div ref={token} className={styles.token} aria-hidden="true" />;
 }

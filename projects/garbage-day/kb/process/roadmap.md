@@ -73,7 +73,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 
 - [x] The `ui` commons: tokens (UI language palette, pattern marks, self-hosted fonts), primitives,
   game widgets, hooks, and the token-contrast test — [`GD-TICKET-023`](backlog/GD-TICKET-023.md)
-- [ ] `MatchSession` over a local referee, and the match screen: `BoardCanvas`, panels, centre
+- [x] `MatchSession` over a local referee, and the match screen: `BoardCanvas`, panels, centre
   column, meter, speed chip, showdown banner, clear labels, attack flight, results (US-05, US-08,
   US-09, US-10, US-11, US-15 locally) — [`GD-STORY-001`](backlog/GD-STORY-001.md),
   [`GD-STORY-002`](backlog/GD-STORY-002.md)

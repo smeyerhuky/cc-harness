@@ -35,6 +35,7 @@ export { VisuallyHidden } from './primitives/VisuallyHidden';
 
 export { BoardCanvas, type BoardCanvasProps } from './game/BoardCanvas';
 export { clearLabel, QUAD, type ClearLabel } from './game/clearLabel';
+export { Confetti } from './game/Confetti';
 export { drawBoard, ghostY, type BoardView, type DrawOptions } from './game/draw';
 export { Meter } from './game/Meter';
 export {
@@ -44,6 +45,7 @@ export {
   Popup,
   ShowdownBanner,
   type Point,
+  type PopupTone,
   type ShowdownKind,
 } from './game/Overlays';
 export { PieceGlyph } from './game/PieceGlyph';
@@ -51,6 +53,8 @@ export { POWER_NAME, PowerIcon } from './game/PowerIcon';
 export { PresenceChip, presenceState, type PresenceState } from './game/PresenceChip';
 export { HoldSlot, NextQueue, PowerSlot } from './game/Slots';
 export { SpeedChip } from './game/SpeedChip';
+
+export { Sfx, type SoundName } from './sound/sfx';
 
 export { ScreenFrame } from './layout/ScreenFrame';
 export { StageLayout } from './layout/StageLayout';
@@ -69,4 +73,5 @@ export {
   type MotionPreference,
 } from './hooks/useReducedMotion';
 export { useResizeObserver, type Size } from './hooks/useResizeObserver';
+export { useShake } from './hooks/useShake';
 export { useWakeLock } from './hooks/useWakeLock';

@@ -63,6 +63,34 @@ describe('InputController', () => {
     expect([toMs(TIMING_TICKS.arr.min), toMs(TIMING_TICKS.arr.max)]).toEqual([17, 100]);
   });
 
+  it('moves once for a tap shorter than a tick', () => {
+    const c = new InputController();
+    c.down('left');
+    c.up('left');
+    expect(c.hasPending()).toBe(true);
+    expect(ticks(c, 3).map((i) => i.dx)).toEqual([-1, 0, 0]);
+  });
+
+  it('keeps taps and holds in the order they came', () => {
+    const c = new InputController();
+    c.down('right');
+    c.tick();
+    // Tap left while right is held: left once, then right again, then right's repeat.
+    c.down('left');
+    c.up('left');
+    expect(ticks(c, 2).map((i) => i.dx)).toEqual([-1, 1]);
+    // Two quick taps, a tick apart: two moves.
+    c.up('right');
+    c.tick();
+    const dx: number[] = [];
+    for (let i = 0; i < 2; i++) {
+      c.down('left');
+      c.up('left');
+      dx.push(c.tick().dx ?? 0);
+    }
+    expect(dx).toEqual([-1, -1]);
+  });
+
   it('forgets everything on reset', () => {
     const c = new InputController();
     c.down('left');

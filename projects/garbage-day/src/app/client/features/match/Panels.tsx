@@ -6,13 +6,18 @@ import {
   BoardCanvas,
   SpeedChip,
   Countdown,
+  QUAD,
+  ShowdownBanner,
 } from '@garbage-day/ui';
 import type { PlayerIndex } from '@garbage-day/engine';
+import { useRef } from 'react';
 import { keyLabel } from '../../input/bindings';
 import type { MatchSession } from '../../state/MatchSession';
 import { MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
+import { BoardFx } from './BoardFx';
 import { mmss } from './format';
+import { pps } from './ResultCard';
 import styles from './Match.module.css';
 
 const useMatch = MatchSessionContext.useSelector;
@@ -26,8 +31,9 @@ function Board({
   seat: PlayerIndex;
   label: string;
 }) {
+  const box = useRef<HTMLDivElement>(null);
   return (
-    <div className={styles.board}>
+    <div className={styles.board} ref={box} data-board={seat}>
       <BoardCanvas
         label={label}
         source={(now) => {
@@ -35,6 +41,7 @@ function Board({
           return session.board(seat);
         }}
       />
+      <BoardFx session={session} seat={seat} board={box} />
     </div>
   );
 }
@@ -43,7 +50,23 @@ function PlayerMeter({ seat }: { seat: PlayerIndex }) {
   const total = useMatch((v) => v.players[seat].meterTotal);
   const ready = useMatch((v) => v.players[seat].meterReady);
   const shielded = useMatch((v) => v.players[seat].shielded);
-  return <Meter total={total} ready={ready} shielded={shielded} />;
+  return (
+    <div className={styles.meter} data-meter={seat}>
+      <Meter total={total} ready={ready} shielded={shielded} />
+    </div>
+  );
+}
+
+/** A side's running stats under its board (controls and layout, "Match screen"). */
+function LiveStats({ seat }: { seat: PlayerIndex }) {
+  const t = useMatch((v) => v.players[seat].totals);
+  const clock = useMatch((v) => v.clock);
+  return (
+    <p className={styles.live}>
+      Lines {t.lines} · Sent {t.sent} · {pps(t.pieces, clock)} pieces/s · {QUAD.many} {t.quads} ·
+      T-spins {t.tspins}
+    </p>
+  );
 }
 
 /** My side: hold, power-up and next pieces, my board with its ghost, and my meter. */
@@ -62,6 +85,7 @@ export function PlayerPanel({ session }: { session: MatchSession }) {
       </div>
       <Board session={session} seat={0} label="Your board" />
       <PlayerMeter seat={0} />
+      <LiveStats seat={0} />
     </div>
   );
 }
@@ -79,11 +103,23 @@ export function OpponentPanel({ session, name }: { session: MatchSession; name: 
         <PowerSlot kind={power} />
         <NextQueue pieces="hidden" />
       </div>
+      <LiveStats seat={1} />
     </div>
   );
 }
 
-/** The centre column: the countdown, the clock, the speed, and the lines each side has sent. */
+/** The showdown across the top of the stage: announced 5 s ahead, then under way (US-11). */
+export function MatchBanner() {
+  const showdown = useMatch((v) => v.showdown);
+  if (!showdown) return null;
+  return showdown.startsIn === null ? (
+    <ShowdownBanner kind={showdown.kind} />
+  ) : (
+    <ShowdownBanner kind={showdown.kind} startsIn={showdown.startsIn} />
+  );
+}
+
+/** The centre column: the countdown, the clock, the speed, and the referee attacks pass through. */
 export function CentreColumn() {
   const phase = useMatch((v) => v.phase);
   const countdown = useMatch((v) => v.countdown);
@@ -91,8 +127,6 @@ export function CentreColumn() {
   const level = useMatch((v) => v.level);
   const progress = useMatch((v) => v.progress);
   const hot = useMatch((v) => v.hot);
-  const mine = useMatch((v) => v.players[0].lines);
-  const sent = useMatch((v) => v.players[0].sent);
   return (
     <div className={styles.lane}>
       {(phase === 'countdown' || (phase === 'playing' && clock === 0)) && (
@@ -102,10 +136,8 @@ export function CentreColumn() {
         {mmss(clock)}
       </span>
       <SpeedChip level={level} progress={progress} hot={hot} />
-      <span className={styles.stats}>
-        Lines {mine}
-        <br />
-        Sent {sent}
+      <span className={styles.referee} data-referee="">
+        Referee
       </span>
     </div>
   );
