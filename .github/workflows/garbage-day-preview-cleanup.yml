@@ -41,5 +41,6 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           NAME: pr-${{ github.event.pull_request.number }}
-        # A pull request that never got a preview has nothing to delete.
-        run: pnpm exec wrangler preview delete --name "$NAME" || echo "::notice::No preview $NAME to delete."
+        # --skip-confirmation: CI has no one to answer the prompt. A pull request that never got a
+        # preview has nothing to delete.
+        run: pnpm exec wrangler preview delete --name "$NAME" --skip-confirmation || echo "::notice::No preview $NAME to delete."
