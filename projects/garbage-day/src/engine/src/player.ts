@@ -20,7 +20,7 @@ import type {
   PlayerMessage,
   PlayerStats,
   PowerMessage,
-  RefereeMessage,
+  ServerMessage,
   ResultMessage,
   ShowdownMessage,
   TopOutReason,
@@ -216,7 +216,7 @@ export class PlayerSim {
   }
 
   /** Handles a message from the referee that arrived at tick `t`. */
-  onMessage(msg: RefereeMessage, t: number): void {
+  onMessage(msg: ServerMessage, t: number): void {
     switch (msg.type) {
       case 'start':
         this.resumeAt = msg.goAt;
@@ -248,6 +248,8 @@ export class PlayerSim {
       case 'result':
         this.result = msg;
         this.frozen = true;
+        break;
+      default:
         break;
     }
   }

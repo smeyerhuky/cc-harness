@@ -60,6 +60,32 @@ export type PlayerMessage =
       readonly hold: PieceType | null;
     };
 
+/** Why a player went away: switched tab or app, stepped away, closed the tab, or went silent. */
+export type AwayReason = 'tab' | 'step' | 'closed' | 'lost';
+
+/** What the client itself tells the referee, besides its simulation's messages. */
+export type ControlMessage =
+  | { readonly type: 'hb' }
+  | { readonly type: 'away'; readonly reason: AwayReason }
+  | { readonly type: 'back'; readonly awayMs?: number }
+  | { readonly type: 'rejoin'; readonly gack: number; readonly awayMs?: number }
+  | { readonly type: 'extend' }
+  | { readonly type: 'leave' };
+
+/** Everything a client sends to the referee. */
+export type ClientMessage = PlayerMessage | ControlMessage;
+
+export type MatchState = 'lobby' | 'countdown' | 'playing' | 'paused' | 'resuming' | 'over';
+export type Presence = 'present' | 'away' | 'gone' | 'grace' | 'forfeit';
+
+/**
+ * How a match ended: a top-out; an absent player's pause running out; an absent player with no
+ * pauses left not back in time; a player leaving a running match; the waiting player leaving
+ * during the other's pause; or both players away until the session ended.
+ */
+export type ResultReason =
+  'topout' | 'timeout' | 'grace' | 'left' | 'left-while-paused' | 'abandoned';
+
 /** A power-up activation, stamped by the referee with the tick both clients apply it at. */
 export interface PowerMessage {
   readonly type: 'power';
@@ -72,23 +98,73 @@ export interface ShowdownMessage {
   readonly type: 'showdown';
   readonly kind: 'double' | 'sudden';
   readonly phase: 'soon' | 'start' | 'end';
+  /** For `soon`: the active-play second it starts at. */
+  readonly startsAt?: number;
+  /** For `start`: the active tick it ends at, or null for Sudden death. */
+  readonly until?: number | null;
 }
 
 export interface ResultMessage {
   readonly type: 'result';
   /** The winner, or null for no contest. */
   readonly winner: PlayerIndex | null;
-  readonly reason: string;
+  readonly reason: ResultReason;
+  /** The player the reason is about: who topped out, timed out or left. */
+  readonly by: PlayerIndex | null;
 }
 
-/** The referee's messages that a player's simulation acts on. */
-export type RefereeMessage =
+/** Everything the referee sends to a client. The simulation acts on some; the UI on the rest. */
+export type ServerMessage =
   | { readonly type: 'start'; readonly goAt: number }
   | { readonly type: 'bag'; readonly pieces: readonly DealtPiece[] }
   | { readonly type: 'garbage'; readonly rows: number; readonly id: number }
   | PowerMessage
-  | { readonly type: 'paused' }
-  | { readonly type: 'resume'; readonly at: number }
+  | {
+      readonly type: 'paused';
+      readonly by: PlayerIndex;
+      readonly reason: AwayReason;
+      readonly deadline: number;
+      readonly pausesLeft: number;
+      /** False for a free reconnect. */
+      readonly budgeted: boolean;
+    }
+  | {
+      readonly type: 'resume';
+      readonly at: number;
+      readonly by: PlayerIndex;
+      /** Ticks the player was away. */
+      readonly away: number;
+      readonly pausesLeft: number;
+      readonly free: boolean;
+    }
+  | { readonly type: 'deadline'; readonly deadline: number }
+  | { readonly type: 'bothAway'; readonly endsAt: number }
+  | { readonly type: 'grace'; readonly by: PlayerIndex; readonly until: number }
+  | {
+      readonly type: 'back';
+      readonly by: PlayerIndex;
+      readonly away: number;
+      readonly pausesLeft: number;
+    }
+  | {
+      readonly type: 'opp';
+      readonly kind: 'pos';
+      readonly cur: PiecePosition | null;
+      readonly meter: number;
+      readonly power: PowerKind | null;
+      readonly hold: PieceType | null;
+    }
+  | {
+      readonly type: 'opp';
+      readonly kind: 'lock';
+      readonly board: string;
+      readonly meter: number;
+      readonly stats: PlayerStats;
+      readonly lines: number;
+      readonly clear: Clear | null;
+      readonly power: PowerKind | null;
+      readonly hold: PieceType | null;
+    }
   | ShowdownMessage
   | ResultMessage;
 

@@ -117,7 +117,7 @@ cannot see being used.
 | Layer | What | Tool |
 |---|---|---|
 | Engine unit | pieces and kicks, lock delay, attack table, cancelling, garbage landing, speed table, power-ups, referee rules | Vitest |
-| Golden replays | seeded matches (bot vs bot, plus scripted interruptions as in `spikes/proof-of-concept/live/test-live.js`) replayed and compared by final board hash, result, tick count, and messages per minute | Vitest |
+| Golden replays | seeded matches (bot vs bot, a classic-rules match, and one with every interruption, as in `spikes/proof-of-concept/live/test-live.js`) replayed twice and compared with `src/engine/test/golden/*.json` by result, tick counts, final board hashes, stats, message counts and messages per minute, and the referee's timeline. `pnpm --filter @garbage-day/engine golden:update` regenerates them, deliberately | Vitest (`toMatchFileSnapshot`) |
 | Protocol | every message type round-trips through its schema; invalid messages are rejected | Vitest |
 | UI and client | commons, features, `appMachine`, gestures, `MatchSession` against a local referee | Vitest, happy-dom, Testing Library |
 | Durable Objects | pairing, private lobby and codes, dealing, ledger resend, alarms (pause, grace, both away, expiry), snapshot restore after restart | `@cloudflare/vitest-pool-workers` |

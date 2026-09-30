@@ -12,7 +12,7 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | `GD-EPIC` | 002 |
 | `GD-STORY` | 001 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 019 |
+| `GD-TICKET` | 020 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -36,9 +36,10 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-006](GD-TICKET-006.md) — Scaffold the pnpm workspace with the pinned stack · done
 - [GD-TICKET-007](GD-TICKET-007.md) — Add the GitHub Actions pipeline · done
 - [GD-TICKET-008](GD-TICKET-008.md) — Port the engine core to TypeScript · done
-- [GD-TICKET-009](GD-TICKET-009.md) — Port the referee, bot and local match, with golden replays · open
+- [GD-TICKET-009](GD-TICKET-009.md) — Port the referee, bot and local match, with golden replays · done
 - [GD-TICKET-010](GD-TICKET-010.md) — Build the protocol package · open
 - [GD-TICKET-011](GD-TICKET-011.md) — Deploy the app shell with preview and production pipelines · open
+- [GD-TICKET-019](GD-TICKET-019.md) — Run the golden replays in real browsers · open
 
 *Later milestones (gaps from the [coverage audit](../coverage-audit.md), part of GD-EPIC-001):*
 

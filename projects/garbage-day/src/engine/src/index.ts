@@ -7,6 +7,7 @@ export {
   type Clear,
 } from './attack';
 export { Dealer } from './bag';
+export { Bot, botConfig, type BotConfig, type BotStyle } from './bot';
 export {
   EMPTY,
   GARBAGE,
@@ -40,13 +41,19 @@ export {
 } from './constants';
 export { cancelGarbage, landGarbage, meterReady, meterTotal, type MeterEntry } from './garbage';
 export type {
+  AwayReason,
+  ClientMessage,
+  ControlMessage,
+  MatchState,
   PiecePosition,
   PlayerEvent,
   PlayerMessage,
   PlayerStats,
   PowerMessage,
-  RefereeMessage,
+  Presence,
   ResultMessage,
+  ResultReason,
+  ServerMessage,
   ShowdownMessage,
   TopOutReason,
 } from './messages';
@@ -64,7 +71,25 @@ export {
   type Gem,
   type Rotation,
 } from './pieces';
+export {
+  LocalMatch,
+  fnv1a,
+  type Controller,
+  type LocalMatchOptions,
+  type MatchSummary,
+  type ScriptStep,
+} from './local-match';
 export { NO_INPUT, PlayerSim, type Input, type PlayerHost } from './player';
+export {
+  COUNTDOWN_TICKS,
+  POWER_DELAY_TICKS,
+  Referee,
+  type MessageCounts,
+  type RefereeEvent,
+  type RefereeHost,
+  type RefereeResult,
+  type RefereeSnapshot,
+} from './referee';
 export { mulberry32, type Rng } from './rng';
 export { DEFAULT_RULES, type Rules, type Showdown } from './rules';
 export { FIXED_ONE, gravity, levelAt, softGravity } from './speed';

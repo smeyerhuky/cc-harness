@@ -134,7 +134,9 @@ Everything that decides a board must give the same result on every device and in
    JavaScript engine can disagree in the last bit. The table (`src/engine/src/speed-table.ts`)
    is generated from the formula, rounded up so no level falls slower than it (level 1 is exactly
    60 ticks a row), and a test checks it against the generator. Gravity, soft drop and levels
-   are integer arithmetic.
+   are integer arithmetic. ESLint enforces the contract in `src/engine/src/`: no clock, no
+   `Math.random`, and none of the `Math` functions engines may round differently (`pow`, `exp`,
+   `log`, the trigonometry) or `**`; the bot's settings are tables for the same reason.
 4. **Replays:** a match is its seed, settings and each player's timestamped inputs plus received
    messages. The engine can replay one to the same final boards; CI replays golden matches and
    compares hashes ([stack and CI](stack-and-ci.md#tests)).
@@ -169,7 +171,8 @@ Implemented in the referee exactly as specified in
   it treats the player as gone and applies the free-reconnect rule.
 - **Timers are DO alarms** (pause deadline, 15 s grace, 5:00 both-away, 30 min private-game
   expiry), so they survive the DO being evicted.
-- **Hidden boards:** while paused the DO stops relaying `opp` and both clients cover both boards.
+- **Hidden boards:** while paused the DO stops relaying `opp` and both clients cover both boards;
+  when play resumes it sends each player the other's last lock so both views are current.
 
 **A deploy restarts every Durable Object and drops its sockets.** Clients treat that as a lost
 connection. They reconnect with their token, and the Match DO restores the match from its SQLite
@@ -185,8 +188,12 @@ the Lobby DO creates the match and the client starts the worker.
 
 | Setting | Controls | Mapped from the proof of concept's bot |
 |---|---|---|
-| Skill 1–10 | placement quality: evaluation noise (1.4 → 0.05), style (safe → Tetris-seeking), hold use | `noise`, `style` |
-| Speed 1–10 | think delay (26 → 4 ticks) and ticks between moves (9 → 2) | `think`, `jitter`, `move` |
+| Skill 1–10 | placement quality: evaluation noise falling geometrically (1.4 → 0.05); style safe (1–3), mixed (4–6) or four-line-seeking (7–10); holding from skill 3 | `noise`, `style` |
+| Speed 1–10 | think delay (26 → 4 ticks, plus up to 14 → 4 ticks of jitter) and ticks between moves (9 → 2), falling linearly | `think`, `jitter`, `move` |
+
+Skill 1 and speed 1 are the proof of concept's rookie; 10 and 10 are faster and steadier than
+its pro, and win at least 9 of 10 seeded matches against 1 and 1 (a test). The values are tables
+in `src/engine/src/bot.ts` (`botConfig`).
 
 The bot cannot tuck or spin pieces in v1, so it never makes T-spins; that is accepted.
 
@@ -194,9 +201,11 @@ The bot cannot tuck or spin pieces in v1, so it never makes T-spins; that is acc
 
 From the proof of concept: a 2:45 match sent about 4,300 messages into the Match DO, about 217
 billed requests at the 20:1 WebSocket ratio, and the DO stayed awake for the whole match. The
-budget in the [PRD](../product/prd.md#non-functional-requirements) holds with room to spare.
-Messages sent from the DO to clients are not billed. CI tracks messages per minute in the replay
-tests so a protocol change that inflates traffic fails loudly.
+engine's golden replays (`GD-TICKET-009`) measure 990 to 1,720 messages a minute into the referee
+in bot matches, so a 3-minute match costs at most about 260 billed requests, inside the
+[PRD](../product/prd.md#non-functional-requirements)'s few hundred. Messages sent from the DO to
+clients are not billed. Every golden file records its messages per minute, so a protocol change
+that inflates traffic fails the replay test.
 
 ## What carries over from the proof of concept
 

@@ -1,0 +1,91 @@
+{
+  "seed": "0x5eed01",
+  "bots": [
+    [
+      9,
+      9
+    ],
+    [
+      7,
+      8
+    ]
+  ],
+  "rules": "default",
+  "scriptsFired": 0,
+  "result": {
+    "winner": 1,
+    "reason": "topout",
+    "by": 0,
+    "activeTicks": 5795,
+    "ticks": 5975
+  },
+  "ticks": 5975,
+  "activeTicks": 5795,
+  "boardHashes": [
+    "3e7337b3",
+    "81ed1b4a"
+  ],
+  "stats": [
+    {
+      "pieces": 183,
+      "lines": 65,
+      "sent": 28,
+      "received": 23,
+      "cancelled": 8,
+      "fourLineClears": 3,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 3,
+      "powersGot": 3,
+      "maxCombo": 2,
+      "garbageRows": 10
+    },
+    {
+      "pieces": 148,
+      "lines": 63,
+      "sent": 24,
+      "received": 30,
+      "cancelled": 4,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 4,
+      "powersGot": 5,
+      "maxCombo": 3,
+      "garbageRows": 20
+    }
+  ],
+  "pausesLeft": [
+    2,
+    2
+  ],
+  "reconnectsLeft": [
+    3,
+    3
+  ],
+  "counts": {
+    "in": 2472,
+    "pos": 1851,
+    "hb": 199,
+    "lock": 331,
+    "relayed": 2181
+  },
+  "messagesPerMinute": 1489.4,
+  "timeline": [
+    "0 state {\"from\":\"lobby\",\"to\":\"countdown\"}",
+    "180 state {\"from\":\"countdown\",\"to\":\"playing\"}",
+    "2025 power {\"by\":1,\"kind\":\"shield\",\"at\":2037}",
+    "2371 power {\"by\":1,\"kind\":\"shield\",\"at\":2383}",
+    "2476 power {\"by\":1,\"kind\":\"fog\",\"at\":2488}",
+    "2948 power {\"by\":0,\"kind\":\"shield\",\"at\":2960}",
+    "3097 power {\"by\":0,\"kind\":\"bomb\",\"at\":3109}",
+    "3259 blocked {\"p\":0,\"rows\":2}",
+    "3479 showdown {\"kind\":\"double\",\"phase\":\"soon\"}",
+    "3610 power {\"by\":1,\"kind\":\"bomb\",\"at\":3622}",
+    "3779 showdown {\"kind\":\"double\",\"phase\":\"start\"}",
+    "4679 showdown {\"kind\":\"double\",\"phase\":\"end\"}",
+    "5826 power {\"by\":0,\"kind\":\"shield\",\"at\":5838}",
+    "5975 state {\"from\":\"playing\",\"to\":\"over\"}",
+    "5975 result {\"winner\":1,\"reason\":\"topout\",\"by\":0}"
+  ]
+}

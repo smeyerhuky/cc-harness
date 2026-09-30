@@ -30,7 +30,12 @@ history lives in the [running journal](journal/index.md).
   - the engine core, [`GD-TICKET-008`](backlog/GD-TICKET-008.md): `PlayerSim` and its modules
     in `src/engine/src/`, 174 tests, fixed-point gravity, checked against the proof of concept;
   - [`GD-TICKET-018`](backlog/GD-TICKET-018.md) filed for M2: the spec uses the Tetris name for a
-    four-row clear; the owner picks the word (default "Quad").
+    four-row clear; the owner picks the word (default "Quad");
+  - the referee, bot and local match, [`GD-TICKET-009`](backlog/GD-TICKET-009.md): every pause
+    and presence rule, snapshots, bots with skill and speed 1–10, and ten golden replays in
+    `src/engine/test/golden/`; an ESLint guard for the determinism contract;
+  - [`GD-TICKET-019`](backlog/GD-TICKET-019.md) filed for M1: the golden replays in Chromium,
+    Firefox and WebKit, the browser half of M1's exit check.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:** installing the Renovate GitHub app on the repository (until then
   `renovate.json` is inert); a ruleset or branch protection on `main` requiring the
@@ -41,10 +46,9 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-009`](backlog/GD-TICKET-009.md) — port the referee, bot and local match, with
-golden replays: the first open M1 item whose dependencies are done. Then `010` (the protocol,
-whose schemas must match the engine's `messages.ts`) and `011` (needs `007` and `010`, and the
-owner's Cloudflare secrets).
+[`GD-TICKET-010`](backlog/GD-TICKET-010.md) — the protocol package, whose schemas must match the
+engine's `messages.ts`: the first open M1 item whose dependencies are done. Then `011` (needs
+`007` and `010`, and the owner's Cloudflare secrets) and `019` (the golden replays in browsers).
 
 ## Standing rules for M1
 
@@ -55,6 +59,9 @@ owner's Cloudflare secrets).
   engine's deliberate differences from it are listed in `GD-TICKET-008`'s Resolution.
 - Run pnpm as `npx -y pnpm@12.8.1 <script>` in a session container (or `corepack enable`).
 - `GD-TICKET-011` pins the Cloudflare packages that were too new for the scaffold.
+- A change to the engine that changes any golden replay is regenerated on purpose
+  (`pnpm --filter @garbage-day/engine golden:update`) in its own commit, saying why (definition
+  of done, project item 1).
 
 ## Verify the baseline
 

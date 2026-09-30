@@ -443,12 +443,15 @@ describe('PlayerSim: the referee’s flow messages', () => {
     expect(h.sim.frozen).toBe(true);
     h.sim.checkResume(180);
     expect(h.sim.frozen).toBe(false);
-    h.sim.onMessage({ type: 'paused' }, 200);
+    h.sim.onMessage(
+      { type: 'paused', by: 1, reason: 'tab', deadline: 7400, pausesLeft: 1, budgeted: true },
+      200,
+    );
     expect(h.sim).toMatchObject({ frozen: true, resumeAt: -1 });
-    h.sim.onMessage({ type: 'resume', at: 400 }, 220);
+    h.sim.onMessage({ type: 'resume', at: 400, by: 1, away: 20, pausesLeft: 1, free: false }, 220);
     h.sim.checkResume(400);
     expect(h.sim.frozen).toBe(false);
-    h.sim.onMessage({ type: 'result', winner: 1, reason: 'topped out' }, 500);
+    h.sim.onMessage({ type: 'result', winner: 1, reason: 'topout', by: 0 }, 500);
     expect(h.sim.frozen).toBe(true);
     expect(h.sim.result?.winner).toBe(1);
   });

@@ -28,8 +28,9 @@ dress" and lists the name among things out of scope, but these still use it:
 - [UI language](../../design/ui-language.md): the clear label "TETRIS" and the stats row's
   "Tetrises";
 - [controls and layout](../../product/controls-and-layout.md) and the PRD: "Tetrises" in the live
-  stats and the results table;
-- [architecture](../../design/architecture.md): the bot's "Tetris-seeking" style.
+  stats and the results table.
+
+(The architecture's "Tetris-seeking" bot style became "four-line-seeking" with `GD-TICKET-009`.)
 
 The engine now reports clears as data (lines, T-spin, back-to-back, combo, perfect clear) and
 counts `fourLineClears`, so only the words change. Which word is the owner's call; the default,

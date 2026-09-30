@@ -5,7 +5,7 @@ description: "Port the proof of concept's MatchDO rules as the engine Referee, i
 resource: "../../design/architecture.md"
 tags: ["backlog", "engine"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M1"
 relationships:
   - type: PART_OF
@@ -52,3 +52,45 @@ Goal: port the referee, bot and local match with golden replays. Read
 `src/engine/test/golden/` with a script to regenerate them on purpose. Run the code gates. Done
 when the criteria hold, the KB gates pass, this item is `done` with a Resolution, the backlog
 index and roadmap agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). New in `src/engine/src/`:
+
+- **`referee.ts`**: `Referee`, ported from the proof of concept's `MatchDO`. It deals, relays,
+  routes garbage through the acknowledgement ledger, stamps power-ups and runs showdowns. It
+  also applies every pause and presence rule: the budget, free reconnects on 5 s of silence,
+  extend, timeout forfeit, 15 s grace with no pauses left, the both-away session timer, leaving,
+  and rejoin with garbage resent. It keeps the Match, Presence and Showdown states. It
+  serializes to a JSON snapshot (`snapshot()` / `Referee.restore()`), and the dealer is rebuilt
+  from the seed. 24 tests, one or more per rule. One of them restores a snapshot taken
+  mid-pause, runs on, and checks the result is identical to the original.
+- **`bot.ts`**: `Bot` and `botConfig(skill, speed)`, with the 1–10 settings as literal tables
+  (no `Math.pow`). Skill 10 / speed 10 beat skill 1 / speed 1 in 10 of 10 seeded matches; the
+  test requires at least 9 (US-03).
+- **`local-match.ts`**: `LocalMatch`, the proof of concept's `Match`: two `PlayerSim`s and a
+  referee over the latency model, headless, with `away`, `back`, `send`, `later` and scripts.
+- **Golden replays** (`golden.test.ts`, files in `src/engine/test/golden/`): 8 seeded bot
+  matches across skill and speed settings, one classic-rules match, and one with every
+  interruption. The last covers a hidden tab with an extension, a dropped connection, a closed
+  and rejoined tab, both players away, and a grace return. Each runs twice and must equal
+  its file: result, tick counts, board hashes, stats, message counts, messages per minute
+  (990–1,720 a minute in bot matches) and the referee's timeline.
+  `pnpm --filter @garbage-day/engine golden:update` regenerates them.
+
+Also: an ESLint rule set enforces the determinism contract in `src/engine/src/`. It forbids the
+clock, `Math.random`, `Math.pow` and the other engine-dependent `Math` functions, and `**`. It is
+proven to fire on a sample file.
+
+Differences from the proof of concept:
+
+- Results carry a reason code (`topout`, `timeout`, `grace`, `left`, `left-while-paused`,
+  `abandoned`) and the player it is about, not a sentence, and the match feed's sentences became
+  typed events. The UI will word them.
+- While paused the referee relays nothing about either board, as the architecture's "hidden
+  boards" says (the proof of concept kept relaying), and on resume it re-sends each player's last
+  lock.
+- The bot's "Tetris-seeking" style is called `fourLine`.
+
+The browser half of M1's exit check (replays identical "in Node and the browser") was carried by
+no item; it is [`GD-TICKET-019`](GD-TICKET-019.md).

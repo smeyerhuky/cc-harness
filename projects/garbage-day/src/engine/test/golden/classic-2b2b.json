@@ -1,0 +1,83 @@
+{
+  "seed": "0x2b2b",
+  "bots": [
+    [
+      7,
+      6
+    ],
+    [
+      7,
+      6
+    ]
+  ],
+  "rules": {
+    "gemChance": 0,
+    "showdowns": []
+  },
+  "scriptsFired": 0,
+  "result": {
+    "winner": 0,
+    "reason": "topout",
+    "by": 1,
+    "activeTicks": 4552,
+    "ticks": 4732
+  },
+  "ticks": 4732,
+  "activeTicks": 4552,
+  "boardHashes": [
+    "d88d3c1e",
+    "c7c9c97b"
+  ],
+  "stats": [
+    {
+      "pieces": 92,
+      "lines": 42,
+      "sent": 18,
+      "received": 14,
+      "cancelled": 3,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 0,
+      "powersGot": 0,
+      "maxCombo": 3,
+      "garbageRows": 11
+    },
+    {
+      "pieces": 96,
+      "lines": 34,
+      "sent": 14,
+      "received": 18,
+      "cancelled": 5,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 0,
+      "powersGot": 0,
+      "maxCombo": 3,
+      "garbageRows": 13
+    }
+  ],
+  "pausesLeft": [
+    2,
+    2
+  ],
+  "reconnectsLeft": [
+    3,
+    3
+  ],
+  "counts": {
+    "in": 1489,
+    "pos": 1089,
+    "hb": 157,
+    "lock": 188,
+    "relayed": 1277
+  },
+  "messagesPerMinute": 1132.8,
+  "timeline": [
+    "0 state {\"from\":\"lobby\",\"to\":\"countdown\"}",
+    "180 state {\"from\":\"countdown\",\"to\":\"playing\"}",
+    "4732 state {\"from\":\"playing\",\"to\":\"over\"}",
+    "4732 result {\"winner\":0,\"reason\":\"topout\",\"by\":1}"
+  ]
+}

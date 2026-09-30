@@ -54,12 +54,14 @@ to build first. → **Owner check-in** (held 2026-09-30: "Continue", every defau
   [`GD-TICKET-007`](backlog/GD-TICKET-007.md)
 - [x] Port the engine core to TypeScript with fixed-point gravity and unit tests —
   [`GD-TICKET-008`](backlog/GD-TICKET-008.md)
-- [ ] Port the referee, bot and local match, with golden replays and a messages-per-minute check —
+- [x] Port the referee, bot and local match, with golden replays and a messages-per-minute check —
   [`GD-TICKET-009`](backlog/GD-TICKET-009.md)
 - [ ] The protocol package with schemas and round-trip tests —
   [`GD-TICKET-010`](backlog/GD-TICKET-010.md)
 - [ ] The app shell deployed: preview per pull request, production on `main` —
   [`GD-TICKET-011`](backlog/GD-TICKET-011.md)
+- [ ] The golden replays run in Chromium, Firefox and WebKit, in CI —
+  [`GD-TICKET-019`](backlog/GD-TICKET-019.md)
 
 **Exit:** a pull request runs every required check green; golden replays give identical hashes on
 two runs and in Node and the browser; the shell is live on a preview URL and in production, opened

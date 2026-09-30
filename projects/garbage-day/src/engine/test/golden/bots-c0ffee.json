@@ -1,0 +1,96 @@
+{
+  "seed": "0xc0ffee",
+  "bots": [
+    [
+      5,
+      5
+    ],
+    [
+      5,
+      5
+    ]
+  ],
+  "rules": "default",
+  "scriptsFired": 0,
+  "result": {
+    "winner": 1,
+    "reason": "topout",
+    "by": 0,
+    "activeTicks": 8380,
+    "ticks": 8560
+  },
+  "ticks": 8560,
+  "activeTicks": 8380,
+  "boardHashes": [
+    "cb343631",
+    "361ead5e"
+  ],
+  "stats": [
+    {
+      "pieces": 149,
+      "lines": 64,
+      "sent": 17,
+      "received": 45,
+      "cancelled": 5,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 2,
+      "powersGot": 3,
+      "maxCombo": 3,
+      "garbageRows": 23
+    },
+    {
+      "pieces": 153,
+      "lines": 64,
+      "sent": 36,
+      "received": 17,
+      "cancelled": 5,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 1,
+      "powersUsed": 9,
+      "powersGot": 10,
+      "maxCombo": 5,
+      "garbageRows": 9
+    }
+  ],
+  "pausesLeft": [
+    2,
+    2
+  ],
+  "reconnectsLeft": [
+    3,
+    3
+  ],
+  "counts": {
+    "in": 2875,
+    "pos": 2196,
+    "hb": 285,
+    "lock": 302,
+    "relayed": 2498
+  },
+  "messagesPerMinute": 1209.1,
+  "timeline": [
+    "0 state {\"from\":\"lobby\",\"to\":\"countdown\"}",
+    "180 state {\"from\":\"countdown\",\"to\":\"playing\"}",
+    "3479 showdown {\"kind\":\"double\",\"phase\":\"soon\"}",
+    "3779 showdown {\"kind\":\"double\",\"phase\":\"start\"}",
+    "3902 power {\"by\":0,\"kind\":\"shield\",\"at\":3914}",
+    "4679 showdown {\"kind\":\"double\",\"phase\":\"end\"}",
+    "4703 power {\"by\":1,\"kind\":\"shield\",\"at\":4715}",
+    "4751 blocked {\"p\":1,\"rows\":2}",
+    "4916 blocked {\"p\":1,\"rows\":1}",
+    "4918 power {\"by\":1,\"kind\":\"rush\",\"at\":4930}",
+    "5289 power {\"by\":1,\"kind\":\"fog\",\"at\":5301}",
+    "5742 power {\"by\":1,\"kind\":\"bomb\",\"at\":5754}",
+    "6327 power {\"by\":1,\"kind\":\"rush\",\"at\":6339}",
+    "6553 power {\"by\":1,\"kind\":\"rush\",\"at\":6565}",
+    "6719 power {\"by\":1,\"kind\":\"fog\",\"at\":6731}",
+    "7117 power {\"by\":1,\"kind\":\"fog\",\"at\":7129}",
+    "7239 power {\"by\":1,\"kind\":\"fog\",\"at\":7251}",
+    "7619 power {\"by\":0,\"kind\":\"bomb\",\"at\":7631}",
+    "8560 state {\"from\":\"playing\",\"to\":\"over\"}",
+    "8560 result {\"winner\":1,\"reason\":\"topout\",\"by\":0}"
+  ]
+}
