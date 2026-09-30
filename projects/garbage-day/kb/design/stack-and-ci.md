@@ -127,9 +127,10 @@ cannot see being used.
 
 - `pnpm audit --audit-level moderate` runs in CI. A finding fails the build unless an exception
   with a reason is recorded in `package.json` (`pnpm.auditConfig.ignoreGhsas`) and in this file.
-- **GitHub dependency review** runs on every pull request and blocks new vulnerable or
-  wrongly-licensed dependencies.
-- **CodeQL** (JavaScript/TypeScript) runs weekly and on pull requests.
+- **GitHub dependency review** runs on every pull request that touches the project and blocks
+  new vulnerable or wrongly-licensed dependencies ([the pipeline](#the-pipeline)).
+- **CodeQL** (JavaScript/TypeScript, no build needed) runs weekly, on pull requests and on
+  pushes that touch `src/`.
 - `minimumReleaseAge` of one day in `pnpm-workspace.yaml` stops a just-published (possibly
   hijacked) version from being installed. `onlyBuiltDependencies` allows install scripts only for
   named packages; the list is empty until `workerd` arrives with the app shell.
@@ -137,21 +138,52 @@ cannot see being used.
 
 ## The pipeline
 
-One workflow, `.github/workflows/garbage-day.yml`, at the repo root, triggered by pushes and pull
-requests that touch `projects/garbage-day/**`.
+Two workflows at the repo root (`GD-TICKET-007`), plus a composite action for the setup every
+code job shares:
+
+| File | Runs on | Jobs |
+|---|---|---|
+| `.github/workflows/garbage-day.yml` | pushes that touch the project (path filter); **every** pull request; manual runs | `changes`, `install`, `lint`, `typecheck`, `test`, `test-worker`, `audit`, `build`, `kb`, `dependency-review`, `garbage-day-ok` |
+| `.github/workflows/garbage-day-codeql.yml` | pushes and pull requests that touch `projects/garbage-day/src/`; weekly (Monday 05:17 UTC); manual runs | `codeql` |
+| `.github/actions/garbage-day-setup/` | used by every code job | pnpm from the `packageManager` pin, Node 24, the pnpm store cached by lockfile hash, `pnpm install --frozen-lockfile` |
 
 ```
-            ┌─ lint (eslint, prettier --check, knip) ─┐
-install ────┼─ typecheck (tsc per package)            ├─► build ─► e2e ─► deploy-preview (PR)
-            ├─ test (vitest: engine, replays, ui) ────┤                └► deploy-production (main)
-            ├─ test-worker (pool-workers) ────────────┤
-            ├─ audit (pnpm audit) ────────────────────┘
-kb ─────────  the repo's KB gates on projects/garbage-day/kb/ and projects/kb/
-dependency-review (PR only) · codeql (PR + weekly)
+          ┌─ install ─┬─ lint (eslint, prettier --check, knip) ─┐
+          │           ├─ typecheck (tsc per package)            ├─► build ─┐
+          │           ├─ test (vitest: engine, replays, ui) ────┤  (e2e, deploy: GD-TICKET-011, M3)
+changes ──┤           ├─ test-worker (pool-workers) ────────────┤          │
+          │           └─ audit (pnpm audit) ────────────────────┘          ├─► garbage-day-ok
+          ├─ kb (the repo's KB gates on projects/garbage-day/kb/ and projects/kb/) ─┤
+          └─ dependency-review (pull requests only) ────────────────────────────────┘
+codeql (its own workflow)
 ```
 
-**Required to merge:** `kb`, `lint`, `typecheck`, `test`, `test-worker`, `audit`, `build`, `e2e`,
-`dependency-review`.
+- **`changes`** decides whether the project was touched. A pull request is compared with its
+  base (`git diff base...head`) against the same paths as the push filter: the project, the
+  projects index, these workflow files, and the kb job's inputs (the gate scripts and
+  `kb/authority/`). Pushes are already path-filtered, and a manual run checks everything. When
+  the project is untouched, every other job is skipped.
+- **`install`** runs once first, so the store is cached before the parallel jobs restore it.
+- **`garbage-day-ok`** needs every job, runs even when one fails, and fails if any failed or was
+  cancelled; skipped jobs count as passing.
+- **Least privilege:** the workflows grant `contents: read` and nothing else, except CodeQL's
+  job, which adds `security-events: write` and `actions: read`. Checkouts don't keep the token
+  (`persist-credentials: false`). Every action is pinned to a full commit SHA with its version
+  in a comment, and Renovate updates those pins as well (`renovate.json`'s `includePaths` covers
+  these files).
+- **Dependency review** fails on a new dependency with a moderate or worse advisory, or under a
+  GPL, AGPL or SSPL licence (the repo is MIT, and the client ships to browsers).
+
+**Required to merge: `garbage-day-ok`**, and only it. Pull requests are not path-filtered for
+this reason: GitHub waits forever for a required check from a workflow that never starts, so a
+path-filtered required check would block every pull request for the repo's other projects. One
+summary check also means adding a job (e2e in M3) never touches the repository's settings.
+CodeQL is left out of the required checks: its findings appear on the pull request as code
+scanning alerts.
+
+**The owner must set this up; an agent session cannot:** in the repository's settings, add a
+branch ruleset (or branch protection) for `main` that requires the status check
+`garbage-day-ok`. Renovate's automatic patch merges wait for it too.
 
 ## Deployment
 

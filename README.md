@@ -15,6 +15,8 @@ cc-harness/
 │       └── okf-wikify/            # OKF deep-wiki skill
 │       └── scad-design-to-print/  # SCAD Design to Print skill
 │
+├── .github/                       # CI: one workflow set per project with code (Garbage Day so far)
+│
 ├── kb/                            # Repository-wide knowledge base (OKF bundle)
 │   ├── CLAUDE.md                  # Governs the repo-wide KB
 │   ├── pdlc/                      # The PDLC method: how work is planned and recorded

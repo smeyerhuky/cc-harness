@@ -20,23 +20,27 @@ history lives in the [running journal](journal/index.md).
   check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
   new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
-- **Landed recently:** the workspace scaffold, [`GD-TICKET-006`](backlog/GD-TICKET-006.md)
-  ([journal entry](journal/2026-09-30-scaffold.md)): a pnpm workspace in `src/` with the
-  `engine`, `protocol`, `ui` and `app` packages, the pinned stack, lint, typecheck, tests, build,
-  a clean audit, and `renovate.json` at the repo root. Before that, the design session
-  ([journal entry](journal/2026-09-30-design.md)).
+- **Landed recently** ([journal entry](journal/2026-09-30-scaffold.md)):
+  - the workspace scaffold, [`GD-TICKET-006`](backlog/GD-TICKET-006.md): a pnpm workspace in
+    `src/` with the `engine`, `protocol`, `ui` and `app` packages, the pinned stack, lint,
+    typecheck, tests, build, a clean audit, and `renovate.json` at the repo root;
+  - CI, [`GD-TICKET-007`](backlog/GD-TICKET-007.md): `.github/workflows/garbage-day.yml` and
+    `garbage-day-codeql.yml`, green on the branch and on pull request #10 (opened by the owner);
+    `garbage-day-ok` is the one check to require.
+  Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:** installing the Renovate GitHub app on the repository (until then
-  `renovate.json` is inert); later, for `GD-TICKET-011`, the `CLOUDFLARE_API_TOKEN` and
-  `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+  `renovate.json` is inert); a ruleset or branch protection on `main` requiring the
+  `garbage-day-ok` check ([the pipeline](../design/stack-and-ci.md#the-pipeline)); later, for
+  `GD-TICKET-011`, the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the
-  [code gates](../design/stack-and-ci.md#code-gates) — all pass.
+  [code gates](../design/stack-and-ci.md#code-gates) — all pass, locally and in CI.
 
 ## Immediate next step
 
-[`GD-TICKET-007`](backlog/GD-TICKET-007.md) — the GitHub Actions workflow with the required
-checks, dependency review and CodeQL: the first open M1 item whose dependencies are done. After it,
-`GD-TICKET-008` and `010` (each needs only `006`), then `009` (needs `008`) and `011` (needs
-`007` and `010`).
+[`GD-TICKET-008`](backlog/GD-TICKET-008.md) — port the engine core to TypeScript with
+fixed-point gravity: the first open M1 item whose dependencies are done. Then `010` (needs only
+`006`), `009` (needs `008`) and `011` (needs `007` and `010`, and the owner's Cloudflare
+secrets).
 
 ## Standing rules for M1
 

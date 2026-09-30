@@ -50,7 +50,7 @@ to build first. → **Owner check-in** (held 2026-09-30: "Continue", every defau
 
 - [x] Scaffold the pnpm workspace with the pinned stack, lint, format, typecheck, Knip, Renovate,
   `minimumReleaseAge` and a clean audit — [`GD-TICKET-006`](backlog/GD-TICKET-006.md)
-- [ ] The GitHub Actions workflow with the required checks, dependency review and CodeQL —
+- [x] The GitHub Actions workflow with the required checks, dependency review and CodeQL —
   [`GD-TICKET-007`](backlog/GD-TICKET-007.md)
 - [ ] Port the engine core to TypeScript with fixed-point gravity and unit tests —
   [`GD-TICKET-008`](backlog/GD-TICKET-008.md)

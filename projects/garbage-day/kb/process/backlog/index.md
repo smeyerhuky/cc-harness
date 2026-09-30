@@ -34,7 +34,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 *M1 — Foundations (part of GD-EPIC-001):*
 
 - [GD-TICKET-006](GD-TICKET-006.md) — Scaffold the pnpm workspace with the pinned stack · done
-- [GD-TICKET-007](GD-TICKET-007.md) — Add the GitHub Actions pipeline · active
+- [GD-TICKET-007](GD-TICKET-007.md) — Add the GitHub Actions pipeline · done
 - [GD-TICKET-008](GD-TICKET-008.md) — Port the engine core to TypeScript · open
 - [GD-TICKET-009](GD-TICKET-009.md) — Port the referee, bot and local match, with golden replays · open
 - [GD-TICKET-010](GD-TICKET-010.md) — Build the protocol package · open
