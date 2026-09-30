@@ -4,8 +4,9 @@ Garbage Day is a two-player, real-time falling-block versus game (a Tetris-style
 
 ## Getting started
 
-M1 (foundations) is under way: the engine, the protocol and an app shell exist, but there is no
-playable game in the browser yet. With Node 22.22 or newer, from `projects/garbage-day/`:
+M1 (foundations) is complete: the engine, the protocol and an app shell exist, and the shell is
+live at <https://garbage-day.smeyerhuky.workers.dev>. There is no playable game in the browser
+yet; M2 adds local play against a bot. With Node 22.22 or newer, from `projects/garbage-day/`:
 
 ```
 corepack enable            # or prefix every command with: npx pnpm@12.8.1

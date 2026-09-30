@@ -16,9 +16,11 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M1 — Foundations — **active, every item done**; its exit is next
-  ([roadmap](roadmap.md)). The shell is live in production at
-  `https://garbage-day.smeyerhuky.workers.dev`, confirmed by the owner. M0 closed at its owner
+- **Milestone:** M1 — Foundations — **exit met; the owner check-in is open**
+  ([roadmap](roadmap.md), [the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live
+  in production at `https://garbage-day.smeyerhuky.workers.dev`, confirmed by the owner. The
+  coverage audit ran ([sweep of the M1 exit](coverage-audit.md): 2 gaps filed), and M2 is minted:
+  8 stories and 5 tickets, 2 of them the audit's. M0 closed at its owner
   check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
   new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
@@ -51,7 +53,9 @@ history lives in the [running journal](journal/index.md).
     skips upstream ([lessons](../../../../kb/lessons/index.md)). Pull requests #10 and #11 are
     merged.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
-- **Waiting on the owner:** nothing until the M1 check-in. Settled on 2026-09-30:
+- **Waiting on the owner:** the M1 check-in's three decisions (start M2; the Cloudflare update
+  first; a pull request for these records), and replacing the Cloudflare token before 2026-12-29
+  ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)). Settled on 2026-09-30:
   - the Cloudflare secrets (the token expires 2026-12-29: rotate it before then);
   - the Renovate GitHub app, reading `renovate.json` from `main`;
   - the `main-protect` ruleset, requiring `garbage-day-ok` from GitHub Actions with branches up
@@ -61,11 +65,12 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-M1's exit: every item is done and each exit criterion holds (every required check green on
-pull requests #10 and #11; golden replays identical twice and in Node, Chromium, Firefox and
-WebKit; the shell opened by the owner on a preview and in production). Apply the milestone tier
-of the [definition of done](definition-of-done.md) (coverage audit, metadata, minting M2), ending
-with the owner check-in.
+Get the owner's answers to the [M1 check-in](journal/2026-09-30-scaffold.md#next) and record
+them (an unanswered decision keeps its default). On the go-ahead, mark M1 `done` in the roadmap,
+set `version.json`'s milestone to M2, and start the item the
+[rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks:
+[`GD-TICKET-023`](backlog/GD-TICKET-023.md), the `ui` commons, or
+[`GD-TICKET-021`](backlog/GD-TICKET-021.md) if the owner moves it first.
 
 ## Standing rules for M1
 
