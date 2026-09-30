@@ -5,7 +5,7 @@ description: "Run the engine's golden replays in Chromium, Firefox and WebKit th
 resource: "../journal/2026-09-30-scaffold.md"
 tags: ["backlog", "engine", "ci"]
 timestamp: "2026-09-30"
-state: "active"
+state: "done"
 milestone: "M1"
 relationships:
   - type: PART_OF
@@ -53,3 +53,22 @@ reading golden files in the browser may need the test to import them instead of
 `toMatchFileSnapshot`. Add a `test-browser` CI job that `garbage-day-ok` needs. Run the code
 gates. Done when the criteria hold, the KB gates pass, this item is `done` with a Resolution, the
 backlog index and roadmap agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md).
+`src/engine/vitest.browser.config.ts` runs `golden.test.ts`, unchanged and against the same
+golden files, in real browsers through Vitest's browser mode (`@vitest/browser-playwright`
+4.1.11, matching the held-back Vitest) and Playwright 1.63.0 (the version M3's end-to-end tests
+will use). `pnpm test:browser` runs it. CI's `test-browser` job installs Chromium, Firefox and
+WebKit and is one of the jobs `garbage-day-ok` needs.
+
+On `c0ebc84`, CI ran all ten golden replays green in each browser: `engine-browser (chromium)`,
+`(webkit)` and `(firefox)`, 30 tests, the match hashes identical to Node's. The determinism
+contract holds in V8, SpiderMonkey and JavaScriptCore. Locally, where only a Chromium is
+installed, `GD_BROWSERS=chromium PW_CHROMIUM=<path>` runs one browser. Changing one golden hash
+made exactly that replay fail, which proves the browser run compares against the files.
+
+Found on the way and fixed here: declared in the engine package, the browser packages made pnpm
+build a second Vitest, which broke the Worker tests in CI (`e528a5c`). They are root development
+dependencies now, and [stack and CI](../../design/stack-and-ci.md#workspace-layout) says why.

@@ -10,8 +10,8 @@ Each entry follows the [running-journal entry template](../../../../../kb/pdlc/t
   (`GD-TICKET-006`); CI workflows green, with one required check (`GD-TICKET-007`); the engine
   core ported and checked against the proof of concept (`GD-TICKET-008`); referee, bot, local
   match and ten golden replays (`GD-TICKET-009`); the protocol package (`GD-TICKET-010`); the
-  app shell and deploy jobs, verified locally (`GD-TICKET-011`, blocked on the owner);
-  `GD-TICKET-018` and `019` filed.
+  app shell and deploy jobs, verified locally (`GD-TICKET-011`, blocked on the owner); golden
+  replays green in Chromium, Firefox and WebKit (`GD-TICKET-019`); `GD-TICKET-018` filed.
 * [2026-09-30 — Garbage Day design and M0 exit](2026-09-30-design.md) — the proof of concept as
   `GD-SPIKE-001`; four design files (`GD-TICKET-002`–`005`); M1–M5 planned, M1 minted; coverage
   audit with six gaps filed (`GD-TICKET-012`–`017`).

@@ -16,7 +16,8 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M1 — Foundations — **active** ([roadmap](roadmap.md)). M0 closed at its owner
+- **Milestone:** M1 — Foundations — **active**, every item done but
+  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), which is blocked on the owner ([roadmap](roadmap.md)). M0 closed at its owner
   check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
   new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
@@ -34,8 +35,8 @@ history lives in the [running journal](journal/index.md).
   - the referee, bot and local match, [`GD-TICKET-009`](backlog/GD-TICKET-009.md): every pause
     and presence rule, snapshots, bots with skill and speed 1–10, and ten golden replays in
     `src/engine/test/golden/`; an ESLint guard for the determinism contract;
-  - [`GD-TICKET-019`](backlog/GD-TICKET-019.md) filed for M1: the golden replays in Chromium,
-    Firefox and WebKit, the browser half of M1's exit check;
+  - the golden replays in Chromium, Firefox and WebKit,
+    [`GD-TICKET-019`](backlog/GD-TICKET-019.md): green in CI, the same hashes as Node;
   - the protocol, [`GD-TICKET-010`](backlog/GD-TICKET-010.md): schemas for every message, the
     codec (engine shapes ↔ wire), a board encoding of at most 161 bytes, settings, and a
     typecheck test that keeps the protocol and the engine's types in agreement;
@@ -56,9 +57,12 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-019`](backlog/GD-TICKET-019.md) — run the golden replays in Chromium, Firefox and
-WebKit: the only M1 item not done or blocked. `011` resumes when the owner has added the
-Cloudflare secrets. M1's exit needs both.
+Nothing in M1 can move without the owner. When the Cloudflare secrets exist, resume
+[`GD-TICKET-011`](backlog/GD-TICKET-011.md): check that CI's `deploy-preview` published a preview
+and commented its URL, fix the job if the open-beta `wrangler preview` needs it, and get the
+owner's confirmation of the preview and, after a merge to `main`, the production URL. Then M1's
+exit: the milestone tier of the definition of done (coverage audit, metadata, minting M2), ending
+with the owner check-in.
 
 ## Standing rules for M1
 
