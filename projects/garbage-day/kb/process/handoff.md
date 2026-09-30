@@ -16,9 +16,9 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M1 — Foundations — **active**, every item done but
-  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), active: the owner confirmed the preview shows
-  "Server ready"; production deploys when pull request #10 merges ([roadmap](roadmap.md)). M0 closed at its owner
+- **Milestone:** M1 — Foundations — **active, every item done**; its exit is next
+  ([roadmap](roadmap.md)). The shell is live in production at
+  `https://garbage-day.smeyerhuky.workers.dev`, confirmed by the owner. M0 closed at its owner
   check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
   new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
@@ -43,36 +43,28 @@ history lives in the [running journal](journal/index.md).
   - the protocol, [`GD-TICKET-010`](backlog/GD-TICKET-010.md): schemas for every message, the
     codec (engine shapes ↔ wire), a board encoding of at most 161 bytes, settings, and a
     typecheck test that keeps the protocol and the engine's types in agreement;
-  - the app shell, [`GD-TICKET-011`](backlog/GD-TICKET-011.md) (**waiting on the owner**): the
-    Worker with `LobbyDO` and `MatchDO`, the React page, Worker tests in workerd, verified locally
-    with `vite dev` and `vite preview`; CI jobs for a Worker Preview per pull request, production
-    on `main`, and preview cleanup. The first preview is live at
-    `https://pr-10-garbage-day.smeyerhuky.workers.dev`. Getting it there took the account's
-    `workers.dev` subdomain, a fix to the job's JSON parsing, and the Durable Object bindings
-    declared again for previews, which inherit none
-    ([lessons](../../../../kb/lessons/worker-previews-in-ci.md)).
+  - the app shell, [`GD-TICKET-011`](backlog/GD-TICKET-011.md) (**done**): the Worker with
+    `LobbyDO` and `MatchDO`, the React page, Worker tests in workerd; a Worker Preview per pull
+    request, production on `main` (live, "Server ready · production"), and preview cleanup.
+    Getting there took the account's `workers.dev` subdomain, a fix to the job's JSON parsing,
+    the Durable Object bindings declared again for previews, and deploy conditions that ignore
+    skips upstream ([lessons](../../../../kb/lessons/index.md)). Pull requests #10 and #11 are
+    merged.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
-- **Waiting on the owner:**
-  - for `GD-TICKET-011`: merging the pull request with the deploy-condition fix (pull request
-    #10 merged, but it skipped `deploy-production`), then opening
-    `https://garbage-day.smeyerhuky.workers.dev` and saying whether it shows "Server ready ·
-    production" (the preview was confirmed 2026-09-30; the token expires 2026-12-29);
-  - (the Renovate GitHub app is installed as of 2026-09-30; its first run reads `renovate.json`
-    from `main`, so it takes effect after the merge);
-  - (the `main-protect` ruleset requires `garbage-day-ok` from GitHub Actions, with branches up
-    to date, as of 2026-09-30, checked through the API;
-    [the pipeline](../design/stack-and-ci.md#the-pipeline)).
+- **Waiting on the owner:** nothing until the M1 check-in. Settled on 2026-09-30:
+  - the Cloudflare secrets (the token expires 2026-12-29: rotate it before then);
+  - the Renovate GitHub app, reading `renovate.json` from `main`;
+  - the `main-protect` ruleset, requiring `garbage-day-ok` from GitHub Actions with branches up
+    to date, checked through the API ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the
   [code gates](../design/stack-and-ci.md#code-gates) — all pass, locally and in CI.
 
 ## Immediate next step
 
-[`GD-TICKET-011`](backlog/GD-TICKET-011.md): pull request #10 is merged, but it skipped
-`deploy-production` (a skipped job upstream). After the owner merges the fix, check that
-`deploy-production` passed on `main`. It is the first production deploy, so watch that migration
-`v1` applies to production as it did to the preview. Get the owner's confirmation of the
-production URL, then close the item with a Resolution. Then M1's
-exit: the milestone tier of the definition of done (coverage audit, metadata, minting M2), ending
+M1's exit: every item is done and each exit criterion holds (every required check green on
+pull requests #10 and #11; golden replays identical twice and in Node, Chromium, Firefox and
+WebKit; the shell opened by the owner on a preview and in production). Apply the milestone tier
+of the [definition of done](definition-of-done.md) (coverage audit, metadata, minting M2), ending
 with the owner check-in.
 
 ## Standing rules for M1

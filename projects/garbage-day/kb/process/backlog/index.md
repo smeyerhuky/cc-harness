@@ -38,7 +38,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-008](GD-TICKET-008.md) — Port the engine core to TypeScript · done
 - [GD-TICKET-009](GD-TICKET-009.md) — Port the referee, bot and local match, with golden replays · done
 - [GD-TICKET-010](GD-TICKET-010.md) — Build the protocol package · done
-- [GD-TICKET-011](GD-TICKET-011.md) — Deploy the app shell with preview and production pipelines · active
+- [GD-TICKET-011](GD-TICKET-011.md) — Deploy the app shell with preview and production pipelines · done
 - [GD-TICKET-019](GD-TICKET-019.md) — Run the golden replays in real browsers · done
 - [GD-TICKET-020](GD-TICKET-020.md) — Run the browser replays in Playwright's container image · done
 

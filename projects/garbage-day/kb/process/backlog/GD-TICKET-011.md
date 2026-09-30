@@ -5,7 +5,7 @@ description: "Stand up the app package (a React shell page, the Worker serving s
 resource: "../../design/stack-and-ci.md"
 tags: ["backlog", "deploy"]
 timestamp: "2026-09-30"
-state: "active"
+state: "done"
 milestone: "M1"
 relationships:
   - type: PART_OF
@@ -125,3 +125,30 @@ Found on the way, fixed inside this item and recorded in
   setting was being ignored. It is now `allowBuilds: { esbuild, workerd }`.
 - **Audit.** Wrangler's miniflare pinned `undici` 7.29.0, with ten advisories. A recorded override
   sets 7.29.1 until Wrangler 4.143.1 or later is in.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). The shell is live in
+production at `https://garbage-day.smeyerhuky.workers.dev`, deployed by `deploy-production` on
+the merge of pull request #11 (`92d5c13`, version `8336d700`). The owner opened it and sent a
+screenshot showing "Server ready · production · protocol 1", both Durable Objects answering. The
+preview for pull request #10, `https://pr-10-garbage-day.smeyerhuky.workers.dev`, showed "Server
+ready · preview · protocol 1" ("success 🍷"). Both checks were made on 2026-09-30.
+
+What landed: the Worker, both Durable Objects with migration `v1`, the shell page and the Worker
+tests (`bfe58bf`); the deploy and cleanup jobs; and the fixes the first real deploys needed, all
+listed under Progress (`0d9d095`, `047b152`, `8848350`, `8688a14`). Pull requests #10
+(`b889932`) and #11 (`92d5c13`) carried them to `main`.
+
+Deviations from the criteria, each recorded in [stack and CI](../../design/stack-and-ci.md#deployment):
+
+- **Previews are Worker Previews, not `wrangler versions upload`**, which gives no URL for a
+  Worker with Durable Objects. A preview inherits no bindings, so the `previews` block repeats
+  them, and `src/app/test/wrangler-config.test.ts` keeps the two in step.
+- **The deploy jobs run on `!cancelled() && needs.garbage-day-ok.result == 'success'`.** The
+  implicit `success()` let a skipped `dependency-review` skip the first production deploy.
+- **Two owner steps the item didn't foresee:** creating the account's `workers.dev` subdomain
+  (code 10063), and adding `garbage-day-ok` to the `main-protect` ruleset.
+
+Three repo lessons came out of it: `/kb/lessons/first-deploy-new-account.md`,
+`worker-previews-in-ci.md` and `skipped-job-skips-deploy.md`.

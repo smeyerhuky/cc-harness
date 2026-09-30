@@ -20,7 +20,7 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 | Milestone | Goal | State |
 |---|---|---|
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
-| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | active — `GD-TICKET-011` preview confirmed; production on the deploy-fix merge |
+| **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | active — every item done; the milestone exit is next |
 | **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | planned |
 | **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
@@ -58,7 +58,7 @@ to build first. → **Owner check-in** (held 2026-09-30: "Continue", every defau
   [`GD-TICKET-009`](backlog/GD-TICKET-009.md)
 - [x] The protocol package with schemas and round-trip tests —
   [`GD-TICKET-010`](backlog/GD-TICKET-010.md)
-- [ ] The app shell deployed: preview per pull request, production on `main` —
+- [x] The app shell deployed: preview per pull request, production on `main` —
   [`GD-TICKET-011`](backlog/GD-TICKET-011.md)
 - [x] The golden replays run in Chromium, Firefox and WebKit, in CI —
   [`GD-TICKET-019`](backlog/GD-TICKET-019.md)
