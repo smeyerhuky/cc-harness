@@ -21,7 +21,7 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 |---|---|---|
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
 | **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | done |
-| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | active — `GD-TICKET-021` first |
+| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | active |
 | **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
 | **M5** — Launch | Verified on real devices and networks, within budget, deployed to production | planned |
@@ -93,7 +93,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 - [ ] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
 - [ ] Name the four-row clear without the Tetris name ("Quad", the owner's choice) —
   [`GD-TICKET-018`](backlog/GD-TICKET-018.md)
-- [ ] The next Cloudflare tooling set, and the `undici` override deleted —
+- [x] The next Cloudflare tooling set, and the `undici` override deleted —
   [`GD-TICKET-021`](backlog/GD-TICKET-021.md)
 - [ ] The Cloudflare API token replaced before it expires on 2026-12-29 —
   [`GD-TICKET-022`](backlog/GD-TICKET-022.md)

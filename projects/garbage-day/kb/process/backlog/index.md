@@ -44,7 +44,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 
 *M2 — Play solo (part of GD-EPIC-001; minted at the M1 exit; the owner put `GD-TICKET-021` first):*
 
-- [GD-TICKET-021](GD-TICKET-021.md) — Take the next Cloudflare tooling set and delete the undici override · active
+- [GD-TICKET-021](GD-TICKET-021.md) — Take the next Cloudflare tooling set and delete the undici override · done
 - [GD-TICKET-023](GD-TICKET-023.md) — Build the ui commons: tokens, primitives, game widgets and hooks · open
 - [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · open
 - [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · open
