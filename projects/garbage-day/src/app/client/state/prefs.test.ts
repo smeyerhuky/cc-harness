@@ -56,6 +56,9 @@ describe('usePrefs', () => {
         bindings: DEFAULT_BINDINGS,
         dasMs: 167,
         arrMs: 33,
+        gestures: true,
+        sensitivity: 1,
+        pad: false,
       },
       version: 1,
     });
@@ -144,5 +147,36 @@ describe('safeStorage', () => {
     expect(safeStorage.getItem('k')).toBe('v');
     void safeStorage.removeItem('k');
     expect(safeStorage.getItem('k')).toBeNull();
+  });
+});
+
+describe('touch preferences', () => {
+  it('start with gestures on, sensitivity 100%, and no pad', () => {
+    expect(usePrefs.getState()).toMatchObject({ gestures: true, sensitivity: 1, pad: false });
+  });
+
+  it('turning gestures off turns the pad on; turning them back on leaves the pad', () => {
+    usePrefs.getState().setGestures(false);
+    expect(usePrefs.getState()).toMatchObject({ gestures: false, pad: true });
+    usePrefs.getState().setGestures(true);
+    expect(usePrefs.getState()).toMatchObject({ gestures: true, pad: true });
+    usePrefs.getState().setPad(false);
+    expect(usePrefs.getState().pad).toBe(false);
+  });
+
+  it('keeps sensitivity on its steps from 50% to 200%', () => {
+    usePrefs.getState().setSensitivity(1.75);
+    usePrefs.getState().setSensitivity(3);
+    usePrefs.getState().setSensitivity(1.1);
+    expect(usePrefs.getState().sensitivity).toBe(1.75);
+  });
+
+  it('reads them back, and drops broken ones', async () => {
+    localStorage.setItem(
+      PREFS_KEY,
+      JSON.stringify({ state: { gestures: false, sensitivity: 0.5, pad: 'yes' }, version: 1 }),
+    );
+    await usePrefs.persist.rehydrate();
+    expect(usePrefs.getState()).toMatchObject({ gestures: false, sensitivity: 0.5, pad: false });
   });
 });

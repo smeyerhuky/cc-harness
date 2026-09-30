@@ -32,6 +32,10 @@ export class InputController implements Controller {
   private first = false;
   /** A direction pressed and released between two ticks still moves once. */
   private tap: -1 | 0 | 1 = 0;
+  /** Column steps from a touch drag, one per tick, in order. */
+  private readonly nudges: (-1 | 1)[] = [];
+  /** Rows a touch drag has pulled the piece down since the last tick. */
+  private rows = 0;
   private das = toTicks(DEFAULT_TIMING.dasMs);
   private arr = toTicks(DEFAULT_TIMING.arrMs);
 
@@ -62,6 +66,21 @@ export class InputController implements Controller {
     }
   }
 
+  /** A one-off press, as a tap or a pad button's click: rotate, hold, hard drop, power-up. */
+  press(a: Exclude<Action, 'left' | 'right' | 'soft'>): void {
+    this.pressed.add(a);
+  }
+
+  /** One column, from a touch drag; several within a tick move on the ticks after it. */
+  nudge(dx: -1 | 1): void {
+    this.nudges.push(dx);
+  }
+
+  /** Rows down, from a touch drag, applied on the next tick. */
+  drop(rows: number): void {
+    if (rows > 0) this.rows += rows;
+  }
+
   /** Forgets everything held or pressed: on blur, and when a match starts or resumes. */
   reset(): void {
     this.held.clear();
@@ -69,17 +88,27 @@ export class InputController implements Controller {
     this.dir = 0;
     this.first = false;
     this.tap = 0;
+    this.nudges.length = 0;
+    this.rows = 0;
   }
 
   /** Whether a press or a new direction is waiting for the next tick. */
   hasPending(): boolean {
-    return this.pressed.size > 0 || this.first || this.tap !== 0;
+    return (
+      this.pressed.size > 0 ||
+      this.first ||
+      this.tap !== 0 ||
+      this.nudges.length > 0 ||
+      this.rows > 0
+    );
   }
 
   tick(): Input {
     const p = this.pressed;
     let dx: -1 | 0 | 1 = 0;
-    if (this.tap) {
+    const nudge = this.nudges.shift();
+    if (nudge) dx = nudge;
+    else if (this.tap) {
       // A tap moves first; a direction pressed or still held moves on the next tick.
       dx = this.tap;
       this.tap = 0;
@@ -101,7 +130,9 @@ export class InputController implements Controller {
       power: p.has('power'),
       soft: this.held.has('soft'),
       dx,
+      drop: this.rows,
     };
+    this.rows = 0;
     p.clear();
     return input;
   }

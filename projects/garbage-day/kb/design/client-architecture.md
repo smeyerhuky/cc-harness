@@ -163,7 +163,15 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   [controls and layout](../product/controls-and-layout.md#touch-gestures) with Pointer Events on
   the `TouchSurface`: axis lock after 12 px, a column per cell of horizontal travel, tap to rotate
   (left third counter-clockwise), slow drag to soft-drop, flick to hard-drop, swipe up to hold.
-- `ButtonPad` is the optional on-screen pad; it feeds the same controller.
+  The table itself is `GestureRecognizer`, a pure class fed positions and times, which the tests
+  drive row by row.
+- Gestures reach the engine through the same controller as keys: `nudge` for a column (queued,
+  one per tick, so a fast swipe loses none), `drop` for rows down (the engine's `Input.drop`,
+  which moves the piece down that many rows at once and stops where it lands), and `press` for
+  the one-off actions.
+- `ButtonPad` is the optional on-screen pad; it feeds the same controller, with keys held as
+  keys are. `TouchControls` puts the pad, or the round power-up button on a touch screen, in the
+  match screen's footer.
 
 ## Testing the client
 

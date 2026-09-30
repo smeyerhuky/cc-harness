@@ -24,9 +24,10 @@ history lives in the [running journal](journal/index.md).
   [`GD-STORY-003`](backlog/GD-STORY-003.md) (rebinding and the repeat timings) are done
   ([roadmap](roadmap.md)), merged in pull request #13 and live in production, and so is
   [`GD-TICKET-018`](backlog/GD-TICKET-018.md) (a four-row clear is a **Quad**). The owner asked
-  for the rest of M2 in this order: [`GD-STORY-002`](backlog/GD-STORY-002.md) (done: the fight on
-  screen, in pull request #14), then [`GD-STORY-004`](backlog/GD-STORY-004.md) (active) with
-  `015`, `005`, `006`, `008` and `024`. M1 closed at its owner
+  for the rest of M2 in this order: [`GD-STORY-002`](backlog/GD-STORY-002.md) and
+  [`GD-STORY-004`](backlog/GD-STORY-004.md) with `015` (done: the fight and touch play, in pull
+  request #14), then [`GD-STORY-005`](backlog/GD-STORY-005.md) (active), `006`, `008` and
+  `024`. M1 closed at its owner
   check-in on 2026-09-30: "let's go", every default approved
   ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
   `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
@@ -75,10 +76,11 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-STORY-004`](backlog/GD-STORY-004.md) with [`GD-TICKET-015`](backlog/GD-TICKET-015.md), touch
-play and its feedback (active), then [`GD-STORY-005`](backlog/GD-STORY-005.md), the layouts,
-which takes over the phone portrait issues `GD-STORY-002` recorded. Pull request #14 (the fight)
-waits for the owner; work pushed before it merges joins it.
+[`GD-STORY-005`](backlog/GD-STORY-005.md), screens that fit (active): desktop filling the window
+with the feed at 1600 px, phone portrait and landscape, wake lock; it takes over the phone
+portrait issues `GD-STORY-002` recorded (a small board, labels spilling past the rival's board,
+stats wrapping). Pull request #14 (the fight and touch play) waits for the owner; work pushed
+before it merges joins it.
 
 ## Standing rules for M1
 

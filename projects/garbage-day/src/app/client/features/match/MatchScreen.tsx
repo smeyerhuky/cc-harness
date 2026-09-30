@@ -10,6 +10,7 @@ import { usePrefs } from '../../state/prefs';
 import { AttackLayer } from './AttackLayer';
 import { CentreColumn, MatchBanner, OpponentPanel, PlayerPanel } from './Panels';
 import { ResultCard } from './ResultCard';
+import { TouchControls } from './TouchControls';
 import { useMatchSound } from './useMatchSound';
 import styles from './Match.module.css';
 
@@ -58,6 +59,7 @@ export function MatchScreen() {
       <InputContext value={input}>
         <ScreenFrame
           locked
+          footer={<TouchControls />}
           header={
             <div className={styles.header}>
               <span className={styles.names}>

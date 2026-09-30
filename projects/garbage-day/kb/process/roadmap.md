@@ -79,7 +79,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
   [`GD-STORY-002`](backlog/GD-STORY-002.md)
 - [x] Keyboard controls with rebinding and DAS/ARR settings (US-16) —
   [`GD-STORY-003`](backlog/GD-STORY-003.md)
-- [ ] Touch gestures per the gesture table, the optional button pad, haptics (US-17) —
+- [x] Touch gestures per the gesture table, the optional button pad, haptics (US-17) —
   [`GD-STORY-004`](backlog/GD-STORY-004.md)
 - [ ] Desktop layout including the match feed at ≥ 1600 px, phone portrait and landscape, no
   scrolling during a match, wake lock (US-18, US-19) — [`GD-STORY-005`](backlog/GD-STORY-005.md)
@@ -90,7 +90,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 - [ ] Reduced motion, sound toggle, keyboard operability, axe scan (US-20); the developer overlay
   — [`GD-STORY-008`](backlog/GD-STORY-008.md), [`GD-TICKET-024`](backlog/GD-TICKET-024.md)
 - [x] App flow machine, routes and contexts — [`GD-TICKET-014`](backlog/GD-TICKET-014.md)
-- [ ] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
+- [x] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
 - [x] Name the four-row clear without the Tetris name ("Quad", the owner's choice) —
   [`GD-TICKET-018`](backlog/GD-TICKET-018.md)
 - [x] The next Cloudflare tooling set, and the `undici` override deleted —

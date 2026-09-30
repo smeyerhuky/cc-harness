@@ -37,8 +37,9 @@ function play(sfx: Sfx, e: MatchEffect): void {
 }
 
 /**
- * The match's sounds, while sound is on (off until the player turns it on, US-20), and a
- * vibration when garbage lands on the player's board, where the device supports it (US-08).
+ * The match's sounds, while sound is on (off until the player turns it on, US-20), and short
+ * vibrations where the device supports them: a lock, and garbage landing on the player's board
+ * (US-08, US-17; a hard drop's is the touch controls').
  * Returns the synth, for the result's fanfare.
  */
 export function useMatchSound(session: MatchSession): (name: 'win' | 'lose') => void {
@@ -47,6 +48,7 @@ export function useMatchSound(session: MatchSession): (name: 'win' | 'lose') => 
   const vibrate = useHaptics(true);
   useEffect(() => () => sfx.close(), [sfx]);
   useMatchEffect(session, (e) => {
+    if (e.kind === 'lock' && e.p === 0) vibrate(HAPTICS.lock);
     if (e.kind === 'land' && e.p === 0) vibrate(HAPTICS.garbage);
     if (sound) play(sfx, e);
   });

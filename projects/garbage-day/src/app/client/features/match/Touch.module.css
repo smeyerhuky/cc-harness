@@ -1,0 +1,87 @@
+/* The player's board as a touch surface: it takes every touch, so nothing scrolls or zooms. */
+.surface {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  overflow: hidden;
+}
+/* Touch feedback (UI language): faint, short, and gone under reduced motion. */
+.arrow,
+.arc {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font: 800 28px / 1 var(--font-data);
+  color: rgb(233 236 231 / 0.55);
+  pointer-events: none;
+  animation: fade 0.45s ease-out forwards;
+}
+.arc {
+  font-size: 34px;
+}
+.left {
+  margin-left: -26px;
+}
+.right {
+  margin-left: 26px;
+}
+.streak {
+  position: absolute;
+  top: 35%;
+  width: 6px;
+  height: 45%;
+  margin-left: -3px;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, rgb(233 236 231 / 0), rgb(233 236 231 / 0.45));
+  pointer-events: none;
+  animation: fade 0.3s ease-out forwards;
+}
+@keyframes fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* The on-screen pad: two rows of big buttons in thumb reach. */
+.pad {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 4px 0;
+}
+.key {
+  min-height: 52px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: 700 var(--fs-16) / 1 var(--font-body);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.key[data-held] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+/* The round power-up button, in thumb reach, only while one is banked. */
+.power {
+  display: flex;
+  justify-content: flex-end;
+}
+.powerButton {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--hazard);
+  background: var(--cabinet);
+  touch-action: none;
+}

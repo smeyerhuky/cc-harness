@@ -5,7 +5,7 @@ description: "The match layouts: on wide screens both boards fill the window's h
 resource: "../../product/prd.md"
 tags: ["backlog", "UI", "react"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M2"
 relationships:
   - type: PART_OF

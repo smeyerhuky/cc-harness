@@ -91,6 +91,27 @@ describe('InputController', () => {
     expect(dx).toEqual([-1, -1]);
   });
 
+  it('takes touch: presses, column steps one per tick, and rows down', () => {
+    const c = new InputController();
+    c.press('cw');
+    c.nudge(1);
+    c.nudge(1);
+    c.nudge(-1);
+    c.drop(2);
+    c.drop(1);
+    expect(c.hasPending()).toBe(true);
+    expect(c.tick()).toMatchObject({ cw: true, dx: 1, drop: 3 });
+    expect(ticks(c, 3).map((i) => [i.dx, i.drop])).toEqual([
+      [1, 0],
+      [-1, 0],
+      [0, 0],
+    ]);
+    c.nudge(1);
+    c.drop(4);
+    c.reset();
+    expect(c.hasPending()).toBe(false);
+  });
+
   it('forgets everything on reset', () => {
     const c = new InputController();
     c.down('left');

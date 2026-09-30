@@ -16,6 +16,7 @@ import type { MatchSession } from '../../state/MatchSession';
 import { MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
 import { BoardFx } from './BoardFx';
+import { TouchSurface } from './TouchSurface';
 import { mmss } from './format';
 import { pps } from './ResultCard';
 import styles from './Match.module.css';
@@ -42,6 +43,7 @@ function Board({
         }}
       />
       <BoardFx session={session} seat={seat} board={box} />
+      {seat === 0 && <TouchSurface />}
     </div>
   );
 }

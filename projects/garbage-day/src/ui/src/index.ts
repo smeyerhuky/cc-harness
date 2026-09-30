@@ -62,6 +62,13 @@ export { ThumbZone } from './layout/ThumbZone';
 
 export { useAnimationFrame } from './hooks/useAnimationFrame';
 export { useColorScheme } from './hooks/useColorScheme';
+export {
+  GESTURE,
+  useGestures,
+  type GestureCommand,
+  type GestureFeedback,
+  type GestureOptions,
+} from './hooks/useGestures';
 export { useHaptics } from './hooks/useHaptics';
 export { useInterval } from './hooks/useInterval';
 export { useKeyBindings, type KeyHandlers } from './hooks/useKeyBindings';
