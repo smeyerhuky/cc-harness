@@ -52,7 +52,7 @@ to build first. → **Owner check-in** (held 2026-09-30: "Continue", every defau
   `minimumReleaseAge` and a clean audit — [`GD-TICKET-006`](backlog/GD-TICKET-006.md)
 - [x] The GitHub Actions workflow with the required checks, dependency review and CodeQL —
   [`GD-TICKET-007`](backlog/GD-TICKET-007.md)
-- [ ] Port the engine core to TypeScript with fixed-point gravity and unit tests —
+- [x] Port the engine core to TypeScript with fixed-point gravity and unit tests —
   [`GD-TICKET-008`](backlog/GD-TICKET-008.md)
 - [ ] Port the referee, bot and local match, with golden replays and a messages-per-minute check —
   [`GD-TICKET-009`](backlog/GD-TICKET-009.md)
@@ -81,6 +81,7 @@ by the owner. → **Owner check-in.**
 - [ ] Reduced motion, sound toggle, keyboard operability, axe scan (US-20); the developer overlay
 - [ ] App flow machine, routes and contexts — [`GD-TICKET-014`](backlog/GD-TICKET-014.md)
 - [ ] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
+- [ ] Name the four-row clear without the Tetris name — [`GD-TICKET-018`](backlog/GD-TICKET-018.md)
 
 ## M3 — Play online
 

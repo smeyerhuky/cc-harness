@@ -12,7 +12,7 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | `GD-EPIC` | 002 |
 | `GD-STORY` | 001 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 018 |
+| `GD-TICKET` | 019 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -35,7 +35,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 
 - [GD-TICKET-006](GD-TICKET-006.md) — Scaffold the pnpm workspace with the pinned stack · done
 - [GD-TICKET-007](GD-TICKET-007.md) — Add the GitHub Actions pipeline · done
-- [GD-TICKET-008](GD-TICKET-008.md) — Port the engine core to TypeScript · open
+- [GD-TICKET-008](GD-TICKET-008.md) — Port the engine core to TypeScript · done
 - [GD-TICKET-009](GD-TICKET-009.md) — Port the referee, bot and local match, with golden replays · open
 - [GD-TICKET-010](GD-TICKET-010.md) — Build the protocol package · open
 - [GD-TICKET-011](GD-TICKET-011.md) — Deploy the app shell with preview and production pipelines · open
@@ -44,6 +44,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 
 - [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · open (M2)
 - [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · open (M2)
+- [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · open (M2)
 - [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · open (M3)
 - [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (M3)
 - [GD-TICKET-017](GD-TICKET-017.md) — Show connection quality and degrade visibly above 150 ms · open (M3)

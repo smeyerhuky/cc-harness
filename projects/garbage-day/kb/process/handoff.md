@@ -26,7 +26,11 @@ history lives in the [running journal](journal/index.md).
     typecheck, tests, build, a clean audit, and `renovate.json` at the repo root;
   - CI, [`GD-TICKET-007`](backlog/GD-TICKET-007.md): `.github/workflows/garbage-day.yml` and
     `garbage-day-codeql.yml`, green on the branch and on pull request #10 (opened by the owner);
-    `garbage-day-ok` is the one check to require.
+    `garbage-day-ok` is the one check to require;
+  - the engine core, [`GD-TICKET-008`](backlog/GD-TICKET-008.md): `PlayerSim` and its modules
+    in `src/engine/src/`, 174 tests, fixed-point gravity, checked against the proof of concept;
+  - [`GD-TICKET-018`](backlog/GD-TICKET-018.md) filed for M2: the spec uses the Tetris name for a
+    four-row clear; the owner picks the word (default "Quad").
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:** installing the Renovate GitHub app on the repository (until then
   `renovate.json` is inert); a ruleset or branch protection on `main` requiring the
@@ -37,17 +41,18 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-008`](backlog/GD-TICKET-008.md) — port the engine core to TypeScript with
-fixed-point gravity: the first open M1 item whose dependencies are done. Then `010` (needs only
-`006`), `009` (needs `008`) and `011` (needs `007` and `010`, and the owner's Cloudflare
-secrets).
+[`GD-TICKET-009`](backlog/GD-TICKET-009.md) — port the referee, bot and local match, with
+golden replays: the first open M1 item whose dependencies are done. Then `010` (the protocol,
+whose schemas must match the engine's `messages.ts`) and `011` (needs `007` and `010`, and the
+owner's Cloudflare secrets).
 
 ## Standing rules for M1
 
 - Re-check every version against the npm registry on the day it is pinned; "latest" means the
   newest release at least a day old. Record any held-back version in
   [stack and CI](../design/stack-and-ci.md#exceptions-to-latest).
-- Port from `spikes/proof-of-concept/live/live-engine.js`; do not rewrite rules from memory.
+- Port from `spikes/proof-of-concept/live/live-engine.js`; do not rewrite rules from memory. The
+  engine's deliberate differences from it are listed in `GD-TICKET-008`'s Resolution.
 - Run pnpm as `npx -y pnpm@12.8.1 <script>` in a session container (or `corepack enable`).
 - `GD-TICKET-011` pins the Cloudflare packages that were too new for the scaffold.
 

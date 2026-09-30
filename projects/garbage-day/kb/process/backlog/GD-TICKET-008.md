@@ -5,7 +5,7 @@ description: "Port the per-player simulation from the proof of concept (live-eng
 resource: "../../design/architecture.md"
 tags: ["backlog", "engine"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M1"
 relationships:
   - type: PART_OF
@@ -51,3 +51,37 @@ modules under `projects/garbage-day/src/engine/src/` with tests beside them. Kee
 identical to the proof of concept except the fixed-point gravity. Run the code gates
 (`kb/design/stack-and-ci.md`, "Code gates"). Done when the criteria hold, the KB gates pass, this
 item is `done` with a Resolution, the backlog index and roadmap agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). `src/engine/src/` now has
+`constants`, `rules`, `rng`, `board`, `pieces` (shapes, both kick tables, spawn, T-spin corners),
+`bag` (the `Dealer`), `attack`, `garbage`, `speed` with the generated `speed-table.ts`,
+`messages` and `player` (`PlayerSim`), each with tests beside it: 174 engine tests covering every
+value in the game rules, including all 80 kick-table entries (each forced as the first test that
+fits), the spawn cells of all seven pieces, and all three top-outs. The speed table is written by
+`pnpm --filter @garbage-day/engine gen:speed-table`, and a test compares it with the generator.
+
+**Parity with the proof of concept**, checked once in this session with a throwaway test (not
+committed): the proof of concept's own bot played its `Player` for 160 runs of up to 20,000
+ticks (bots rookie to pro; with and without soft drop, incoming garbage and power-ups), each
+tick's input also driving `PlayerSim` on the same bags. 143 runs matched message for message to
+the end (29,205 pieces, 11,361 lines, 267 four-line clears, 1,000 garbage attacks); the `Dealer`
+matched every bag. The other 17 divergences were all intended: 12 were gravity falling one tick
+earlier than the proof of concept's float sum (for example 0.9833… + 1/60 stopping just short of
+a row), and 5 followed a Bomb landing during a clear delay (below).
+
+Deviations from the proof of concept, each deliberate:
+
+- **Fixed-point gravity**, rounded up so no level falls slower than the formula; level 1 is
+  exactly 60 ticks a row. Recorded in [architecture](../../design/architecture.md#determinism-contract).
+- **Bomb during a clear delay.** The proof of concept moved the board but not the rows waiting to
+  clear, so it cleared the wrong rows; the port moves them with the board.
+- **Sudden death reaches level 20**, as the game rules say; the proof of concept capped it at 15.
+- **Clears are data, not words.** The engine reports lines, T-spin, back-to-back, combo and
+  perfect clear; the words belong to the UI. That exposed the Tetris name in the spec and UI
+  language, filed as [`GD-TICKET-018`](GD-TICKET-018.md) for the owner to name.
+- **The board is a `Uint8Array`** (a byte per cell) instead of arrays of characters, with the
+  same snapshot string on the wire; the opponent's view is left to the client (M2 and M3).
+- **The engine owns its messages' in-memory types** (`messages.ts`); the protocol package's
+  schemas must match them (`GD-TICKET-010`).
