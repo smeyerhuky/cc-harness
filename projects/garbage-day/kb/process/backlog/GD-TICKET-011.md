@@ -69,8 +69,17 @@ migration `v1` creating both SQLite classes and `ENVIRONMENT` set to `preview`. 
 failed after that, reading the URL: `wrangler preview --json` prints progress lines ahead of its
 JSON, and `jq` stopped at the first word (`Invalid numeric literal at line 1, column 6`). The job
 now parses from the line that opens the JSON document, which was checked against the logged
-output. Both gotchas are in
-[`/kb/lessons/first-deploy-new-account.md`](../../../../../kb/lessons/first-deploy-new-account.md).
+output (`047b152`), and the next run was green and commented the URL on the pull request.
+
+The owner opened the preview: the page was right, but its status line said "Server unreachable",
+because `/api/health` answered 500. A Worker Preview inherits no bindings from the top level of
+`wrangler.jsonc`, so `env.LOBBY` and `env.MATCH` didn't exist there. The deployment record in the
+job log had only `ASSETS` and `ENVIRONMENT` in its `env`. Local dev and the Worker tests use the
+top-level config, so they couldn't see it. The `previews` block now declares both Durable Object
+bindings again. `src/app/test/wrangler-config.test.ts` checks that previews get the same bindings
+and var names as production; it failed against the old config. The gotchas are in
+[`/kb/lessons/first-deploy-new-account.md`](../../../../../kb/lessons/first-deploy-new-account.md)
+and [`/kb/lessons/worker-previews-in-ci.md`](../../../../../kb/lessons/worker-previews-in-ci.md).
 
 Before that, everything that needed no Cloudflare account was done and verified:
 

@@ -20,7 +20,17 @@
   // SQLite storage, which the free plan requires. Migrations only ever append.
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["LobbyDO", "MatchDO"] }],
   "vars": { "ENVIRONMENT": "production" },
-  // Each pull request's preview (`wrangler preview`) gets its own Durable Object storage.
-  "previews": { "vars": { "ENVIRONMENT": "preview" } },
+  // Each pull request's preview (`wrangler preview`) gets its own Durable Object storage. A
+  // preview inherits no bindings or vars from above: each one the Worker reads from `env` is
+  // declared again here (test/wrangler-config.test.ts checks they match).
+  "previews": {
+    "durable_objects": {
+      "bindings": [
+        { "name": "LOBBY", "class_name": "LobbyDO" },
+        { "name": "MATCH", "class_name": "MatchDO" },
+      ],
+    },
+    "vars": { "ENVIRONMENT": "preview" },
+  },
   "observability": { "enabled": true },
 }

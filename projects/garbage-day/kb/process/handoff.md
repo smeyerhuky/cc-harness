@@ -45,14 +45,16 @@ history lives in the [running journal](journal/index.md).
     Worker with `LobbyDO` and `MatchDO`, the React page, Worker tests in workerd, verified locally
     with `vite dev` and `vite preview`; CI jobs for a Worker Preview per pull request, production
     on `main`, and preview cleanup. The first preview is live at
-    `https://pr-10-garbage-day.smeyerhuky.workers.dev`, after the account's `workers.dev`
-    subdomain was created and the job's JSON parsing was fixed
-    ([lesson](../../../../kb/lessons/first-deploy-new-account.md)).
+    `https://pr-10-garbage-day.smeyerhuky.workers.dev`. Getting it there took the account's
+    `workers.dev` subdomain, a fix to the job's JSON parsing, and the Durable Object bindings
+    declared again for previews, which inherit none
+    ([lessons](../../../../kb/lessons/worker-previews-in-ci.md)).
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:**
-  - for `GD-TICKET-011`: opening the preview, `https://pr-10-garbage-day.smeyerhuky.workers.dev`,
-    and saying whether it shows "Server ready"; after merging to `main`, the same for the
-    production URL (the token expires 2026-12-29);
+  - for `GD-TICKET-011`: reloading the preview, `https://pr-10-garbage-day.smeyerhuky.workers.dev`,
+    once the bindings fix has deployed, and saying whether it now shows "Server ready" (the first
+    look showed "Server unreachable"); after merging to `main`, the same for the production URL
+    (the token expires 2026-12-29);
   - installing the Renovate GitHub app (until then `renovate.json` is inert);
   - a ruleset or branch protection on `main` requiring the `garbage-day-ok` check
     ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
@@ -61,9 +63,9 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-011`](backlog/GD-TICKET-011.md): check that `deploy-preview` passes and has commented
-the preview URL on pull request #10. Get the owner's confirmation of the preview and, after a
-merge to `main`, of the production URL. Then M1's
+[`GD-TICKET-011`](backlog/GD-TICKET-011.md): check that `deploy-preview` passed with the bindings
+fix. Get the owner's confirmation that the preview shows "Server ready" and, after a merge to
+`main`, the same for the production URL. Then M1's
 exit: the milestone tier of the definition of done (coverage audit, metadata, minting M2), ending
 with the owner check-in.
 

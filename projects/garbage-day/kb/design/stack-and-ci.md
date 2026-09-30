@@ -220,7 +220,10 @@ deployable Worker and its config to `dist/`, which `wrangler deploy` and `wrangl
   cleanup workflow runs `wrangler preview delete` when the pull request closes. A Worker Preview
   (open beta since 2026-09-22) is a running copy under the same Worker with its own URL, its own
   settings (the `previews` block in `wrangler.jsonc`, which sets `ENVIRONMENT` to `preview`) and
-  **its own Durable Object storage**, so a preview never touches production's matches. The design
+  **its own Durable Object storage**, so a preview never touches production's matches. A preview
+  inherits no bindings or vars from the top level, so the `previews` block declares both Durable
+  Object bindings again, and `src/app/test/wrangler-config.test.ts` fails if its bindings or var
+  names drift from production's. The design
   first named `wrangler versions upload`, but Cloudflare makes no version URL for a Worker that
   has Durable Objects, so that route gives no preview at all.
 - **Production on a push to `main`:** `deploy-production` runs `wrangler deploy` in the GitHub
@@ -232,8 +235,10 @@ deployable Worker and its config to `dist/`, which `wrangler deploy` and `wrangl
 - **The first deploys (2026-09-30).** The first preview needed the account's `workers.dev`
   subdomain (code 10063), which the owner created in the dashboard. After that it deployed with
   no production Worker yet: a preview doesn't need one. `wrangler preview --json` prints progress
-  lines ahead of its JSON, so the job reads the URL from the line that opens the document. See
-  [`/kb/lessons/first-deploy-new-account.md`](../../../../kb/lessons/first-deploy-new-account.md).
+  lines ahead of its JSON, so the job reads the URL from the line that opens the document. The
+  first preview had no Durable Object bindings (above) until the `previews` block declared them.
+  See [`/kb/lessons/first-deploy-new-account.md`](../../../../kb/lessons/first-deploy-new-account.md)
+  and [`/kb/lessons/worker-previews-in-ci.md`](../../../../kb/lessons/worker-previews-in-ci.md).
   Production hasn't deployed yet; it first runs on the merge to `main`.
 - **Known traps from this repo's lessons:** a sandboxed agent session cannot reach its own
   `*.workers.dev` URL (error 1042), so live checks after a deploy happen in the owner's browser
