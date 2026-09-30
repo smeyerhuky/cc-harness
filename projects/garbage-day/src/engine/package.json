@@ -8,6 +8,11 @@
   },
   "scripts": {
     "gen:speed-table": "node scripts/gen-speed-table.ts",
-    "golden:update": "vitest run --update src/golden.test.ts"
+    "golden:update": "vitest run --update src/golden.test.ts",
+    "test:browser": "vitest run --config vitest.browser.config.ts"
+  },
+  "devDependencies": {
+    "@vitest/browser-playwright": "4.1.11",
+    "playwright": "1.63.0"
   }
 }

@@ -45,7 +45,8 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | Unit and component tests | Vitest | **4.1.11** (exception) | See exceptions |
 | Durable Object tests | `@cloudflare/vitest-plugin` | 1.3.1 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
 | DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 20.14.5 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
-| End-to-end | Playwright + `@axe-core/playwright` | 1.63.0 · 4.13.0 | Two browsers play a real match; accessibility scan |
+| End-to-end | Playwright + `@axe-core/playwright` | 1.63.0 (in since `GD-TICKET-019`) · 4.13.0 (M3) | Two browsers play a real match; accessibility scan |
+| Browser tests | `@vitest/browser-playwright` | 4.1.11 (matches Vitest) | Runs the golden replays in Chromium, Firefox and WebKit |
 | Lint | ESLint + `typescript-eslint` + `eslint-plugin-react-hooks` | 10.11.0 · 8.71.0 · 7.1.1 | Hooks rules including the React Compiler's; type-aware rules through the project service |
 | Lint support | `@eslint/js` · `globals` | 10.0.1 · 17.12.0 | ESLint's recommended rules; browser and Node globals |
 | Node types | `@types/node` | 24.19.0 | Matches the CI runtime; only the root config and Vitest configs use it |
@@ -121,7 +122,7 @@ cannot see being used.
 | Layer | What | Tool |
 |---|---|---|
 | Engine unit | pieces and kicks, lock delay, attack table, cancelling, garbage landing, speed table, power-ups, referee rules | Vitest |
-| Golden replays | seeded matches (bot vs bot, a classic-rules match, and one with every interruption, as in `spikes/proof-of-concept/live/test-live.js`) replayed twice and compared with `src/engine/test/golden/*.json` by result, tick counts, final board hashes, stats, message counts and messages per minute, and the referee's timeline. `pnpm --filter @garbage-day/engine golden:update` regenerates them, deliberately | Vitest (`toMatchFileSnapshot`) |
+| Golden replays | seeded matches (bot vs bot, a classic-rules match, and one with every interruption, as in `spikes/proof-of-concept/live/test-live.js`) replayed twice and compared with `src/engine/test/golden/*.json` by result, tick counts, final board hashes, stats, message counts and messages per minute, and the referee's timeline. `pnpm --filter @garbage-day/engine golden:update` regenerates them, deliberately. `pnpm test:browser` runs the same test, against the same files, in Chromium, Firefox and WebKit | Vitest (`toMatchFileSnapshot`); Vitest browser mode with Playwright |
 | Protocol | every message type round-trips through its schema; invalid messages are rejected | Vitest |
 | UI and client | commons, features, `appMachine`, gestures, `MatchSession` against a local referee | Vitest, happy-dom, Testing Library |
 | Worker and Durable Objects | routes and the health check (from `GD-TICKET-011`); then pairing, private lobby and codes, dealing, ledger resend, alarms (pause, grace, both away, expiry), snapshot restore after restart | `@cloudflare/vitest-plugin` (`src/app/vitest.worker.config.ts`) |
@@ -151,7 +152,7 @@ composite action for the setup every code job shares:
 
 | File | Runs on | Jobs |
 |---|---|---|
-| `.github/workflows/garbage-day.yml` | pushes that touch the project (path filter); **every** pull request; manual runs | `changes`, `install`, `lint`, `typecheck`, `test`, `test-worker`, `audit`, `build`, `kb`, `dependency-review`, `garbage-day-ok`; then `deploy-preview` (pull requests) or `deploy-production` (`main`) |
+| `.github/workflows/garbage-day.yml` | pushes that touch the project (path filter); **every** pull request; manual runs | `changes`, `install`, `lint`, `typecheck`, `test`, `test-worker`, `test-browser`, `audit`, `build`, `kb`, `dependency-review`, `garbage-day-ok`; then `deploy-preview` (pull requests) or `deploy-production` (`main`) |
 | `.github/workflows/garbage-day-preview-cleanup.yml` | a pull request touching the project closes | `delete-preview` |
 | `.github/workflows/garbage-day-codeql.yml` | pushes and pull requests that touch `projects/garbage-day/src/`; weekly (Monday 05:17 UTC); manual runs | `codeql` |
 | `.github/actions/garbage-day-setup/` | used by every code job | pnpm from the `packageManager` pin, Node 24, the pnpm store cached by lockfile hash, `pnpm install --frozen-lockfile` |
@@ -161,7 +162,9 @@ composite action for the setup every code job shares:
           │           ├─ typecheck (tsc per package)            ├─► build ─┐   (e2e: M3)
           │           ├─ test (vitest: engine, replays, ui) ────┤          │
 changes ──┤           ├─ test-worker (Workers pool) ────────────┤          │
-          │           └─ audit (pnpm audit) ────────────────────┘          ├─► garbage-day-ok ─┬─► deploy-preview (PR)
+          │           ├─ audit (pnpm audit) ────────────────────┘          │
+          │           └─ test-browser (golden replays in Chromium, Firefox, WebKit) ─┤
+          │                                                                  ├─► garbage-day-ok ─┬─► deploy-preview (PR)
           ├─ kb (the repo's KB gates on projects/garbage-day/kb/ and projects/kb/) ─┤                   └─► deploy-production (main)
           └─ dependency-review (pull requests only) ────────────────────────────────┘
 codeql and delete-preview (their own workflows)
@@ -173,6 +176,10 @@ codeql and delete-preview (their own workflows)
   `kb/authority/`). Pushes are already path-filtered, and a manual run checks everything. When
   the project is untouched, every other job is skipped.
 - **`install`** runs once first, so the store is cached before the parallel jobs restore it.
+- **`test-browser`** installs the three Playwright browsers on the runner and replays the golden
+  matches in each. Chromium shares Node's V8, so the check that matters is Firefox and WebKit.
+  In an agent session, where only a Chromium is installed, run it as
+  `GD_BROWSERS=chromium PW_CHROMIUM=<path to chrome> pnpm test:browser`.
 - **`garbage-day-ok`** needs every job, runs even when one fails, and fails if any failed or was
   cancelled; skipped jobs count as passing.
 - **Least privilege:** the workflows grant `contents: read` and nothing else, except CodeQL's

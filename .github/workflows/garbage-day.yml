@@ -130,6 +130,22 @@ jobs:
       - uses: ./.github/actions/garbage-day-setup
       - run: pnpm test:worker
 
+  # The golden replays in Chromium, Firefox and WebKit: the determinism contract has to hold on
+  # every JavaScript engine, not only Node's V8 (GD-TICKET-019).
+  test-browser:
+    name: test-browser
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - name: Install the browsers
+        run: pnpm --filter @garbage-day/engine exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:browser
+
   audit:
     name: audit
     needs: install
@@ -198,7 +214,20 @@ jobs:
   # jobs (the project untouched, or dependency review on a push) count as passing.
   garbage-day-ok:
     name: garbage-day-ok
-    needs: [changes, install, lint, typecheck, test, test-worker, audit, build, kb, dependency-review]
+    needs:
+      [
+        changes,
+        install,
+        lint,
+        typecheck,
+        test,
+        test-worker,
+        test-browser,
+        audit,
+        build,
+        kb,
+        dependency-review,
+      ]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5

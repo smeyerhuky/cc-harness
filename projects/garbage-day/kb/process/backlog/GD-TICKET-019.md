@@ -5,7 +5,7 @@ description: "Run the engine's golden replays in Chromium, Firefox and WebKit th
 resource: "../journal/2026-09-30-scaffold.md"
 tags: ["backlog", "engine", "ci"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M1"
 relationships:
   - type: PART_OF
