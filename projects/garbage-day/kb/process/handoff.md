@@ -17,8 +17,8 @@ history lives in the [running journal](journal/index.md).
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
 - **Milestone:** M1 — Foundations — **active**, every item done but
-  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), active: the first preview is deployed and waits
-  on the owner's check in a browser ([roadmap](roadmap.md)). M0 closed at its owner
+  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), active: the owner confirmed the preview shows
+  "Server ready"; production deploys when pull request #10 merges ([roadmap](roadmap.md)). M0 closed at its owner
   check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
   new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
@@ -51,10 +51,9 @@ history lives in the [running journal](journal/index.md).
     ([lessons](../../../../kb/lessons/worker-previews-in-ci.md)).
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:**
-  - for `GD-TICKET-011`: reloading the preview, `https://pr-10-garbage-day.smeyerhuky.workers.dev`,
-    once the bindings fix has deployed, and saying whether it now shows "Server ready" (the first
-    look showed "Server unreachable"); after merging to `main`, the same for the production URL
-    (the token expires 2026-12-29);
+  - for `GD-TICKET-011`: merging pull request #10, which runs `deploy-production`, then opening
+    `https://garbage-day.smeyerhuky.workers.dev` and saying whether it shows "Server ready ·
+    production" (the preview was confirmed 2026-09-30; the token expires 2026-12-29);
   - installing the Renovate GitHub app (until then `renovate.json` is inert);
   - a ruleset or branch protection on `main` requiring the `garbage-day-ok` check
     ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
@@ -63,9 +62,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-011`](backlog/GD-TICKET-011.md): check that `deploy-preview` passed with the bindings
-fix. Get the owner's confirmation that the preview shows "Server ready" and, after a merge to
-`main`, the same for the production URL. Then M1's
+[`GD-TICKET-011`](backlog/GD-TICKET-011.md): after the owner merges pull request #10, check that
+`deploy-production` passed on `main`. It is the first production deploy, so watch that migration
+`v1` applies to production as it did to the preview. Get the owner's confirmation of the
+production URL, then close the item with a Resolution. Then M1's
 exit: the milestone tier of the definition of done (coverage audit, metadata, minting M2), ending
 with the owner check-in.
 

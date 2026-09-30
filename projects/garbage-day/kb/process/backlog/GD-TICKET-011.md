@@ -102,9 +102,11 @@ Waiting on the owner:
 
 1. ~~Add the repository secrets~~ (done 2026-09-30).
 2. ~~Create the account's `workers.dev` subdomain~~ (done 2026-09-30: `smeyerhuky.workers.dev`).
-3. Open the preview URL that `deploy-preview` then comments on the pull request, and the
-   production URL after the first push to `main`, which means merging. Say whether both show the
-   shell with "Server ready".
+3. ~~Open the preview URL~~ (done 2026-09-30, after the bindings fix: the owner's screenshot
+   shows the shell with "Server ready · preview · protocol 1", and the owner wrote "success 🍷").
+4. Merge pull request #10, which runs `deploy-production`. Then open the production URL,
+   `https://garbage-day.smeyerhuky.workers.dev`, and say whether it shows "Server ready ·
+   production".
 
 Found on the way, fixed inside this item and recorded in
 [stack and CI](../../design/stack-and-ci.md):
