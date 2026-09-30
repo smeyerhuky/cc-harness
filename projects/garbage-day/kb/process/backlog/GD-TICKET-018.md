@@ -36,6 +36,10 @@ The engine now reports clears as data (lines, T-spin, back-to-back, combo, perfe
 counts `fourLineClears`, so only the words change. Which word is the owner's call; the default,
 if the owner doesn't choose, is **"Quad"** (clear label "QUAD", stat "Quads").
 
+**Decided 2026-09-30:** the owner chose "Quad" at the M1 exit ("default to 'Quad' yes"),
+recorded in [the scaffold session's journal](../journal/2026-09-30-scaffold.md). The first
+criterion holds; the renaming is M2 work.
+
 ## Acceptance Criteria
 
 - The owner has chosen the name, recorded in the running journal (or the default holds).

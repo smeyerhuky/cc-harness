@@ -10,9 +10,9 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | Kind | Next number |
 |---|---|
 | `GD-EPIC` | 002 |
-| `GD-STORY` | 001 |
+| `GD-STORY` | 009 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 021 |
+| `GD-TICKET` | 025 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -38,15 +38,30 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-008](GD-TICKET-008.md) — Port the engine core to TypeScript · done
 - [GD-TICKET-009](GD-TICKET-009.md) — Port the referee, bot and local match, with golden replays · done
 - [GD-TICKET-010](GD-TICKET-010.md) — Build the protocol package · done
-- [GD-TICKET-011](GD-TICKET-011.md) — Deploy the app shell with preview and production pipelines · active
+- [GD-TICKET-011](GD-TICKET-011.md) — Deploy the app shell with preview and production pipelines · done
 - [GD-TICKET-019](GD-TICKET-019.md) — Run the golden replays in real browsers · done
 - [GD-TICKET-020](GD-TICKET-020.md) — Run the browser replays in Playwright's container image · done
 
+*M2 — Play solo (part of GD-EPIC-001; minted at the M1 exit; the owner put `GD-TICKET-021` first):*
+
+- [GD-TICKET-021](GD-TICKET-021.md) — Take the next Cloudflare tooling set and delete the undici override · active
+- [GD-TICKET-023](GD-TICKET-023.md) — Build the ui commons: tokens, primitives, game widgets and hooks · open
+- [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · open
+- [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · open
+- [GD-STORY-002](GD-STORY-002.md) — See the fight: garbage, power-ups, showdowns and the result · open
+- [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · open
+- [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · open
+- [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · open
+- [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · open
+- [GD-STORY-007](GD-STORY-007.md) — Start from home with a handle and my settings · open
+- [GD-STORY-008](GD-STORY-008.md) — Accessible by default · open
+- [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · open
+- [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · open
+- [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · open (owner chose "Quad")
+- [GD-TICKET-022](GD-TICKET-022.md) — Replace the Cloudflare API token before it expires on 2026-12-29 · open
+
 *Later milestones (gaps from the [coverage audit](../coverage-audit.md), part of GD-EPIC-001):*
 
-- [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · open (M2)
-- [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · open (M2)
-- [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · open (M2)
 - [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · open (M3)
 - [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (M3)
 - [GD-TICKET-017](GD-TICKET-017.md) — Show connection quality and degrade visibly above 150 ms · open (M3)
