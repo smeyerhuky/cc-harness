@@ -59,8 +59,8 @@ history lives in the [running journal](journal/index.md).
     production" (the preview was confirmed 2026-09-30; the token expires 2026-12-29);
   - (the Renovate GitHub app is installed as of 2026-09-30; its first run reads `renovate.json`
     from `main`, so it takes effect after the merge);
-  - saving the `main-protect` ruleset with `garbage-day-ok` as a required check (set up
-    2026-09-30, but not saved when last read through the API;
+  - (the `main-protect` ruleset requires `garbage-day-ok` from GitHub Actions, with branches up
+    to date, as of 2026-09-30, checked through the API;
     [the pipeline](../design/stack-and-ci.md#the-pipeline)).
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the
   [code gates](../design/stack-and-ci.md#code-gates) — all pass, locally and in CI.
