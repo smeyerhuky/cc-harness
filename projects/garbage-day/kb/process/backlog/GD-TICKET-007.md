@@ -5,7 +5,7 @@ description: "Create .github/workflows/garbage-day.yml with the jobs and require
 resource: "../../design/stack-and-ci.md"
 tags: ["backlog", "ci"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M1"
 relationships:
   - type: PART_OF

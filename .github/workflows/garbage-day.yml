@@ -1,0 +1,151 @@
+# Garbage Day CI: the code gates, the audit, the KB gates, and dependency review on pull requests.
+# Design: projects/garbage-day/kb/design/stack-and-ci.md, "The pipeline". CodeQL is in
+# garbage-day-codeql.yml; the deploy and end-to-end jobs arrive with GD-TICKET-011 and M3.
+name: garbage-day
+
+on:
+  push:
+    paths:
+      - projects/garbage-day/**
+      - projects/kb/**
+      - .github/workflows/garbage-day.yml
+      - .github/actions/garbage-day-setup/**
+  pull_request:
+    paths:
+      - projects/garbage-day/**
+      - projects/kb/**
+      - .github/workflows/garbage-day.yml
+      - .github/actions/garbage-day-setup/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/garbage-day
+
+jobs:
+  # Installs once so the pnpm store is cached before the parallel jobs restore it.
+  install:
+    name: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+
+  lint:
+    name: lint
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm lint
+
+  typecheck:
+    name: typecheck
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm typecheck
+
+  test:
+    name: test
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm test
+
+  test-worker:
+    name: test-worker
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm test:worker
+
+  audit:
+    name: audit
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm audit --audit-level moderate
+
+  build:
+    name: build
+    needs: [lint, typecheck, test, test-worker, audit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm build
+
+  # The repo's KB gates (/kb/pdlc/definition-of-done.md, "Gates") on the project's bundle and the
+  # projects index. Standard-library Python only.
+  kb:
+    name: kb
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: KB gates
+        run: |
+          S=.claude/skills/okf-wikify/scripts
+          for B in projects/garbage-day/kb/ projects/kb/; do
+            echo "== $B"
+            python3 $S/lint_okf.py $B && python3 $S/lint_authority.py $B \
+              && python3 $S/relationships.py $B && python3 $S/weeding.py $B \
+              && python3 $S/backlog.py $B
+          done
+
+  dependency-review:
+    name: dependency-review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
+          deny-licenses: AGPL-3.0-only, AGPL-3.0-or-later, GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, SSPL-1.0
