@@ -35,7 +35,10 @@ history lives in the [running journal](journal/index.md).
     and presence rule, snapshots, bots with skill and speed 1–10, and ten golden replays in
     `src/engine/test/golden/`; an ESLint guard for the determinism contract;
   - [`GD-TICKET-019`](backlog/GD-TICKET-019.md) filed for M1: the golden replays in Chromium,
-    Firefox and WebKit, the browser half of M1's exit check.
+    Firefox and WebKit, the browser half of M1's exit check;
+  - the protocol, [`GD-TICKET-010`](backlog/GD-TICKET-010.md): schemas for every message, the
+    codec (engine shapes ↔ wire), a board encoding of at most 161 bytes, settings, and a
+    typecheck test that keeps the protocol and the engine's types in agreement.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:** installing the Renovate GitHub app on the repository (until then
   `renovate.json` is inert); a ruleset or branch protection on `main` requiring the
@@ -46,9 +49,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-010`](backlog/GD-TICKET-010.md) — the protocol package, whose schemas must match the
-engine's `messages.ts`: the first open M1 item whose dependencies are done. Then `011` (needs
-`007` and `010`, and the owner's Cloudflare secrets) and `019` (the golden replays in browsers).
+[`GD-TICKET-011`](backlog/GD-TICKET-011.md) — the app shell and the deploy pipelines: the first
+open M1 item whose dependencies are done. Its last steps need the owner: the
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets, then opening the preview
+and production URLs. Then `019` (the golden replays in browsers), then M1's exit.
 
 ## Standing rules for M1
 

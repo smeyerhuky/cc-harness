@@ -56,7 +56,7 @@ to build first. → **Owner check-in** (held 2026-09-30: "Continue", every defau
   [`GD-TICKET-008`](backlog/GD-TICKET-008.md)
 - [x] Port the referee, bot and local match, with golden replays and a messages-per-minute check —
   [`GD-TICKET-009`](backlog/GD-TICKET-009.md)
-- [ ] The protocol package with schemas and round-trip tests —
+- [x] The protocol package with schemas and round-trip tests —
   [`GD-TICKET-010`](backlog/GD-TICKET-010.md)
 - [ ] The app shell deployed: preview per pull request, production on `main` —
   [`GD-TICKET-011`](backlog/GD-TICKET-011.md)

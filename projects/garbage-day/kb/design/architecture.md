@@ -67,44 +67,53 @@ JSON over WebSocket, every message carrying `v` (protocol version) and `t` (type
 validates every incoming message against its schema and drops invalid ones.
 
 The engine defines the in-memory shapes of the messages its simulations exchange
-(`src/engine/src/messages.ts`, where a message's kind is `type`); the protocol package adds the
-wire envelope and the runtime schemas, which must agree with those shapes (`GD-TICKET-010`).
+(`src/engine/src/messages.ts`, where a message's kind is `type`); the protocol package
+(`@garbage-day/protocol`, `GD-TICKET-010`) adds the wire envelope and the runtime schemas, and a
+typecheck test fails if the two disagree in either direction. `parse…` functions never throw:
+they return the message in the engine's shape, or a `ProtocolError` coded `too-large` (over
+2,048 characters), `malformed`, `version`, `unknown-type` or `invalid`. Messages to the server
+reject unknown keys; messages to clients tolerate them, so the server can add optional fields.
 
 **Client → Match DO**
 
 | `t` | Sent when | Carries |
 |---|---|---|
-| `hello` | socket opens | join token, handle, protocol version |
+| `hello` | socket opens (every socket, including a reconnect) | join token, handle |
 | `ready` | private lobby, player presses Ready | — |
 | `settings` | private lobby, host changes a setting | match settings |
 | `pos` | ≤ 15 Hz, only when the falling piece or meter changed | piece type, rotation, x, y; meter total; hold; banked power-up; last garbage id received |
-| `lock` | every lock | board snapshot (run-length encoded), lines, attack, label, stats, last garbage id |
-| `attack` | a clear sends rows after cancelling | rows, label |
+| `lock` | every lock | board snapshot (encoded, below), lines, attack, the clear (lines, T-spin, back-to-back, combo, perfect clear, rows), meter, hold, power-up, stats, last garbage id |
+| `attack` | a clear sends rows after cancelling | rows and the clear; rejected unless the rows are at most the clear's worth and the clear's worth matches the attack table |
 | `bagReq` | own queue is down to 7 | — |
 | `use` | player fires a power-up | kind |
 | `away` / `back` | tab hidden or shown, Step away | reason; time away in ms |
-| `rejoin` | reopening after close or reconnect | join token, last garbage id |
+| `rejoin` | after a close or a reconnect, once `hello` has authenticated the socket | last garbage id; time away in ms |
 | `extend` / `leave` | waiting player's popover | — |
 | `topout` | own board topped out | why |
-| `ping` | every second | answered by WebSocket auto-response without waking the DO |
+| `ping` | every second | the exact string `{"v":1,"t":"ping"}`, answered by the WebSocket auto-response (`pong`) without waking the DO; the engine calls it `hb` |
 
 **Match DO → client**
 
 | `t` | Carries |
 |---|---|
-| `lobby` | both handles, settings, ready flags (private games) |
-| `start` | match start time, go tick, settings |
+| `lobby` | both handles (the second empty until someone joins), settings, ready flags, which seat is yours (private games) |
+| `start` | go tick; settings (the server start time for clock sync arrives with M3) |
 | `bag` | 7 pieces with any gems |
 | `garbage` | rows, attack id |
 | `opp` | the opponent's `pos` or `lock`, relayed; never their next pieces |
 | `power` | kind, who fired it, the tick both apply it |
-| `showdown` | kind, `soon` / `start` / `end`, times |
+| `showdown` | kind, `soon` / `start` / `end`, when it starts or ends |
 | `paused` · `deadline` · `grace` · `bothAway` · `resume` · `back` | pause and presence state, deadlines, time away, pauses left |
-| `result` | winner or none, reason, both stats |
-| `error` | code and message (full game, expired, bad token, version too old) |
+| `result` | winner or none, a reason code (`topout`, `timeout`, `grace`, `left`, `left-while-paused`, `abandoned`) and who it is about; each side's stats come in their last `lock` |
+| `error` | code (`full`, `expired`, `bad-token`, `version`, `invalid`, `rate`) and message |
 
-Lobby DO messages: `queue` (join), `cancel`, `waiting` (count), `matched` (match id, join token,
-opponent handle).
+Lobby DO messages: `queue` (join, with the handle), `cancel`, `ping`, and back `waiting`
+(count), `matched` (match id, join token, opponent handle), `error`, `pong`.
+
+**Boards on the wire** are the shorter of two encodings of the engine's 240-cell snapshot: runs
+(`r` + each cell and its run length, gems written as letters, empty cells above the stack left
+out), which keeps a typical stack to a few dozen bytes, or 4-bit packing in base64url (`p` + at
+most 160 characters), so no board is ever more than 161 bytes.
 
 ## State machines
 

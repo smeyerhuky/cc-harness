@@ -32,6 +32,14 @@ export interface LocalMatchOptions {
   readonly script?: readonly ScriptStep[];
   readonly onPlayerEvent?: (ev: PlayerEvent) => void;
   readonly onRefereeEvent?: (ev: RefereeEvent) => void;
+  /**
+   * Passes every message through these on its way, as a real connection would: the protocol's
+   * tests encode and parse each one to show a match over the wire plays out the same.
+   */
+  readonly wire?: {
+    readonly client: (msg: ClientMessage) => ClientMessage;
+    readonly server: (msg: ServerMessage) => ServerMessage;
+  };
 }
 
 interface Packet {
@@ -267,12 +275,20 @@ export class LocalMatch {
       if (msg.type !== 'hb' && msg.type !== 'pos') L.outbox.push(msg);
       return;
     }
-    this.net.push({ at: this.latency(i, `up${i}`), seq: this.seq++, to: 'referee', from: i, msg });
+    const sent = this.o.wire ? this.o.wire.client(msg) : msg;
+    this.net.push({
+      at: this.latency(i, `up${i}`),
+      seq: this.seq++,
+      to: 'referee',
+      from: i,
+      msg: sent,
+    });
   }
 
   private serverSend(i: PlayerIndex, msg: ServerMessage): void {
     const L = this.link[i];
     if (L.offline || L.closed) return;
-    this.net.push({ at: this.latency(i, `down${i}`), seq: this.seq++, to: i, from: i, msg });
+    const sent = this.o.wire ? this.o.wire.server(msg) : msg;
+    this.net.push({ at: this.latency(i, `down${i}`), seq: this.seq++, to: i, from: i, msg: sent });
   }
 }

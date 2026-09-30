@@ -244,6 +244,9 @@ importers:
 
   src/protocol:
     dependencies:
+      '@garbage-day/engine':
+        specifier: workspace:*
+        version: link:../engine
       zod:
         specifier: 4.6.5
         version: 4.6.5
