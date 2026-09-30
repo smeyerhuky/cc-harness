@@ -8,9 +8,3 @@ minimumReleaseAge: 1440
 allowBuilds:
   esbuild: true
   workerd: true
-
-# Security override (kb/design/stack-and-ci.md, "Exceptions to latest"): miniflare
-# 5.20260926.0-alpha, under wrangler 4.143.0, pins undici 7.29.0, which has ten advisories;
-# 7.29.1 is the fix its next release pins. Remove once wrangler ≥ 4.143.1 is in.
-overrides:
-  'undici@<7.29.1': 7.29.1

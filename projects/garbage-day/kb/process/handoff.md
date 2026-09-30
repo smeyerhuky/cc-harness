@@ -66,9 +66,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-021`](backlog/GD-TICKET-021.md): take Wrangler 4.143.1 with the Vite plugin 1.62.1 and
-the test plugin 1.3.2, whose miniflare pins `undici` 7.29.1 itself, then delete the override.
-After that, the [rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks
+[`GD-TICKET-021`](backlog/GD-TICKET-021.md) (**active**): Wrangler 4.143.1, the Vite plugin 1.62.1
+and the test plugin 1.3.2 are in, and the `undici` override is deleted. The code gates pass.
+Watch pull request #12's CI and preview, and after the owner merges it, the production deploy;
+then close the item. After that, the [rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks
 [`GD-TICKET-023`](backlog/GD-TICKET-023.md), the `ui` commons.
 
 ## Standing rules for M1
@@ -79,8 +80,6 @@ After that, the [rule](../../../../kb/pdlc/work-items.md#which-item-is-next) pic
 - Port from `spikes/proof-of-concept/live/live-engine.js`; do not rewrite rules from memory. The
   engine's deliberate differences from it are listed in `GD-TICKET-008`'s Resolution.
 - Run pnpm as `npx -y pnpm@12.8.1 <script>` in a session container (or `corepack enable`).
-- Remove the `undici` override in `pnpm-workspace.yaml` once Wrangler 4.143.1 or later is in
-  ([exceptions](../design/stack-and-ci.md#exceptions-to-latest)).
 - A change to the engine that changes any golden replay is regenerated on purpose
   (`pnpm --filter @garbage-day/engine golden:update`) in its own commit, saying why (definition
   of done, project item 1).

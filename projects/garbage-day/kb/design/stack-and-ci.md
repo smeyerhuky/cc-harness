@@ -33,8 +33,8 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | Compiler route | `@rolldown/plugin-babel` + `@babel/core` | 0.2.4 · 8.0.6 | `@vitejs/plugin-react` 6 no longer runs Babel itself; its `reactCompilerPreset()` runs through this plugin. The native (oxc) compiler route is still experimental |
 | Build and dev server | Vite | 8.3.1 | Latest; Rolldown bundler |
 | React plugin | `@vitejs/plugin-react` | 6.1.1 | Needs Vite 8; hosts the React Compiler |
-| Cloudflare in Vite | `@cloudflare/vite-plugin` | 1.62.0 | Runs the Worker and Durable Objects in workerd during `vite dev` and `vite preview`, and builds both |
-| Deploy tool | Wrangler | 4.143.0 | The version the Vite plugin 1.62.0 pins; has `wrangler preview` (Worker Previews need 4.135 or later) |
+| Cloudflare in Vite | `@cloudflare/vite-plugin` | 1.62.1 | Runs the Worker and Durable Objects in workerd during `vite dev` and `vite preview`, and builds both |
+| Deploy tool | Wrangler | 4.143.1 | The version the Vite plugin 1.62.1 pins; has `wrangler preview` (Worker Previews need 4.135 or later) |
 | Worker types | `@cloudflare/workers-types` | 5.20260929.1 | Types for the Worker and `cloudflare:workers`; the bindings are declared in `worker/env.d.ts` |
 | Routing | React Router (data mode) | 8.4.0 | Loaders and actions for private-game lookups; lazy routes |
 | Screen-flow state | XState + `@xstate/react` | 5.33.2 · 6.1.0 | Real states and guards for the app flow ([client architecture](client-architecture.md)) |
@@ -43,7 +43,7 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | Styling | CSS Modules + CSS custom properties | built in | Tokens from [UI language](ui-language.md); no runtime cost |
 | Fonts | `@fontsource` (Big Shoulders Display, Public Sans, IBM Plex Mono) | 5.3.0 (display, since `GD-TICKET-011`); the others with the M2 commons | Self-hosted, imported by the `ui` package's `fonts.css` |
 | Unit and component tests | Vitest | **4.1.11** (exception) | See exceptions |
-| Durable Object tests | `@cloudflare/vitest-plugin` | 1.3.1 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
+| Durable Object tests | `@cloudflare/vitest-plugin` | 1.3.2 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
 | DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 20.14.5 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
 | End-to-end | Playwright + `@axe-core/playwright` | 1.63.0 (in since `GD-TICKET-019`) · 4.13.0 (M3) | Two browsers play a real match; accessibility scan |
 | Browser tests | `@vitest/browser-playwright` | 4.1.11 (matches Vitest) | Runs the golden replays in Chromium, Firefox and WebKit |
@@ -60,11 +60,12 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 |---|---|---|---|
 | TypeScript **6.0.3** | 7.0.2 (the native compiler) | `typescript-eslint` 8.71 supports TypeScript `<6.1` | `typescript-eslint` supports 7.x; Renovate's PR for TypeScript 7 goes green |
 | Vitest **4.1.11** | 5.0.2 | `@cloudflare/vitest-plugin` 1.3 requires Vitest `^4.1` | The plugin supports Vitest 5 |
-| `undici` forced to **7.29.1** (a security override, not a hold-back) | 7.30.0 | miniflare 5.20260926.0-alpha, under Wrangler 4.143.0, pins 7.29.0, which has ten advisories (two high, all in local development tooling) | Wrangler 4.143.1 or later is in: its miniflare pins 7.29.1; then delete the `overrides` entry in `pnpm-workspace.yaml` |
 
 The two hold-backs are checked by Renovate automatically: the upgrade PR stays open and fails
-until the blocker moves. The override is 7.29.1 rather than 7.30.0 because 7.29.1 is exactly
-what miniflare's own next release uses. The TypeScript 7 compiler (`@typescript/native-preview`) may be added later as
+until the blocker moves. There are no overrides: the one that forced `undici` 7.29.1 under
+Wrangler 4.143.0's miniflare (ten advisories in 7.29.0) was deleted when
+[`GD-TICKET-021`](../process/backlog/GD-TICKET-021.md) took Wrangler 4.143.1, whose miniflare pins
+7.29.1 itself. The TypeScript 7 compiler (`@typescript/native-preview`) may be added later as
 a faster second typecheck without touching lint.
 
 **Waiting a day is not an exception.** On 2026-09-30 Wrangler 4.144.0 and 4.143.1, the Vite
@@ -72,13 +73,15 @@ plugin 1.62.2 and 1.62.1, the Worker types of that day and `@cloudflare/vitest-p
 1.3.3 were all under a day old, so `minimumReleaseAge` refused them and
 [`GD-TICKET-011`](../process/backlog/GD-TICKET-011.md) pinned the newest releases that were
 older: a matched set (the plugin 1.62.0 pins Wrangler 4.143.0, as does the test plugin 1.3.1).
+Later that day `GD-TICKET-021` moved to the next matched set once it was a day old: Wrangler
+4.143.1, the Vite plugin 1.62.1 and the test plugin 1.3.2, on the same workerd build.
 
 ## Workspace layout
 
 ```
 projects/garbage-day/
 ├── package.json            scripts: dev, build, lint, format, typecheck, test, test:worker, audit (+ e2e later)
-├── pnpm-workspace.yaml     packages: src/*; minimumReleaseAge 1440; allowBuilds (esbuild, workerd); overrides
+├── pnpm-workspace.yaml     packages: src/*; minimumReleaseAge 1440; allowBuilds (esbuild, workerd)
 ├── pnpm-lock.yaml          committed
 ├── tsconfig.base.json      shared strict options; each package's tsconfig.json extends it
 ├── tsconfig.json           the root config, for the Vitest workspace file only

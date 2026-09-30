@@ -5,7 +5,7 @@ description: "Move Wrangler, the Vite plugin, the Workers test plugin and the Wo
 resource: "../coverage-audit.md"
 tags: ["backlog", "dependencies", "security"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -54,3 +54,20 @@ Wrangler. Update, delete the override, run `pnpm install`, then `pnpm why undici
 `pnpm audit`. Run the code gates (`pnpm lint && pnpm typecheck && pnpm test && pnpm test:worker
 && pnpm build`). Done when the criteria hold, the KB gates pass, this item is `done` with a
 Resolution, the backlog index agrees, and the journal records it.
+
+## Progress
+
+2026-09-30, checked against the npm registry at 18:56 UTC. The newest matched set at least a day
+old is Wrangler **4.143.1**, `@cloudflare/vite-plugin` **1.62.1** and `@cloudflare/vitest-plugin`
+**1.3.2**, all published 2026-09-29 around 15:35 UTC. Both plugins pin Wrangler 4.143.1. Its
+miniflare, 5.20260926.1-alpha, depends on `undici` 7.29.1 directly and runs the same workerd build
+(1.20260926.1), so `compatibility_date` 2026-09-26 still holds. Wrangler 4.144.0 and 4.145.0 and
+their plugins were under a day old. `@cloudflare/workers-types` stays at 5.20260929.1, the
+newest older than a day.
+
+Done on the branch: the three versions bumped in `src/app/package.json`; the `overrides` entry and
+its comment deleted from `pnpm-workspace.yaml`; the lockfile resolves one `undici`, 7.29.1, under
+miniflare, with no overrides section; `pnpm audit --audit-level moderate` finds nothing. The code
+gates pass (271 tests, 4 Worker tests in the new miniflare, build), and so do the golden replays
+in Chromium. `stack-and-ci.md` no longer lists the override. Left: CI, the preview on pull
+request #12, and the production deploy when it merges.
