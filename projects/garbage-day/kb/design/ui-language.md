@@ -128,7 +128,7 @@ Durations from the demo; each has a reduced-motion version that keeps the inform
 | Line clear | 3 white pulses in 200 ms, rows collapse in 220 ms | a single fade |
 | Garbage lands | rows slide up from below in 150 ms and the screen shakes for 380 ms | rows appear, no shake |
 | Attack sent | a yellow token flies from the board through the centre column to the other meter in 700 ms, and the column's Match DO badge pulses | the meter count ticks up |
-| Clear label | TETRIS, T-SPIN DOUBLE and so on rise and fade over 1.3 s | shown for 1 s, no movement |
+| Clear label | QUAD, T-SPIN DOUBLE and so on rise and fade over 1.3 s | shown for 1 s, no movement |
 | Countdown | 3-2-1-GO numbers pop in over 550 ms | numbers change in place |
 | Win | confetti from the winner's board | none |
 
@@ -163,7 +163,7 @@ Recorded sounds can replace them later without changing the events.
 │  ...     │                       │  │ attacks   │  │                       │          │
 │          │                       │  │ fly here  │  │                       │          │
 ├──────────┴───────────────────────┴──┴───────────┴──┴───────────────────────┴──────────┤
-│ Lines 24 · Sent 11 · 1.8 pieces/s · Tetrises 2      Lines 19 · Sent 8 · 1.5 pieces/s  │
+│ Lines 24 · Sent 11 · 1.8 pieces/s · Quads 2         Lines 19 · Sent 8 · 1.5 pieces/s  │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 

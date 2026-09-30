@@ -5,7 +5,7 @@ description: "The match screen's fight layer against the local referee: the garb
 resource: "../../product/prd.md"
 tags: ["backlog", "UI", "react"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -51,10 +51,10 @@ From the [PRD](../../product/prd.md#playing), **US-08 Send and receive garbage**
 - At 1:00 of play, **Double garbage** doubles every routed attack for 15 s.
 - At 2:30 of play, **Sudden death** adds 4 speed levels and doubles garbage until someone tops out.
 
-**US-15 Result and rematch** ("Tetrises" becomes "Quads" with [`GD-TICKET-018`](GD-TICKET-018.md)):
+**US-15 Result and rematch** (a four-row clear is a Quad since [`GD-TICKET-018`](GD-TICKET-018.md)):
 
 - Both players see the same result and reason (topped out, forfeit, no contest, session ended),
-  and a stats table: lines, garbage sent, Tetrises, T-spins, power-ups used, pieces per second.
+  and a stats table: lines, garbage sent, Quads, T-spins, power-ups used, pieces per second.
 - **Rematch** starts a new match with a new seed when both press it within 30 s; otherwise each
   player returns to the start.
 

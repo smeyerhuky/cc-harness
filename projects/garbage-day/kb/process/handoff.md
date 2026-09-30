@@ -22,8 +22,10 @@ history lives in the [running journal](journal/index.md).
   [`GD-STORY-001`](backlog/GD-STORY-001.md) (a local match by keyboard against a bot),
   [`GD-STORY-007`](backlog/GD-STORY-007.md) (home, handles, preferences, settings) and
   [`GD-STORY-003`](backlog/GD-STORY-003.md) (rebinding and the repeat timings) are done
-  ([roadmap](roadmap.md)). The owner asked for **no pull request until keyboard play and its
-  interactions work**; with those three done, it is pull request #13. M1 closed at its owner
+  ([roadmap](roadmap.md)), merged in pull request #13 and live in production, and so is
+  [`GD-TICKET-018`](backlog/GD-TICKET-018.md) (a four-row clear is a **Quad**). The owner asked
+  for the rest of M2 in this order: [`GD-STORY-002`](backlog/GD-STORY-002.md) (active), then
+  `004` with `015`, `005`, `006`, `008` and `024`. M1 closed at its owner
   check-in on 2026-09-30: "let's go", every default approved
   ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
   `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
@@ -61,7 +63,7 @@ history lives in the [running journal](journal/index.md).
     merged.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29
-  ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)). Pull requests #10, #11 and #12 are merged.
+  ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)). Pull requests #10 to #13 are merged.
   Settled on 2026-09-30:
   - the Cloudflare secrets (the token expires 2026-12-29: rotate it before then);
   - the Renovate GitHub app, reading `renovate.json` from `main`;
@@ -72,10 +74,9 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-The owner tries pull request #13 (keyboard play: home → settings → Play a bot → a match, their
-keys) on its Worker Preview. Then [`GD-STORY-002`](backlog/GD-STORY-002.md), the fight layer
-(garbage, power-ups, showdowns and the full result), which the
-[rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks next in M2's index.
+[`GD-STORY-002`](backlog/GD-STORY-002.md), see the fight (active): the meter and attack flight,
+landing feedback, power-ups and their effects, showdown banners, clear labels from `clearLabel`,
+and the result card with stats. Then its pull request, and the rest of M2 in the owner's order.
 
 ## Standing rules for M1
 

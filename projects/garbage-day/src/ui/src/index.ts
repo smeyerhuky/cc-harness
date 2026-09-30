@@ -34,6 +34,7 @@ export { Toggle } from './primitives/Toggle';
 export { VisuallyHidden } from './primitives/VisuallyHidden';
 
 export { BoardCanvas, type BoardCanvasProps } from './game/BoardCanvas';
+export { clearLabel, QUAD, type ClearLabel } from './game/clearLabel';
 export { drawBoard, ghostY, type BoardView, type DrawOptions } from './game/draw';
 export { Meter } from './game/Meter';
 export {

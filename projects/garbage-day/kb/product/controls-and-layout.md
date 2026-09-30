@@ -67,7 +67,7 @@ Designed to use a large screen (US-18):
   the power-up slot, speed level with progress, and the incoming meter along the inner edge.
 - A **centre column** between the boards carries the match clock, showdown announcements and the
   flight of attacks from one board to the other.
-- Under each board, **live stats**: lines, garbage sent, pieces per second, Tetrises and T-spins.
+- Under each board, **live stats**: lines, garbage sent, pieces per second, Quads and T-spins.
 - On windows at least 1600 px wide, a **match feed** beside the centre column lists attacks,
   cancels, power-ups, showdowns and pauses as they happen.
 
