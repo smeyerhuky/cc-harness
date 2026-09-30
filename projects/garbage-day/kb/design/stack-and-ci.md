@@ -193,6 +193,11 @@ codeql and delete-preview (their own workflows)
   `GD_BROWSERS=chromium PW_CHROMIUM=<path to chrome> pnpm test:browser`.
 - **`garbage-day-ok`** needs every job, runs even when one fails, and fails if any failed or was
   cancelled; skipped jobs count as passing.
+- **The deploy jobs run on `!cancelled() && needs.garbage-day-ok.result == 'success'`**, plus the
+  event. A plain `if:` gets an implicit `success()`, and GitHub applies a skip "to all jobs in
+  the dependency chain from the point of failure or skip onwards". On a push, `dependency-review`
+  is skipped, so the first merge to `main` skipped `deploy-production` with every check green
+  ([lesson](../../../../kb/lessons/skipped-job-skips-deploy.md)).
 - **Least privilege:** the workflows grant `contents: read` and nothing else, except CodeQL's
   job, which adds `security-events: write` and `actions: read`, and `deploy-preview`, which adds
   `pull-requests: write` to comment the preview URL. Checkouts don't keep the token
@@ -209,9 +214,12 @@ summary check also means adding a job (e2e in M3) never touches the repository's
 CodeQL is left out of the required checks: its findings appear on the pull request as code
 scanning alerts.
 
-**The owner must set this up; an agent session cannot:** in the repository's settings, add a
-branch ruleset (or branch protection) for `main` that requires the status check
-`garbage-day-ok`. Renovate's automatic patch merges wait for it too.
+**The owner must set this up; an agent session cannot** (the session's proxy refuses writes to
+the rulesets API). The repository's `main-protect` ruleset for `main` already blocks deletion and
+force pushes and requires a pull request. On 2026-09-30 the owner added "Require status checks to
+pass" with `garbage-day-ok` from GitHub Actions, and "Require branches to be up to date before
+merging". Renovate's automatic patch merges wait for the check too, and Renovate rebases its own
+pull requests when `main` moves.
 
 ## Deployment
 
@@ -245,7 +253,8 @@ deployable Worker and its config to `dist/`, which `wrangler deploy` and `wrangl
   first preview had no Durable Object bindings (above) until the `previews` block declared them.
   See [`/kb/lessons/first-deploy-new-account.md`](../../../../kb/lessons/first-deploy-new-account.md)
   and [`/kb/lessons/worker-previews-in-ci.md`](../../../../kb/lessons/worker-previews-in-ci.md).
-  Production hasn't deployed yet; it first runs on the merge to `main`.
+  Production hasn't deployed yet. The merge of pull request #10 skipped `deploy-production`
+  (above), so it first runs on the merge of the fix.
 - **Known traps from this repo's lessons:** a sandboxed agent session cannot reach its own
   `*.workers.dev` URL (error 1042), so live checks after a deploy happen in the owner's browser
   ([`/kb/lessons/sandbox-egress-limits.md`](../../../../kb/lessons/sandbox-egress-limits.md)), and
