@@ -1,6 +1,11 @@
 # Garbage Day CI: the code gates, the audit, the KB gates, and dependency review on pull requests.
 # Design: projects/garbage-day/kb/design/stack-and-ci.md, "The pipeline". CodeQL is in
 # garbage-day-codeql.yml; the deploy and end-to-end jobs arrive with GD-TICKET-011 and M3.
+#
+# Pull requests are not path-filtered: a required check from a workflow that never starts
+# would block every other project's pull requests. Instead `changes` decides whether the
+# project was touched, the other jobs skip when it wasn't, and `garbage-day-ok` is the one
+# check to mark required.
 name: garbage-day
 
 on:
@@ -10,12 +15,9 @@ on:
       - projects/kb/**
       - .github/workflows/garbage-day.yml
       - .github/actions/garbage-day-setup/**
+      - .claude/skills/okf-wikify/scripts/**
+      - kb/authority/**
   pull_request:
-    paths:
-      - projects/garbage-day/**
-      - projects/kb/**
-      - .github/workflows/garbage-day.yml
-      - .github/actions/garbage-day-setup/**
   workflow_dispatch:
 
 permissions:
@@ -30,9 +32,46 @@ defaults:
     working-directory: projects/garbage-day
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      garbage-day: ${{ steps.diff.outputs.garbage-day }}
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # The same paths as the push filter: the project, the projects index, this CI, and
+          # what the kb job runs (the gate scripts and the vocabulary).
+          PATHS: ^(projects/garbage-day/|projects/kb/|\.github/workflows/garbage-day\.yml|\.github/actions/garbage-day-setup/|\.claude/skills/okf-wikify/scripts/|kb/authority/)
+        run: |
+          # Pushes are already path-filtered above; a manual run always checks everything.
+          if [ "$EVENT" != pull_request ]; then
+            echo "garbage-day=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$BASE_SHA...$HEAD_SHA" \
+            | grep -qE "$PATHS"; then
+            echo "garbage-day=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "garbage-day=false" >> "$GITHUB_OUTPUT"
+          fi
+          cat "$GITHUB_OUTPUT"
+
   # Installs once so the pnpm store is cached before the parallel jobs restore it.
   install:
     name: install
+    needs: changes
+    if: needs.changes.outputs.garbage-day == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -117,6 +156,8 @@ jobs:
   # projects index. Standard-library Python only.
   kb:
     name: kb
+    needs: changes
+    if: needs.changes.outputs.garbage-day == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     defaults:
@@ -138,7 +179,8 @@ jobs:
 
   dependency-review:
     name: dependency-review
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.garbage-day == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -149,3 +191,23 @@ jobs:
         with:
           fail-on-severity: moderate
           deny-licenses: AGPL-3.0-only, AGPL-3.0-or-later, GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, SSPL-1.0
+
+  # The one check to mark required: fails if any job above failed or was cancelled; skipped
+  # jobs (the project untouched, or dependency review on a push) count as passing.
+  garbage-day-ok:
+    name: garbage-day-ok
+    needs: [changes, install, lint, typecheck, test, test-worker, audit, build, kb, dependency-review]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success | skipped) ;; *) exit 1 ;; esac
+          done
