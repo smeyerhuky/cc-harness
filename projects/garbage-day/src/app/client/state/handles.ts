@@ -20,14 +20,24 @@ const BIRDS = words(`
 
 export const HANDLE_WORDS = { adjectives: ADJECTIVES, birds: BIRDS } as const;
 
-/** A uniform random number in [0, 1) from the platform's secure generator. */
-function secureRandom(): number {
-  return (crypto.getRandomValues(new Uint32Array(1))[0] ?? 0) / 2 ** 32;
+/**
+ * A uniform whole number from 0 to `n - 1` from the platform's secure generator, with no bias:
+ * it takes only as many random bits as `n` needs and draws again when they come to `n` or more.
+ * (Scaling a 32-bit draw down to `n` would favour some values, if very slightly.)
+ */
+export function secureInt(n: number): number {
+  const mask = 2 ** Math.ceil(Math.log2(n)) - 1;
+  const draw = new Uint32Array(1);
+  for (;;) {
+    crypto.getRandomValues(draw);
+    const v = (draw[0] ?? 0) & mask;
+    if (v < n) return v;
+  }
 }
 
-const pick = <T>(list: readonly T[], r: number): T => list[Math.floor(r * list.length)] as T;
-
 /** A new handle: an adjective, a bird and a number from 1 to 99. */
-export function randomHandle(random: () => number = secureRandom): string {
-  return `${pick(ADJECTIVES, random())} ${pick(BIRDS, random())} ${1 + Math.floor(random() * 99)}`;
+export function randomHandle(int: (n: number) => number = secureInt): string {
+  const adjective = ADJECTIVES[int(ADJECTIVES.length)] ?? 'Brisk';
+  const bird = BIRDS[int(BIRDS.length)] ?? 'Heron';
+  return `${adjective} ${bird} ${1 + int(99)}`;
 }

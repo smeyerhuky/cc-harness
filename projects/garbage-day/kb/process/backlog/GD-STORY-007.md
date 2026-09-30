@@ -53,7 +53,9 @@ Nimble Kestrel 21** with a **New name** button, and **Settings** has sound and m
 kept in this browser and survive a reload.
 
 - **Handles** (`client/state/handles.ts`): 40 adjectives, 40 birds and a number from 1 to 99,
-  from `crypto.getRandomValues`: 158,400 names. A test runs every word pair with the longest
+  from `crypto.getRandomValues`: 158,400 names. Each pick is unbiased (`secureInt` keeps only
+  the bits it needs and draws again when out of range), after CodeQL flagged the first version's
+  scaled draw on pull request #13. A test runs every word pair with the longest
   number through the protocol's `handle` schema. There is no text field anywhere, so a handle
   can be regenerated but never typed.
 - **The preferences store** (`client/state/prefs.ts`): Zustand 5.0.15 with `persist`, under
