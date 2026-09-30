@@ -17,7 +17,8 @@ history lives in the [running journal](journal/index.md).
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
 - **Milestone:** M1 — Foundations — **active**, every item done but
-  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), which is blocked on the owner ([roadmap](roadmap.md)). M0 closed at its owner
+  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), now active again: the Cloudflare secrets exist
+  ([roadmap](roadmap.md)). M0 closed at its owner
   check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
   new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
@@ -46,9 +47,9 @@ history lives in the [running journal](journal/index.md).
     on `main`, and preview cleanup, which skip until the secrets exist.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:**
-  - for `GD-TICKET-011`: the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository
-    secrets, then opening the preview URL CI comments on the pull request and, after merging to
-    `main`, the production URL;
+  - for `GD-TICKET-011`: opening the preview URL CI comments on pull request #10 and, after
+    merging to `main`, the production URL (the secrets were added 2026-09-30; the token expires
+    2026-12-29);
   - installing the Renovate GitHub app (until then `renovate.json` is inert);
   - a ruleset or branch protection on `main` requiring the `garbage-day-ok` check
     ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
@@ -57,10 +58,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-Nothing in M1 can move without the owner. When the Cloudflare secrets exist, resume
 [`GD-TICKET-011`](backlog/GD-TICKET-011.md): check that CI's `deploy-preview` published a preview
-and commented its URL, fix the job if the open-beta `wrangler preview` needs it, and get the
-owner's confirmation of the preview and, after a merge to `main`, the production URL. Then M1's
+and commented its URL on pull request #10, fix the job if the open-beta `wrangler preview` needs
+it, and get the owner's confirmation of the preview and, after a merge to `main`, the production
+URL. Then M1's
 exit: the milestone tier of the definition of done (coverage audit, metadata, minting M2), ending
 with the owner check-in.
 

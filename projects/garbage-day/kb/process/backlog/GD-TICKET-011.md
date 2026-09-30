@@ -5,7 +5,7 @@ description: "Stand up the app package (a React shell page, the Worker serving s
 resource: "../../design/stack-and-ci.md"
 tags: ["backlog", "deploy"]
 timestamp: "2026-09-30"
-state: "blocked"
+state: "active"
 milestone: "M1"
 relationships:
   - type: PART_OF
@@ -57,8 +57,10 @@ backlog index and roadmap agree, and the journal records it.
 
 ## Progress
 
-Blocked on the owner since the [scaffold session](../journal/2026-09-30-scaffold.md). Everything
-that needs no Cloudflare account is done and verified:
+The owner added the `CLOUDFLARE_API_TOKEN` (an account API token from the "Edit Cloudflare
+Workers" template, one account, expiring 2026-12-29) and `CLOUDFLARE_ACCOUNT_ID` repository
+secrets on 2026-09-30, so the item is active again: the next run deploys the first preview.
+Before that, everything that needed no Cloudflare account was done and verified:
 
 - **The shell.** `src/app/worker/index.ts` has the Worker and the `LobbyDO` and `MatchDO`
   classes; `/api/health` answers from both over RPC. `src/app/wrangler.jsonc` sets the asset SPA
@@ -77,8 +79,7 @@ that needs no Cloudflare account is done and verified:
 
 Waiting on the owner:
 
-1. Add the repository secrets `CLOUDFLARE_API_TOKEN` (Workers Scripts and Durable Objects edit
-   on one account) and `CLOUDFLARE_ACCOUNT_ID`.
+1. ~~Add the repository secrets~~ (done 2026-09-30).
 2. Open the preview URL that `deploy-preview` then comments on the pull request, and the
    production URL after the first push to `main`, which means merging. Say whether both show the
    shell with "Server ready".
