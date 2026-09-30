@@ -17,8 +17,8 @@ history lives in the [running journal](journal/index.md).
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
 - **Milestone:** M1 — Foundations — **active**, every item done but
-  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), now active again: the Cloudflare secrets exist
-  ([roadmap](roadmap.md)). M0 closed at its owner
+  [`GD-TICKET-011`](backlog/GD-TICKET-011.md), active: the Cloudflare secrets work, and the
+  first preview waits on the account's `workers.dev` subdomain ([roadmap](roadmap.md)). M0 closed at its owner
   check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
   new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
@@ -41,15 +41,17 @@ history lives in the [running journal](journal/index.md).
   - the protocol, [`GD-TICKET-010`](backlog/GD-TICKET-010.md): schemas for every message, the
     codec (engine shapes ↔ wire), a board encoding of at most 161 bytes, settings, and a
     typecheck test that keeps the protocol and the engine's types in agreement;
-  - the app shell, [`GD-TICKET-011`](backlog/GD-TICKET-011.md) (**blocked on the owner**): the
+  - the app shell, [`GD-TICKET-011`](backlog/GD-TICKET-011.md) (**waiting on the owner**): the
     Worker with `LobbyDO` and `MatchDO`, the React page, Worker tests in workerd, verified locally
     with `vite dev` and `vite preview`; CI jobs for a Worker Preview per pull request, production
-    on `main`, and preview cleanup, which skip until the secrets exist.
+    on `main`, and preview cleanup. The first preview run authenticated, then Cloudflare refused
+    it with code 10063: the account has no `workers.dev` subdomain yet.
   Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
 - **Waiting on the owner:**
-  - for `GD-TICKET-011`: opening the preview URL CI comments on pull request #10 and, after
-    merging to `main`, the production URL (the secrets were added 2026-09-30; the token expires
-    2026-12-29);
+  - for `GD-TICKET-011`: opening **Workers & Pages** in the Cloudflare dashboard once, which
+    creates the account's `workers.dev` subdomain; then opening the preview URL CI comments on
+    pull request #10 and, after merging to `main`, the production URL (the secrets were added
+    2026-09-30; the token expires 2026-12-29);
   - installing the Renovate GitHub app (until then `renovate.json` is inert);
   - a ruleset or branch protection on `main` requiring the `garbage-day-ok` check
     ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
@@ -58,10 +60,11 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-011`](backlog/GD-TICKET-011.md): check that CI's `deploy-preview` published a preview
-and commented its URL on pull request #10, fix the job if the open-beta `wrangler preview` needs
-it, and get the owner's confirmation of the preview and, after a merge to `main`, the production
-URL. Then M1's
+[`GD-TICKET-011`](backlog/GD-TICKET-011.md): once the owner says the `workers.dev` subdomain
+exists, rerun the failed `deploy-preview` job on pull request #10's latest run (a rerun, not an
+empty commit). Check that it published a preview and commented its URL, and fix the job if the
+open-beta `wrangler preview` needs it. Add the 10063 gotcha to `/kb/lessons/`. Get the owner's
+confirmation of the preview and, after a merge to `main`, the production URL. Then M1's
 exit: the milestone tier of the definition of done (coverage audit, metadata, minting M2), ending
 with the owner check-in.
 

@@ -229,9 +229,12 @@ deployable Worker and its config to `dist/`, which `wrangler deploy` and `wrangl
   and `CLOUDFLARE_ACCOUNT_ID` as repository secrets; never in files. Without them (before the
   owner adds them, and on pull requests from forks) both deploy jobs record a notice and pass. See
   [`/kb/platforms/cloudflare-credentials.md`](../../../../kb/platforms/cloudflare-credentials.md).
-- **Not yet proven against Cloudflare.** No session so far has had the secrets, so the first
-  real preview and production deploys are also the first test of these jobs. If previews fail
-  before the Worker exists in production, one production deploy comes first.
+- **An account needs a `workers.dev` subdomain first.** The first run with the secrets
+  (2026-09-30) authenticated and reached the preview deployment. Then Cloudflare refused it with
+  code 10063 ("You need a workers.dev subdomain in order to proceed"), because a new account has
+  none until someone opens Workers & Pages in the dashboard. That is a one-time owner step, not a
+  job change. No preview or production deploy has succeeded yet. If previews still fail before
+  the Worker exists in production, one production deploy comes first.
 - **Known traps from this repo's lessons:** a sandboxed agent session cannot reach its own
   `*.workers.dev` URL (error 1042), so live checks after a deploy happen in the owner's browser
   ([`/kb/lessons/sandbox-egress-limits.md`](../../../../kb/lessons/sandbox-egress-limits.md)), and
