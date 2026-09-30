@@ -16,8 +16,9 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M2 — Play solo — **active**; [`GD-TICKET-021`](backlog/GD-TICKET-021.md) is done,
-  and [`GD-TICKET-023`](backlog/GD-TICKET-023.md) is next ([roadmap](roadmap.md)). M1 closed at its owner
+- **Milestone:** M2 — Play solo — **active**; [`GD-TICKET-021`](backlog/GD-TICKET-021.md) and
+  [`GD-TICKET-023`](backlog/GD-TICKET-023.md) (the `ui` commons, with a gallery at `/gallery`) are
+  done, and [`GD-TICKET-014`](backlog/GD-TICKET-014.md) is next ([roadmap](roadmap.md)). M1 closed at its owner
   check-in on 2026-09-30: "let's go", every default approved
   ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
   `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
@@ -66,10 +67,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-023`](backlog/GD-TICKET-023.md), the `ui` commons: the item the
-[rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks (its AI PDLC Prompt says what
-to read and build). [`GD-TICKET-014`](backlog/GD-TICKET-014.md), the app flow, is also ready, and
-every M2 story waits on one or both.
+[`GD-TICKET-014`](backlog/GD-TICKET-014.md), the app flow machine, routes and contexts: the item
+the [rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks now that the commons are
+done. `/gallery` moves onto a route then. After it, `GD-STORY-001` (a local match) and
+`GD-STORY-007` (home and preferences) are ready.
 
 ## Standing rules for M1
 

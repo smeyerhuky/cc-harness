@@ -1,0 +1,91 @@
+/* A full-viewport screen that never scrolls during a match (UI language, "What changes"). */
+.screen {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 100dvh;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  gap: 8px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.locked {
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+/* The stage: a dark cabinet in both themes, with the player, the centre column and the rival. */
+.stage {
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) auto minmax(0, 1fr);
+  grid-template-areas: 'left centre right';
+  gap: 6px;
+  min-height: 0;
+  height: 100%;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--cabinet);
+  overflow: hidden;
+}
+.left {
+  grid-area: left;
+  min-width: 0;
+  min-height: 0;
+}
+.centre {
+  grid-area: centre;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.right {
+  grid-area: right;
+  min-width: 0;
+  min-height: 0;
+}
+.feed {
+  grid-area: feed;
+  display: none;
+  min-height: 0;
+  overflow: auto;
+}
+.banner {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+/* Phone landscape and up: boards at equal size. */
+@media (orientation: landscape), (min-width: 900px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+  }
+}
+/* 1600 px and wider: the match feed beside the rival. */
+@media (min-width: 1600px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) 260px;
+    grid-template-areas: 'left centre right feed';
+  }
+  .feed {
+    display: block;
+  }
+}
+/* The bottom of a phone screen, where thumbs reach. */
+.thumb {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding-bottom: env(safe-area-inset-bottom);
+}

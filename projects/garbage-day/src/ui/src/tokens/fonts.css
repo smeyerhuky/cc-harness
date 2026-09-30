@@ -1,3 +1,9 @@
 /* Self-hosted type (kb/design/ui-language.md, "Type"): no third-party request, works offline.
-   The display face for now; the body and data faces arrive with the ui commons in M2. */
+   Display 800–900, body 400–700, data 400–600. */
 @import '@fontsource/big-shoulders-display/800';
+@import '@fontsource/big-shoulders-display/900';
+@import '@fontsource/public-sans/400';
+@import '@fontsource/public-sans/600';
+@import '@fontsource/public-sans/700';
+@import '@fontsource/ibm-plex-mono/400';
+@import '@fontsource/ibm-plex-mono/600';

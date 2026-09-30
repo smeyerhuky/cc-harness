@@ -4,7 +4,7 @@ export default defineProject({
   test: {
     name: 'ui',
     environment: 'happy-dom',
-    include: ['src/**/*.test.tsx'],
+    include: ['src/**/*.test.{ts,tsx}'],
     setupFiles: ['./test/setup.ts'],
   },
 });

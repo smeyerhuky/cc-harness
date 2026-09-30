@@ -41,7 +41,7 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | Preferences state | Zustand (with `persist`) | 5.0.15 | Smallest correct tool for a persisted flat store |
 | Message schemas | Zod | 4.6.5 | Validates every incoming message on the server; types shared with the client |
 | Styling | CSS Modules + CSS custom properties | built in | Tokens from [UI language](ui-language.md); no runtime cost |
-| Fonts | `@fontsource` (Big Shoulders Display, Public Sans, IBM Plex Mono) | 5.3.0 (display, since `GD-TICKET-011`); the others with the M2 commons | Self-hosted, imported by the `ui` package's `fonts.css` |
+| Fonts | `@fontsource` (Big Shoulders Display, Public Sans, IBM Plex Mono) | 5.3.0 each | Self-hosted, imported by the `ui` package's `fonts.css` (display 800–900, body 400–700, data 400–600) |
 | Unit and component tests | Vitest | **4.1.11** (exception) | See exceptions |
 | Durable Object tests | `@cloudflare/vitest-plugin` | 1.3.2 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
 | DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 20.14.5 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
@@ -132,7 +132,7 @@ copy from the runner ("Cannot read properties of undefined (reading 'config')", 
 | Engine unit | pieces and kicks, lock delay, attack table, cancelling, garbage landing, speed table, power-ups, referee rules | Vitest |
 | Golden replays | seeded matches (bot vs bot, a classic-rules match, and one with every interruption, as in `spikes/proof-of-concept/live/test-live.js`) replayed twice and compared with `src/engine/test/golden/*.json` by result, tick counts, final board hashes, stats, message counts and messages per minute, and the referee's timeline. `pnpm --filter @garbage-day/engine golden:update` regenerates them, deliberately. `pnpm test:browser` runs the same test, against the same files, in Chromium, Firefox and WebKit | Vitest (`toMatchFileSnapshot`); Vitest browser mode with Playwright |
 | Protocol | every message type round-trips through its schema; invalid messages are rejected | Vitest |
-| UI and client | commons, features, `appMachine`, gestures, `MatchSession` against a local referee | Vitest, happy-dom, Testing Library |
+| UI and client | commons (every primitive, widget, layout and hook; the board renderer against a recording 2D context; every token contrast pair in both themes; `tokens.css` generated from `tokens.ts`), features, `appMachine`, gestures, `MatchSession` against a local referee | Vitest, happy-dom, Testing Library |
 | Worker and Durable Objects | routes and the health check (from `GD-TICKET-011`); then pairing, private lobby and codes, dealing, ledger resend, alarms (pause, grace, both away, expiry), snapshot restore after restart | `@cloudflare/vitest-plugin` (`src/app/vitest.worker.config.ts`) |
 | End to end | two browser contexts: quick match to result; private link join; a tab hidden mid-match, then back; accessibility scan of every screen | Playwright, axe |
 

@@ -1,0 +1,15 @@
+.card {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+.title {
+  margin: 0;
+  font: 800 var(--fs-28) / 1 var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}

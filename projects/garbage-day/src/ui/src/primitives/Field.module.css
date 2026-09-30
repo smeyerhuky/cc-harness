@@ -1,0 +1,35 @@
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--ink);
+  font: 500 var(--fs-16) / 1.2 var(--font-body);
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.select,
+.range {
+  composes: focus from './focus.module.css';
+  font: inherit;
+  color: var(--ink);
+}
+.select {
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.range {
+  flex: 1;
+  accent-color: var(--accent);
+  min-height: 44px;
+}
+.value {
+  font: 600 var(--fs-16) / 1 var(--font-data);
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+  text-align: right;
+}

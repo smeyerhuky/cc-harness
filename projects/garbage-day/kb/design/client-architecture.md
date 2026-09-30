@@ -45,8 +45,10 @@ projects/garbage-day/src/
 │   ├── game/          BoardCanvas, PieceGlyph, PowerIcon, Meter, SpeedChip, PresenceChip, HoldSlot,
 │   │                  NextQueue, PowerSlot, Countdown, ShowdownBanner, Popup, AttackFlight, BoardCover
 │   ├── layout/        StageLayout (slots: left, centre, right, feed), ScreenFrame, ThumbZone
-│   └── hooks/         useReducedMotion, usePageVisibility, useWakeLock, useHaptics, useResizeObserver,
-│                      useGestures, useKeyBindings, useAnimationFrame, useInterval
+│   ├── hooks/         useReducedMotion, usePageVisibility, useWakeLock, useHaptics, useResizeObserver,
+│   │                  useGestures, useKeyBindings, useAnimationFrame, useInterval, useColorScheme,
+│   │                  useMediaQuery
+│   └── gallery/       every token and widget in its states, served at /gallery (a visual check)
 └── app/           @garbage-day/app       one Vite project: the client and the Worker
     ├── client/
     │   ├── main.tsx, App.tsx, routes.tsx
@@ -66,7 +68,10 @@ projects/garbage-day/src/
 ```
 
 Each feature folder exports one public `index.ts`; its components, hooks and machine pieces stay
-private to it.
+private to it. The `ui` package is marked free of side effects apart from its CSS, so a screen
+that uses one widget doesn't ship the rest. `useKeyBindings` and `useGestures` arrive with the
+stories that need them, [`GD-STORY-003`](../process/backlog/GD-STORY-003.md) and
+[`GD-STORY-004`](../process/backlog/GD-STORY-004.md).
 
 ## Where state lives
 

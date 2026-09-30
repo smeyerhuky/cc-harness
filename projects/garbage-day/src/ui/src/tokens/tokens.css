@@ -1,5 +1,5 @@
-/* Garbage Day design tokens — kb/design/ui-language.md, "Colour tokens" and "Type".
-   Every colour is defined for light on :root and redefined for dark. */
+/* GENERATED from tokens.ts by `pnpm --filter @garbage-day/ui tokens:update`: do not edit.
+   Garbage Day design tokens (kb/design/ui-language.md, "Colour tokens" and "Type"). */
 :root {
   --bg: #eceeea;
   --surface: #f8f9f6;
@@ -17,6 +17,7 @@
   --bad: #c23a2b;
   --well: #14181b;
   --well-grid: #1f2529;
+  --well-ink: #e9ece7;
   --cabinet: #262c31;
   --garbage: #6f777d;
   --garbage-stripe: #5a6167;
@@ -24,7 +25,6 @@
   --pw-bomb: #f0604f;
   --pw-fog: #b3b6d6;
   --pw-rush: #f29a2e;
-  /* Pieces: the collection-streams palette, never the guideline colours. */
   --piece-i: #d0a15b;
   --piece-o: #3e9e7a;
   --piece-t: #4a78c8;
@@ -35,6 +35,12 @@
   --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
   --font-body: 'Public Sans', system-ui, sans-serif;
   --font-data: 'IBM Plex Mono', ui-monospace, monospace;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-20: 20px;
+  --fs-28: 28px;
+  --fs-40: clamp(28px, 5vw, 40px);
+  --fs-64: clamp(40px, 9vw, 64px);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -83,6 +89,24 @@
   --garbage: #646c72;
   --garbage-stripe: #50575c;
   color-scheme: dark;
+}
+
+/* The stage is a dark cabinet in both themes: what sits on it uses the dark content colours. */
+[data-stage] {
+  --surface: #171b1e;
+  --surface-2: #1f2529;
+  --ink: #e6e9e4;
+  --muted: #98a2a8;
+  --line: #2c3338;
+  --accent: #ff6b3d;
+  --accent-ink: #1a0d07;
+  --rival: #5da5e3;
+  --hazard: #f2c12e;
+  --hazard-ink: #111416;
+  --ok: #4cc27f;
+  --warn: #e3b23c;
+  --bad: #f0604f;
+  color: var(--well-ink);
 }
 
 /* The page itself follows the theme; nothing outside the app shows the browser's defaults. */

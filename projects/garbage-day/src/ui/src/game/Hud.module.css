@@ -1,0 +1,97 @@
+/* The meter: a 10 px bar on the board's inner edge. */
+.meter {
+  position: relative;
+  width: 10px;
+  height: 100%;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.06);
+}
+.fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 3px;
+  background: repeating-linear-gradient(-45deg, var(--hazard) 0 5px, var(--hazard-ink) 5px 10px);
+  opacity: 0.45;
+  transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ready {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 3px;
+  background: repeating-linear-gradient(-45deg, var(--hazard) 0 5px, var(--hazard-ink) 5px 10px);
+}
+.shielded {
+  box-shadow: 0 0 10px 2px var(--pw-shield);
+}
+/* The count rides just above the waiting rows. */
+.count {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -4px);
+  font: 600 11px / 1 var(--font-data);
+  color: var(--hazard);
+}
+.speed {
+  display: inline-grid;
+  gap: 3px;
+  font: 600 var(--fs-14) / 1 var(--font-data);
+  letter-spacing: 0.04em;
+  color: var(--well-ink);
+}
+.speed.hot {
+  color: var(--bad);
+}
+.bar {
+  width: 56px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.12);
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  background: currentColor;
+}
+.presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 var(--fs-14) / 1 var(--font-body);
+  color: var(--well-ink);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.online {
+  background: var(--ok);
+}
+.away,
+.reconnecting {
+  background: var(--warn);
+}
+.gone {
+  background: var(--bad);
+}
+.reconnecting {
+  animation: blink 1s steps(2, jump-none) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+  .reconnecting {
+    animation: none;
+  }
+}

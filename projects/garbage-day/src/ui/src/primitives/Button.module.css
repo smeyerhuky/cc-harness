@@ -1,0 +1,43 @@
+.button {
+  composes: focus from './focus.module.css';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 44px;
+  padding: 0 1.1em;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font: 600 var(--fs-16) / 1 var(--font-body);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.ghost {
+  background: transparent;
+  color: var(--ink);
+}
+.large {
+  min-height: 56px;
+  font-size: var(--fs-20);
+  padding: 0 1.4em;
+}
+.block {
+  width: 100%;
+}
+.icon {
+  min-width: 44px;
+  padding: 0;
+}

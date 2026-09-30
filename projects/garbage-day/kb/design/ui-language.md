@@ -39,7 +39,9 @@ condensed signage type of depots and trucks. It is playful but orderly, like a w
 
 From the proof of concept's `:root` blocks, unchanged unless noted. Every colour is a CSS custom
 property defined on `:root` for light, redefined for dark under
-`@media (prefers-color-scheme: dark)` and `[data-theme="dark"]`.
+`@media (prefers-color-scheme: dark)` and `[data-theme="dark"]`. The values live in one place,
+`src/ui/src/tokens/tokens.ts`; `tokens.css` is generated from it
+(`pnpm --filter @garbage-day/ui tokens:update`), and a test fails if the two differ.
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
@@ -47,10 +49,12 @@ property defined on `:root` for light, redefined for dark under
 | `--surface` · `--surface-2` | `#F8F9F6` · `#E1E5DF` | `#171B1E` · `#1F2529` | cards, sheets |
 | `--ink` · `--muted` · `--line` | `#1B1F22` · `#56606A` · `#C8CEC7` | `#E6E9E4` · `#98A2A8` · `#2C3338` | text, borders |
 | `--accent` (safety orange) | `#C73E17` | `#FF6B3D` | primary actions, the local player |
+| `--accent-ink` | `#FFFFFF` | `#1A0D07` | text on accent (primary buttons) |
 | `--rival` (bin blue) | `#22629C` | `#5DA5E3` | the opponent |
 | `--hazard` · `--hazard-ink` | `#F2B90F` · `#1B1F22` | `#F2C12E` · `#111416` | garbage meter, stripe bands |
 | `--ok` · `--warn` · `--bad` | `#2A8453` · `#9A7208` · `#C23A2B` | `#4CC27F` · `#E3B23C` · `#F0604F` | presence and results |
 | `--well` · `--well-grid` · `--cabinet` | `#14181B` · `#1F2529` · `#262C31` | `#0A0D0F` · `#171C20` · `#0E1113` | board and stage |
+| `--well-ink` | `#E9ECE7` | same | text on the stage and over boards (from the demo) |
 | `--garbage` · `--garbage-stripe` | `#6F777D` · `#5A6167` | `#646C72` · `#50575C` | landed garbage |
 | `--pw-shield` · `-bomb` · `-fog` · `-rush` | `#4FD1E8` · `#F0604F` · `#B3B6D6` · `#F29A2E` | same | gems and power-ups |
 
@@ -72,7 +76,15 @@ hue, and gives every piece a **pattern mark** so shapes differ without colour (U
 | Gem | power-up | `--pw-*` | white diamond (from the demo) |
 
 Each piece colour must reach at least 3:1 contrast against `--well`; a unit test checks every
-token pair the UI relies on, in both themes.
+token pair the UI relies on, in both themes: 4.5:1 for text, 3:1 for marks and fills
+(`CONTRAST_PAIRS` in `tokens.ts`).
+
+**The stage uses the dark content colours in both themes.** The stage is a dark cabinet even in
+light mode, so what sits on it (names, chips, the meter's count, the banner) would lose contrast
+in light-theme colours: light `--bad` on the light cabinet is 2.65:1, where 3:1 is needed. The stage element carries
+`data-stage`, and inside it `--ink`, `--muted`, `--accent`, `--rival`, `--hazard`, `--ok`,
+`--warn`, `--bad` and the surfaces take their dark values. The cabinet and the well keep their
+own theme's shade. (Found building the commons, `GD-TICKET-023`.)
 
 ## Type
 

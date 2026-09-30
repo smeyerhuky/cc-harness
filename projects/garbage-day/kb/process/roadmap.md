@@ -71,7 +71,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 
 ## M2 — Play solo
 
-- [ ] The `ui` commons: tokens (UI language palette, pattern marks, self-hosted fonts), primitives,
+- [x] The `ui` commons: tokens (UI language palette, pattern marks, self-hosted fonts), primitives,
   game widgets, hooks, and the token-contrast test — [`GD-TICKET-023`](backlog/GD-TICKET-023.md)
 - [ ] `MatchSession` over a local referee, and the match screen: `BoardCanvas`, panels, centre
   column, meter, speed chip, showdown banner, clear labels, attack flight, results (US-05, US-08,
