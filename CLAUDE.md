@@ -40,6 +40,7 @@ A template repository for multi-project development: clone it, then build your p
 
 - **projects/** - All project containers — each with its own `kb/process/` (handoff, roadmap, backlog, running journal, definition of done) and, once it runs one, `kb/alignment/`
   - `common/` - Shared utilities and code used across projects
+  - `garbage-day/` - A two-player, real-time falling-block versus game on Cloudflare Durable Objects (planning); prefix `GD`
   - `hello-worker/` - A minimal Cloudflare Worker (`src/`, `wrangler.jsonc`) — the deploy recipes' worked example; prefix `HW`
   - `sample-project/` - The scaffold every new project is copied from ([`projects/CLAUDE.md`](projects/CLAUDE.md), "Adding a new project")
   - `kb/` - Projects directory KB index

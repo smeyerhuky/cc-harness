@@ -37,6 +37,7 @@ cc-harness/
 ├── projects/                      # All project containers
 │   ├── CLAUDE.md                  # Governs the projects/ directory
 │   ├── common/                    # Shared utilities and common code
+│   ├── garbage-day/               # A two-player, real-time falling-block versus game (planning)
 │   ├── hello-worker/              # A minimal Cloudflare Worker — the deploy recipes' worked example
 │   ├── sample-project/            # The scaffold every new project is copied from
 │   └── kb/                        # Projects index/governance KB (CLAUDE.md, index.md, projects/)
