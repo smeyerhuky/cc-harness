@@ -2,6 +2,7 @@ import { Button, Kbd } from '@garbage-day/ui';
 import { Suspense, use } from 'react';
 import { useLoaderData, useNavigate } from 'react-router';
 import type { ServerStatus } from '../../health';
+import { keyLabel } from '../../input/bindings';
 import { usePrefs } from '../../state/prefs';
 import type { HomeData } from './loader';
 import styles from './Home.module.css';
@@ -21,11 +22,18 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const handle = usePrefs((s) => s.handle);
   const newHandle = usePrefs((s) => s.newHandle);
+  const dropKey = usePrefs((s) => keyLabel(s.bindings.hard[0] ?? ''));
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Garbage Day</h1>
       <p className={styles.tagline}>
-        Live versus falling blocks. Press <Kbd>Space</Kbd> to drop.
+        Live versus falling blocks.
+        {dropKey && (
+          <>
+            {' '}
+            Press <Kbd>{dropKey}</Kbd> to drop.
+          </>
+        )}
       </p>
       <p className={styles.handle}>
         Playing as <strong>{handle}</strong>

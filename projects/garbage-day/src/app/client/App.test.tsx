@@ -4,6 +4,7 @@ import { createMemoryRouter, type RouteObject } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { MatchRouteError, RouteError } from './RouteError';
+import { DEFAULT_BINDINGS } from './input/bindings';
 import { routes } from './routes';
 import { PREFS_KEY, usePrefs } from './state/prefs';
 
@@ -142,6 +143,31 @@ describe('preferences', () => {
     expect(saved()).toMatchObject({ motion: 'reduce' });
     fireEvent.change(motion, { target: { value: 'system' } });
     expect(document.documentElement.dataset.motion).toBeUndefined();
+  });
+
+  it('home names the drop key the player chose', async () => {
+    usePrefs.setState({ bindings: { ...DEFAULT_BINDINGS, hard: ['KeyJ'] } });
+    renderAt('/');
+    expect((await screen.findByText(/to drop/)).textContent).toBe(
+      'Live versus falling blocks. Press J to drop.',
+    );
+  });
+
+  it('a match listens to the player’s keys, not the defaults', async () => {
+    usePrefs.setState({ bindings: { ...DEFAULT_BINDINGS, hard: ['KeyJ'] } });
+    renderAt('/');
+    fireEvent.click(await screen.findByRole('button', { name: 'Play a bot' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
+    await screen.findByRole('img', { name: 'Your board' });
+    // A bound key is the game's, so the page never sees it (no scrolling); others pass through.
+    const keydown = (code: string) => {
+      const e = new KeyboardEvent('keydown', { code, bubbles: true, cancelable: true });
+      window.dispatchEvent(e);
+      return e.defaultPrevented;
+    };
+    expect(keydown('KeyJ')).toBe(true);
+    expect(keydown('Space')).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
   });
 
   it('settings "Done" goes home', async () => {

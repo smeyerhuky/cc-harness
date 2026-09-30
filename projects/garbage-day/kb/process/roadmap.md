@@ -77,7 +77,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
   column, meter, speed chip, showdown banner, clear labels, attack flight, results (US-05, US-08,
   US-09, US-10, US-11, US-15 locally) — [`GD-STORY-001`](backlog/GD-STORY-001.md),
   [`GD-STORY-002`](backlog/GD-STORY-002.md)
-- [ ] Keyboard controls with rebinding and DAS/ARR settings (US-16) —
+- [x] Keyboard controls with rebinding and DAS/ARR settings (US-16) —
   [`GD-STORY-003`](backlog/GD-STORY-003.md)
 - [ ] Touch gestures per the gesture table, the optional button pad, haptics (US-17) —
   [`GD-STORY-004`](backlog/GD-STORY-004.md)

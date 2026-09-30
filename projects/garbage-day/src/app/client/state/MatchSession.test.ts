@@ -69,6 +69,30 @@ describe('MatchSession', () => {
     expect(s.session.match.t).toBe(t0 + 1);
   });
 
+  it('repeats a held move at the player’s delay and rate, in real time', () => {
+    const s = setup();
+    s.input.setTiming(250, 100);
+    toGo(s);
+    s.frame();
+    const x0 = s.session.board(0).piece?.x ?? 0;
+    s.input.down('left');
+    let elapsed = 0;
+    const movedBy = (ms: number) => {
+      while (elapsed < ms) {
+        s.frame();
+        elapsed += FRAME;
+      }
+      return x0 - (s.session.board(0).piece?.x ?? 0);
+    };
+    // Once at once; again at 250 ms and 350 ms. A press may run a tick early (US-05), so each
+    // check sits more than a tick from the moment it tests.
+    expect(movedBy(1)).toBe(1);
+    expect(movedBy(225)).toBe(1);
+    expect(movedBy(275)).toBe(2);
+    expect(movedBy(325)).toBe(2);
+    expect(movedBy(375)).toBe(3);
+  });
+
   it('catches up at most 250 ms after a long gap', () => {
     const s = setup();
     toGo(s);

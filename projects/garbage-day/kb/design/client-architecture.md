@@ -68,10 +68,12 @@ projects/garbage-day/src/
 ```
 
 Each feature folder exports one public `index.ts`; its components, hooks and machine pieces stay
-private to it. The `ui` package is marked free of side effects apart from its CSS, so a screen
-that uses one widget doesn't ship the rest. `useKeyBindings` and `useGestures` arrive with the
-stories that need them, [`GD-STORY-003`](../process/backlog/GD-STORY-003.md) and
-[`GD-STORY-004`](../process/backlog/GD-STORY-004.md).
+private to it. Every workspace package declares its side effects: `ui` has none apart from its
+CSS, so a screen that uses one widget doesn't ship the rest, and `engine` and `protocol` have
+none, so the first page carries only the constants it imports and the engine loads with the
+match. `useKeyBindings` arrived with [`GD-STORY-001`](../process/backlog/GD-STORY-001.md) and
+takes the player's keys since [`GD-STORY-003`](../process/backlog/GD-STORY-003.md);
+`useGestures` arrives with [`GD-STORY-004`](../process/backlog/GD-STORY-004.md).
 
 ## Where state lives
 
@@ -144,6 +146,10 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   ARR per tick. The engine reads it once per tick.
 - `useKeyBindings` maps the player's bindings to controller actions and blocks page scrolling
   during a match.
+- `input/bindings.ts` holds the rules for changing a binding, which the settings and the stored
+  preferences share: a key another action uses is refused, Tab and Esc can't be bound, an action
+  has one to three keys. Delay and rate are kept in milliseconds that are whole ticks (50 to 333
+  ms, 17 to 100 ms), so what the settings show is what the engine counts.
 - `useGestures` implements the gesture table in
   [controls and layout](../product/controls-and-layout.md#touch-gestures) with Pointer Events on
   the `TouchSurface`: axis lock after 12 px, a column per cell of horizontal travel, tap to rotate

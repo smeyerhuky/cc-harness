@@ -1,5 +1,6 @@
 import { Select, Toggle } from '@garbage-day/ui';
 import { usePrefs, type MotionSetting } from '../../state/prefs';
+import { ControlsSection } from './ControlsSection';
 import styles from './Settings.module.css';
 
 const MOTION_OPTIONS = [
@@ -8,8 +9,8 @@ const MOTION_OPTIONS = [
 ] as const satisfies readonly { value: MotionSetting; label: string }[];
 
 /**
- * The settings (GD-STORY-007): sound and motion now; controls and gestures join with their
- * stories. The same panel serves the settings page and, later, the in-match sheet.
+ * The settings (GD-STORY-007): sound, motion and the keyboard controls (GD-STORY-003); gestures
+ * join with their story. The same panel serves the settings page and, later, the in-match sheet.
  */
 export function SettingsPanel() {
   const sound = usePrefs((s) => s.sound);
@@ -34,6 +35,7 @@ export function SettingsPanel() {
           lost.
         </p>
       </section>
+      <ControlsSection />
     </div>
   );
 }

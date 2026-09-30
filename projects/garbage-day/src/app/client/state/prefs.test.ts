@@ -1,5 +1,6 @@
 import { handle } from '@garbage-day/protocol';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { DEFAULT_BINDINGS } from '../input/bindings';
 import { PREFS_KEY, safeStorage, usePrefs } from './prefs';
 
 const initial = usePrefs.getState();
@@ -16,7 +17,28 @@ describe('usePrefs', () => {
   it('starts with a valid handle, sound off, and motion following the device', () => {
     const s = usePrefs.getState();
     expect(handle.safeParse(s.handle).success).toBe(true);
-    expect(s).toMatchObject({ sound: false, motion: 'system' });
+    expect(s).toMatchObject({
+      sound: false,
+      motion: 'system',
+      bindings: DEFAULT_BINDINGS,
+      dasMs: 167,
+      arrMs: 33,
+    });
+  });
+
+  it('keeps the player’s keys and timings, in whole ticks, and resets them to the defaults', () => {
+    const custom = { ...DEFAULT_BINDINGS, hard: ['KeyJ'] };
+    usePrefs.getState().setBindings(custom);
+    usePrefs.getState().setDas(100);
+    usePrefs.getState().setArr(49);
+    expect(usePrefs.getState()).toMatchObject({ bindings: custom, dasMs: 100, arrMs: 50 });
+    expect(stored()).toMatchObject({ state: { bindings: custom, dasMs: 100, arrMs: 50 } });
+    usePrefs.getState().resetControls();
+    expect(usePrefs.getState()).toMatchObject({
+      bindings: DEFAULT_BINDINGS,
+      dasMs: 167,
+      arrMs: 33,
+    });
   });
 
   it('saves every change to this browser, and only the preferences', () => {
@@ -27,7 +49,14 @@ describe('usePrefs', () => {
     const after = usePrefs.getState().handle;
     expect(handle.safeParse(after).success).toBe(true);
     expect(stored()).toEqual({
-      state: { handle: after, sound: true, motion: 'reduce' },
+      state: {
+        handle: after,
+        sound: true,
+        motion: 'reduce',
+        bindings: DEFAULT_BINDINGS,
+        dasMs: 167,
+        arrMs: 33,
+      },
       version: 1,
     });
     // A fresh name is not guaranteed to differ, but 50 in a row matching the first would be a bug.
@@ -67,6 +96,30 @@ describe('usePrefs', () => {
     const s = usePrefs.getState();
     expect(s).toMatchObject({ handle: initial.handle, sound: false, motion: 'reduce' });
     expect(s).not.toHaveProperty('extra');
+  });
+
+  it('reads saved controls back, and drops broken ones', async () => {
+    const custom = { ...DEFAULT_BINDINGS, hard: ['KeyJ'] };
+    localStorage.setItem(
+      PREFS_KEY,
+      JSON.stringify({ state: { bindings: custom, dasMs: 100, arrMs: 17 }, version: 1 }),
+    );
+    await usePrefs.persist.rehydrate();
+    expect(usePrefs.getState()).toMatchObject({ bindings: custom, dasMs: 100, arrMs: 17 });
+    localStorage.setItem(
+      PREFS_KEY,
+      JSON.stringify({
+        state: { bindings: { ...DEFAULT_BINDINGS, hard: ['KeyZ'] }, dasMs: 5000, arrMs: 'fast' },
+        version: 1,
+      }),
+    );
+    usePrefs.setState(initial, true);
+    await usePrefs.persist.rehydrate();
+    expect(usePrefs.getState()).toMatchObject({
+      bindings: DEFAULT_BINDINGS,
+      dasMs: 167,
+      arrMs: 33,
+    });
   });
 
   it('ignores a saved value that is not an object', async () => {

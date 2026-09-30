@@ -7,11 +7,20 @@ import { TPS, type Controller, type Input } from '@garbage-day/engine';
 
 export type Action = 'left' | 'right' | 'soft' | 'hard' | 'cw' | 'ccw' | 'hold' | 'power';
 
-/** Auto-repeat defaults from the controls page: 167 ms delay, 33 ms rate. */
-const DEFAULT_TIMING = { dasMs: 167, arrMs: 33 } as const;
-
 const MS_PER_TICK = 1000 / TPS;
-const toTicks = (ms: number) => Math.max(1, Math.round(ms / MS_PER_TICK));
+/** Milliseconds to whole engine ticks, at least one. */
+export const toTicks = (ms: number) => Math.max(1, Math.round(ms / MS_PER_TICK));
+/** Whole ticks to the nearest millisecond. */
+export const toMs = (ticks: number) => Math.round(ticks * MS_PER_TICK);
+
+/** Auto-repeat defaults from the controls page: 167 ms delay (10 ticks), 33 ms rate (2 ticks). */
+export const DEFAULT_TIMING = { dasMs: 167, arrMs: 33 } as const;
+
+/** What the settings offer, in ticks: a delay of 50 to 333 ms, a rate of 17 to 100 ms. */
+export const TIMING_TICKS = {
+  das: { min: 3, max: 20 },
+  arr: { min: 1, max: 6 },
+} as const;
 
 export class InputController implements Controller {
   private readonly held = new Set<Action>();

@@ -1,7 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import styles from './Button.module.css';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ComponentProps<'button'> {
   /** `primary` is filled in accent: one per screen, for the main action. */
   readonly variant?: 'primary' | 'secondary' | 'ghost';
   readonly size?: 'medium' | 'large';

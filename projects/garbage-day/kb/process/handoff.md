@@ -19,11 +19,11 @@ history lives in the [running journal](journal/index.md).
 - **Milestone:** M2 — Play solo — **active**; [`GD-TICKET-021`](backlog/GD-TICKET-021.md) and
   [`GD-TICKET-023`](backlog/GD-TICKET-023.md) (the `ui` commons, with a gallery at `/gallery`) and
   [`GD-TICKET-014`](backlog/GD-TICKET-014.md) (the app machine, routes and contexts),
-  [`GD-STORY-001`](backlog/GD-STORY-001.md) (a local match by keyboard against a bot) and
-  [`GD-STORY-007`](backlog/GD-STORY-007.md) (home, handles, preferences, settings) are done
+  [`GD-STORY-001`](backlog/GD-STORY-001.md) (a local match by keyboard against a bot),
+  [`GD-STORY-007`](backlog/GD-STORY-007.md) (home, handles, preferences, settings) and
+  [`GD-STORY-003`](backlog/GD-STORY-003.md) (rebinding and the repeat timings) are done
   ([roadmap](roadmap.md)). The owner asked for **no pull request until keyboard play and its
-  interactions work**: `GD-STORY-001`, `007` and `003`, then one pull request; `003` is
-  active. M1 closed at its owner
+  interactions work**; with those three done, it is pull request #13. M1 closed at its owner
   check-in on 2026-09-30: "let's go", every default approved
   ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
   `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
@@ -72,13 +72,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-STORY-003`](backlog/GD-STORY-003.md), the keyboard my way (active): rebinding and the
-DAS/ARR settings, as a Controls section in the settings panel from
-[`GD-STORY-007`](backlog/GD-STORY-007.md), kept in its preferences store and applied through
-`useKeyBindings` and `InputController.setTiming`. It is the item the
-[rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks (the index puts it before `002`
-for the owner's keyboard-first pull request). Then the pull request the owner is waiting for:
-home → settings → Play a bot → a keyboard match, their way.
+The owner tries pull request #13 (keyboard play: home → settings → Play a bot → a match, their
+keys) on its Worker Preview. Then [`GD-STORY-002`](backlog/GD-STORY-002.md), the fight layer
+(garbage, power-ups, showdowns and the full result), which the
+[rule](../../../../kb/pdlc/work-items.md#which-item-is-next) picks next in M2's index.
 
 ## Standing rules for M1
 

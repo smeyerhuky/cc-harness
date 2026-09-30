@@ -8,8 +8,10 @@ import {
   Countdown,
 } from '@garbage-day/ui';
 import type { PlayerIndex } from '@garbage-day/engine';
+import { keyLabel } from '../../input/bindings';
 import type { MatchSession } from '../../state/MatchSession';
 import { MatchSessionContext } from '../../state/matchContexts';
+import { usePrefs } from '../../state/prefs';
 import { mmss } from './format';
 import styles from './Match.module.css';
 
@@ -50,11 +52,12 @@ export function PlayerPanel({ session }: { session: MatchSession }) {
   const holdUsed = useMatch((v) => v.players[0].holdUsed);
   const power = useMatch((v) => v.players[0].power);
   const next = useMatch((v) => v.players[0].next);
+  const powerKey = usePrefs((s) => keyLabel(s.bindings.power[0] ?? ''));
   return (
     <div className={styles.panel}>
       <div className={styles.side}>
         <HoldSlot piece={hold} used={holdUsed} />
-        <PowerSlot kind={power} hint="E" />
+        <PowerSlot kind={power} hint={powerKey} />
         <NextQueue pieces={next} />
       </div>
       <Board session={session} seat={0} label="Your board" />

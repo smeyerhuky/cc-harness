@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { InputController } from './InputController';
+import { DEFAULT_TIMING, InputController, TIMING_TICKS, toMs, toTicks } from './InputController';
 
 const ticks = (c: InputController, n: number) => Array.from({ length: n }, () => c.tick());
 
@@ -52,6 +52,15 @@ describe('InputController', () => {
     c.setTiming(50, 0);
     c.down('left');
     expect(ticks(c, 6).map((i) => i.dx)).toEqual([-1, 0, 0, -1, -1, -1]);
+  });
+
+  it('shows whole ticks as milliseconds that convert back exactly', () => {
+    expect([toTicks(DEFAULT_TIMING.dasMs), toTicks(DEFAULT_TIMING.arrMs)]).toEqual([10, 2]);
+    for (const { min, max } of Object.values(TIMING_TICKS)) {
+      for (let t = min; t <= max; t++) expect(toTicks(toMs(t))).toBe(t);
+    }
+    expect([toMs(TIMING_TICKS.das.min), toMs(TIMING_TICKS.das.max)]).toEqual([50, 333]);
+    expect([toMs(TIMING_TICKS.arr.min), toMs(TIMING_TICKS.arr.max)]).toEqual([17, 100]);
   });
 
   it('forgets everything on reset', () => {

@@ -33,3 +33,7 @@
   min-width: 3ch;
   text-align: right;
 }
+/* A slider's value keeps room for its widest text, so stacked sliders line up. */
+.range ~ .value {
+  min-width: 6ch;
+}

@@ -1,16 +1,15 @@
 import { Button, ScreenFrame, StageLayout, useKeyBindings } from '@garbage-day/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { DEFAULT_BINDINGS, keyMap } from '../../input/bindings';
+import { keyMap } from '../../input/bindings';
 import { InputController } from '../../input/InputController';
 import { AppActorContext } from '../../state/appActor';
 import { MatchSession } from '../../state/MatchSession';
 import { InputContext, MatchSessionContext } from '../../state/matchContexts';
+import { usePrefs } from '../../state/prefs';
 import { mmss } from './format';
 import { CentreColumn, OpponentPanel, PlayerPanel } from './Panels';
 import styles from './Match.module.css';
-
-const KEYS = keyMap(DEFAULT_BINDINGS);
 
 function randomSeed(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
@@ -85,7 +84,11 @@ export function MatchScreen() {
       }),
   );
   const over = state === 'result' || state === 'rematch';
-  useKeyBindings(KEYS, input, !over);
+  const keys = keyMap(usePrefs((s) => s.bindings));
+  const dasMs = usePrefs((s) => s.dasMs);
+  const arrMs = usePrefs((s) => s.arrMs);
+  useEffect(() => input.setTiming(dasMs, arrMs), [input, dasMs, arrMs]);
+  useKeyBindings(keys, input, !over);
 
   const leave = () => {
     if (!over) app.send({ type: 'ENDED', result: { winner: 1, reason: 'left' } });

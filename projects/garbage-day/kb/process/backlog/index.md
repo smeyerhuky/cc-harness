@@ -49,7 +49,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · done
 - [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · done
 - [GD-STORY-007](GD-STORY-007.md) — Start from home with a handle and my settings · done
-- [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · active
+- [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · done
 - [GD-STORY-002](GD-STORY-002.md) — See the fight: garbage, power-ups, showdowns and the result · open
 - [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · open
 - [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · open
