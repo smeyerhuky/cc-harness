@@ -42,18 +42,18 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-019](GD-TICKET-019.md) — Run the golden replays in real browsers · done
 - [GD-TICKET-020](GD-TICKET-020.md) — Run the browser replays in Playwright's container image · done
 
-*M2 — Play solo (part of GD-EPIC-001; minted at the M1 exit; the owner put `GD-TICKET-021` first):*
+*M2 — Play solo (part of GD-EPIC-001; minted at the M1 exit; the owner put `GD-TICKET-021` first, then keyboard play and its settings before the fight layer):*
 
 - [GD-TICKET-021](GD-TICKET-021.md) — Take the next Cloudflare tooling set and delete the undici override · done
 - [GD-TICKET-023](GD-TICKET-023.md) — Build the ui commons: tokens, primitives, game widgets and hooks · done
 - [GD-TICKET-014](GD-TICKET-014.md) — App flow machine, routes and contexts · done
 - [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · done
+- [GD-STORY-007](GD-STORY-007.md) — Start from home with a handle and my settings · done
+- [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · active
 - [GD-STORY-002](GD-STORY-002.md) — See the fight: garbage, power-ups, showdowns and the result · open
-- [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · open
 - [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · open
 - [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · open
 - [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · open
-- [GD-STORY-007](GD-STORY-007.md) — Start from home with a handle and my settings · open
 - [GD-STORY-008](GD-STORY-008.md) — Accessible by default · open
 - [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · open
 - [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · open

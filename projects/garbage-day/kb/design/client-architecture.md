@@ -89,6 +89,11 @@ before the countdown), which is what a state machine is for. Preferences are sma
 persisted, which is what Zustand does with the least code. Server data belongs to the route that
 needs it.
 
+Saved preferences are checked field by field on load, and an invalid field takes its default, so
+a stale or edited entry never breaks the page. The check does not use Zod: the first page loads
+without it, and `@garbage-day/protocol/handle` gives the handle rule without the schema library
+(the socket code brings Zod when online play needs it).
+
 ## Contexts
 
 Few, narrow, and holding stable objects rather than changing values, so a context change never

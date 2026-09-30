@@ -1,15 +1,18 @@
 import { Button } from '@garbage-day/ui';
 import { useNavigate } from 'react-router';
-import styles from '../screen.module.css';
+import { SettingsPanel } from './SettingsPanel';
+import styles from './Settings.module.css';
 
-/** `/settings`: the settings sheet arrives with the preferences store (GD-STORY-007). */
+/** `/settings`: the settings panel on its own page. */
 export function SettingsScreen() {
   const navigate = useNavigate();
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Settings</h1>
-      <p>Controls, sound and motion settings arrive with the preferences store.</p>
-      <Button onClick={() => void navigate('/')}>Home</Button>
+      <div className={styles.top}>
+        <h1 className={styles.title}>Settings</h1>
+        <Button onClick={() => void navigate('/')}>Done</Button>
+      </div>
+      <SettingsPanel />
     </main>
   );
 }

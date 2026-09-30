@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { MatchRouteError, RouteError } from './RouteError';
 import { routes } from './routes';
+import { PREFS_KEY, usePrefs } from './state/prefs';
 
 function renderAt(path: string, routeList: RouteObject[] = routes) {
   const router = createMemoryRouter(routeList, { initialEntries: [path] });
@@ -100,6 +101,54 @@ describe('routes', () => {
   it('/settings has its screen', async () => {
     renderAt('/settings');
     expect(await screen.findByRole('heading', { name: 'Settings' })).toBeDefined();
+  });
+});
+
+describe('preferences', () => {
+  const initial = usePrefs.getState();
+  afterEach(() => {
+    usePrefs.setState(initial, true);
+    localStorage.clear();
+  });
+  const saved = () =>
+    (JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as { state?: object }).state;
+
+  it('home shows the generated name, and "New name" replaces it', async () => {
+    usePrefs.setState({ handle: 'Quiet Wren 7' });
+    renderAt('/');
+    expect((await screen.findByText(/^Playing as/)).textContent).toContain('Quiet Wren 7');
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'New name' }));
+    });
+    const next = usePrefs.getState().handle;
+    expect(screen.getByText(/^Playing as/).textContent).toContain(next);
+    expect(saved()).toMatchObject({ handle: next });
+  });
+
+  it('settings turn sound on and keep it', async () => {
+    renderAt('/settings');
+    fireEvent.click(await screen.findByRole('switch', { name: 'Sound effects', checked: false }));
+    expect(
+      await screen.findByRole('switch', { name: 'Sound effects', checked: true }),
+    ).toBeDefined();
+    expect(saved()).toMatchObject({ sound: true });
+  });
+
+  it('settings reduce motion for the whole app, and can hand it back to the device', async () => {
+    renderAt('/settings');
+    const motion = await screen.findByRole('combobox', { name: 'Animations' });
+    fireEvent.change(motion, { target: { value: 'reduce' } });
+    expect(document.documentElement.dataset.motion).toBe('reduce');
+    expect(saved()).toMatchObject({ motion: 'reduce' });
+    fireEvent.change(motion, { target: { value: 'system' } });
+    expect(document.documentElement.dataset.motion).toBeUndefined();
+  });
+
+  it('settings "Done" goes home', async () => {
+    const router = renderAt('/settings');
+    fireEvent.click(await screen.findByRole('button', { name: 'Done' }));
+    expect(await screen.findByRole('heading', { name: 'Garbage Day' })).toBeDefined();
+    expect(router.state.location.pathname).toBe('/');
   });
 });
 

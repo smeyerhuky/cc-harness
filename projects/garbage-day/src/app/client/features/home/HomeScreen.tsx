@@ -2,6 +2,7 @@ import { Button, Kbd } from '@garbage-day/ui';
 import { Suspense, use } from 'react';
 import { useLoaderData, useNavigate } from 'react-router';
 import type { ServerStatus } from '../../health';
+import { usePrefs } from '../../state/prefs';
 import type { HomeData } from './loader';
 import styles from './Home.module.css';
 
@@ -18,11 +19,19 @@ function Status({ status }: { status: Promise<ServerStatus> }) {
 export function HomeScreen() {
   const { status } = useLoaderData<HomeData>();
   const navigate = useNavigate();
+  const handle = usePrefs((s) => s.handle);
+  const newHandle = usePrefs((s) => s.newHandle);
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Garbage Day</h1>
       <p className={styles.tagline}>
         Live versus falling blocks. Press <Kbd>Space</Kbd> to drop.
+      </p>
+      <p className={styles.handle}>
+        Playing as <strong>{handle}</strong>
+        <Button variant="ghost" onClick={newHandle}>
+          New name
+        </Button>
       </p>
       <div className={styles.actions}>
         <Button variant="primary" size="large" onClick={() => void navigate('/bot')}>

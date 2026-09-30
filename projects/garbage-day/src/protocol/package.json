@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./handle": "./src/handle.ts"
   },
   "dependencies": {
     "@garbage-day/engine": "workspace:*",

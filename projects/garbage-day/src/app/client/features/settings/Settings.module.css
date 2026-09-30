@@ -1,0 +1,45 @@
+.page {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  align-content: start;
+  gap: 20px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.title {
+  margin: 0;
+  font: 800 var(--fs-40) / 1 var(--font-display);
+  text-transform: uppercase;
+}
+.panel {
+  display: grid;
+  gap: 16px;
+}
+.section {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.heading {
+  margin: 0;
+  font: 800 var(--fs-20) / 1 var(--font-display);
+  text-transform: uppercase;
+}
+.note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}

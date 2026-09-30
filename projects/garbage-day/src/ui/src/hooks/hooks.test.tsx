@@ -6,7 +6,7 @@ import { useColorScheme } from './useColorScheme';
 import { useHaptics } from './useHaptics';
 import { useInterval } from './useInterval';
 import { usePageVisibility } from './usePageVisibility';
-import { useReducedMotion } from './useReducedMotion';
+import { setMotionPreference, useReducedMotion } from './useReducedMotion';
 import { useResizeObserver } from './useResizeObserver';
 import { useWakeLock } from './useWakeLock';
 
@@ -44,6 +44,16 @@ afterEach(() => {
 });
 
 describe('useReducedMotion', () => {
+  it('follows the app-wide setting when no preference is passed', () => {
+    mockMatchMedia();
+    const { result } = renderHook(() => useReducedMotion());
+    expect(result.current).toBe(false);
+    act(() => setMotionPreference('reduce'));
+    expect(result.current).toBe(true);
+    act(() => setMotionPreference('system'));
+    expect(result.current).toBe(false);
+  });
+
   it('follows the system unless the player overrides it', () => {
     const set = mockMatchMedia();
     const { result, rerender } = renderHook(({ p }) => useReducedMotion(p), {

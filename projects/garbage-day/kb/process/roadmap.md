@@ -85,7 +85,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
   scrolling during a match, wake lock (US-18, US-19) — [`GD-STORY-005`](backlog/GD-STORY-005.md)
 - [ ] Bot setup with presets and separate skill and speed, the skill test (US-03 locally) —
   [`GD-STORY-006`](backlog/GD-STORY-006.md)
-- [ ] Home screen, generated handles, preferences store, settings sheet (US-04) —
+- [x] Home screen, generated handles, preferences store, settings sheet (US-04) —
   [`GD-STORY-007`](backlog/GD-STORY-007.md)
 - [ ] Reduced motion, sound toggle, keyboard operability, axe scan (US-20); the developer overlay
   — [`GD-STORY-008`](backlog/GD-STORY-008.md), [`GD-TICKET-024`](backlog/GD-TICKET-024.md)

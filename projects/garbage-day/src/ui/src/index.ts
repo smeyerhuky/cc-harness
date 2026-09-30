@@ -62,6 +62,10 @@ export { useInterval } from './hooks/useInterval';
 export { useKeyBindings, type KeyHandlers } from './hooks/useKeyBindings';
 export { useMediaQuery } from './hooks/useMediaQuery';
 export { usePageVisibility } from './hooks/usePageVisibility';
-export { useReducedMotion, type MotionPreference } from './hooks/useReducedMotion';
+export {
+  setMotionPreference,
+  useReducedMotion,
+  type MotionPreference,
+} from './hooks/useReducedMotion';
 export { useResizeObserver, type Size } from './hooks/useResizeObserver';
 export { useWakeLock } from './hooks/useWakeLock';

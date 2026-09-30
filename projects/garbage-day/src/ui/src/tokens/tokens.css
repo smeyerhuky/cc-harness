@@ -109,6 +109,15 @@
   color: var(--well-ink);
 }
 
+/* The player's own reduced-motion setting, on top of the system's (US-20). */
+:root[data-motion='reduce'] *,
+:root[data-motion='reduce'] *::before,
+:root[data-motion='reduce'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
 /* The page itself follows the theme; nothing outside the app shows the browser's defaults. */
 html,
 body {
