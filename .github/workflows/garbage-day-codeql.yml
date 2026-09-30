@@ -1,0 +1,49 @@
+# CodeQL for Garbage Day's TypeScript: on pull requests, on pushes, and weekly.
+# Design: projects/garbage-day/kb/design/stack-and-ci.md, "Dependency security".
+name: garbage-day-codeql
+
+on:
+  push:
+    paths:
+      - projects/garbage-day/src/**
+      - .github/workflows/garbage-day-codeql.yml
+  pull_request:
+    paths:
+      - projects/garbage-day/src/**
+      - .github/workflows/garbage-day-codeql.yml
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  codeql:
+    name: codeql
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: javascript-typescript
+          build-mode: none
+          config: |
+            paths:
+              - projects/garbage-day/src
+            paths-ignore:
+              - '**/dist'
+      - uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: /language:javascript-typescript/garbage-day

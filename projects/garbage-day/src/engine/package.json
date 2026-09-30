@@ -1,0 +1,14 @@
+{
+  "name": "@garbage-day/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "gen:speed-table": "node scripts/gen-speed-table.ts",
+    "golden:update": "vitest run --update src/golden.test.ts",
+    "test:browser": "vitest run --config vitest.browser.config.ts"
+  }
+}

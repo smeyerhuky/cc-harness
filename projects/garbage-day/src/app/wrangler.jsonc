@@ -1,0 +1,36 @@
+// The Worker and its Durable Objects (kb/design/architecture.md, "Components"). The Vite plugin
+// builds the client into static assets and the Worker beside it; `wrangler deploy` and
+// `wrangler preview` then read the built config.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "garbage-day",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-09-26",
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/ws/*"],
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "LOBBY", "class_name": "LobbyDO" },
+      { "name": "MATCH", "class_name": "MatchDO" },
+    ],
+  },
+  // SQLite storage, which the free plan requires. Migrations only ever append.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["LobbyDO", "MatchDO"] }],
+  "vars": { "ENVIRONMENT": "production" },
+  // Each pull request's preview (`wrangler preview`) gets its own Durable Object storage. A
+  // preview inherits no bindings or vars from above: each one the Worker reads from `env` is
+  // declared again here (test/wrangler-config.test.ts checks they match).
+  "previews": {
+    "durable_objects": {
+      "bindings": [
+        { "name": "LOBBY", "class_name": "LobbyDO" },
+        { "name": "MATCH", "class_name": "MatchDO" },
+      ],
+    },
+    "vars": { "ENVIRONMENT": "preview" },
+  },
+  "observability": { "enabled": true },
+}

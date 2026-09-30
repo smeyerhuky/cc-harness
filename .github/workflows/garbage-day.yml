@@ -1,0 +1,354 @@
+# Garbage Day CI: the code gates, the audit, the KB gates, dependency review on pull requests, and
+# deploys: a Worker Preview per pull request, production on main.
+# Design: projects/garbage-day/kb/design/stack-and-ci.md, "The pipeline" and "Deployment". CodeQL
+# is in garbage-day-codeql.yml; previews are deleted by garbage-day-preview-cleanup.yml; the
+# end-to-end job arrives in M3.
+#
+# Pull requests are not path-filtered: a required check from a workflow that never starts
+# would block every other project's pull requests. Instead `changes` decides whether the
+# project was touched, the other jobs skip when it wasn't, and `garbage-day-ok` is the one
+# check to mark required.
+name: garbage-day
+
+on:
+  push:
+    paths:
+      - projects/garbage-day/**
+      - projects/kb/**
+      - .github/workflows/garbage-day.yml
+      - .github/actions/garbage-day-setup/**
+      - .claude/skills/okf-wikify/scripts/**
+      - kb/authority/**
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/garbage-day
+
+jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      garbage-day: ${{ steps.diff.outputs.garbage-day }}
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # The same paths as the push filter: the project, the projects index, this CI, and
+          # what the kb job runs (the gate scripts and the vocabulary).
+          PATHS: ^(projects/garbage-day/|projects/kb/|\.github/workflows/garbage-day\.yml|\.github/actions/garbage-day-setup/|\.claude/skills/okf-wikify/scripts/|kb/authority/)
+        run: |
+          # Pushes are already path-filtered above; a manual run always checks everything.
+          if [ "$EVENT" != pull_request ]; then
+            echo "garbage-day=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$BASE_SHA...$HEAD_SHA" \
+            | grep -qE "$PATHS"; then
+            echo "garbage-day=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "garbage-day=false" >> "$GITHUB_OUTPUT"
+          fi
+          cat "$GITHUB_OUTPUT"
+
+  # Installs once so the pnpm store is cached before the parallel jobs restore it.
+  install:
+    name: install
+    needs: changes
+    if: needs.changes.outputs.garbage-day == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+
+  lint:
+    name: lint
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm lint
+
+  typecheck:
+    name: typecheck
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm typecheck
+
+  test:
+    name: test
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm test
+
+  test-worker:
+    name: test-worker
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm test:worker
+
+  # The golden replays in Chromium, Firefox and WebKit: the determinism contract has to hold on
+  # every JavaScript engine, not only Node's V8 (GD-TICKET-019).
+  test-browser:
+    name: test-browser
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Playwright's own image carries the three browsers and their system libraries, so no step
+    # downloads them (apt on the runner once took over 15 minutes). Its version must match the
+    # workspace's `playwright`; Renovate updates the two together.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm test:browser
+
+  audit:
+    name: audit
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm audit --audit-level moderate
+
+  build:
+    name: build
+    needs: [lint, typecheck, test, test-worker, audit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+      - run: pnpm build
+
+  # The repo's KB gates (/kb/pdlc/definition-of-done.md, "Gates") on the project's bundle and the
+  # projects index. Standard-library Python only.
+  kb:
+    name: kb
+    needs: changes
+    if: needs.changes.outputs.garbage-day == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: KB gates
+        run: |
+          S=.claude/skills/okf-wikify/scripts
+          for B in projects/garbage-day/kb/ projects/kb/; do
+            echo "== $B"
+            python3 $S/lint_okf.py $B && python3 $S/lint_authority.py $B \
+              && python3 $S/relationships.py $B && python3 $S/weeding.py $B \
+              && python3 $S/backlog.py $B
+          done
+
+  dependency-review:
+    name: dependency-review
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.garbage-day == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
+          deny-licenses: AGPL-3.0-only, AGPL-3.0-or-later, GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, SSPL-1.0
+
+  # The one check to mark required: fails if any job above failed or was cancelled; skipped
+  # jobs (the project untouched, or dependency review on a push) count as passing.
+  garbage-day-ok:
+    name: garbage-day-ok
+    needs:
+      [
+        changes,
+        install,
+        lint,
+        typecheck,
+        test,
+        test-worker,
+        test-browser,
+        audit,
+        build,
+        kb,
+        dependency-review,
+      ]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success | skipped) ;; *) exit 1 ;; esac
+          done
+
+  # Deploys run only when the Cloudflare secrets exist (not on forks, nor before the owner adds
+  # them); without them the job records a notice and passes. They are not part of garbage-day-ok.
+  deploy-preview:
+    name: deploy-preview
+    needs: [changes, garbage-day-ok]
+    if: github.event_name == 'pull_request' && needs.changes.outputs.garbage-day == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    concurrency:
+      group: garbage-day-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - id: creds
+        working-directory: .
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No Cloudflare secrets: preview not deployed."
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.creds.outputs.ok == 'true'
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+        if: steps.creds.outputs.ok == 'true'
+      - if: steps.creds.outputs.ok == 'true'
+        run: pnpm build
+      # A Worker Preview (open beta): its own URL and its own Durable Object storage, next to
+      # production. Version URLs are not an option: Cloudflare makes none for a Worker with
+      # Durable Objects.
+      - id: preview
+        if: steps.creds.outputs.ok == 'true'
+        working-directory: projects/garbage-day/src/app
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          NAME: pr-${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        # `--json` still prints Wrangler's progress lines to stdout ahead of the JSON document,
+        # so jq reads only from the line that opens it.
+        run: |
+          pnpm exec wrangler preview --name "$NAME" --message "$SHA" --json > "$RUNNER_TEMP/preview.out"
+          cat "$RUNNER_TEMP/preview.out"
+          url=$(sed -n '/^{/,$p' "$RUNNER_TEMP/preview.out" | jq -r '.preview.urls[0] // empty')
+          if [ -z "$url" ]; then echo "::error::No preview URL in the output"; exit 1; fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - if: steps.creds.outputs.ok == 'true'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.preview.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          body="Garbage Day preview of ${SHA:0:7}: $URL
+          It has its own Durable Object storage and is deleted when this pull request closes."
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --edit-last --create-if-none --body "$body"
+
+  deploy-production:
+    name: deploy-production
+    needs: [changes, garbage-day-ok]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # A GitHub environment, so the owner can require an approval before production changes.
+    environment:
+      name: production
+    concurrency:
+      group: garbage-day-production
+      cancel-in-progress: false
+    steps:
+      - id: creds
+        working-directory: .
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No Cloudflare secrets: production not deployed."
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.creds.outputs.ok == 'true'
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+        if: steps.creds.outputs.ok == 'true'
+      - if: steps.creds.outputs.ok == 'true'
+        run: pnpm build
+      - if: steps.creds.outputs.ok == 'true'
+        working-directory: projects/garbage-day/src/app
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy --message "$GITHUB_SHA"

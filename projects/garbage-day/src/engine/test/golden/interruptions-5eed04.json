@@ -1,0 +1,127 @@
+{
+  "seed": "0x5eed04",
+  "bots": [
+    [
+      6,
+      4
+    ],
+    [
+      6,
+      4
+    ]
+  ],
+  "rules": "default",
+  "scriptsFired": 5,
+  "result": {
+    "winner": 0,
+    "reason": "topout",
+    "by": 1,
+    "activeTicks": 10097,
+    "ticks": 14718
+  },
+  "ticks": 14718,
+  "activeTicks": 10097,
+  "boardHashes": [
+    "a8c842fc",
+    "179f1a5f"
+  ],
+  "stats": [
+    {
+      "pieces": 162,
+      "lines": 67,
+      "sent": 30,
+      "received": 13,
+      "cancelled": 6,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 0,
+      "powersGot": 1,
+      "maxCombo": 3,
+      "garbageRows": 7
+    },
+    {
+      "pieces": 154,
+      "lines": 63,
+      "sent": 11,
+      "received": 36,
+      "cancelled": 14,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 2,
+      "powersGot": 2,
+      "maxCombo": 2,
+      "garbageRows": 22
+    }
+  ],
+  "pausesLeft": [
+    1,
+    0
+  ],
+  "reconnectsLeft": [
+    2,
+    3
+  ],
+  "counts": {
+    "in": 3386,
+    "pos": 2506,
+    "hb": 466,
+    "lock": 316,
+    "relayed": 2828
+  },
+  "messagesPerMinute": 828.2,
+  "timeline": [
+    "0 state {\"from\":\"lobby\",\"to\":\"countdown\"}",
+    "180 state {\"from\":\"countdown\",\"to\":\"playing\"}",
+    "1383 presence {\"p\":1,\"to\":\"away\"}",
+    "1383 state {\"from\":\"playing\",\"to\":\"paused\"}",
+    "1383 pause {\"by\":1,\"reason\":\"tab\",\"budgeted\":true,\"pausesLeft\":1,\"reconnects\":3}",
+    "1741 extend {\"by\":0,\"deadline\":12183}",
+    "2462 presence {\"p\":1,\"to\":\"present\"}",
+    "2462 state {\"from\":\"paused\",\"to\":\"resuming\"}",
+    "2462 back {\"by\":1,\"away\":1079,\"resumeAt\":2642}",
+    "2642 state {\"from\":\"resuming\",\"to\":\"playing\"}",
+    "4440 presence {\"p\":0,\"to\":\"gone\"}",
+    "4440 state {\"from\":\"playing\",\"to\":\"paused\"}",
+    "4440 pause {\"by\":0,\"reason\":\"lost\",\"budgeted\":false,\"pausesLeft\":2,\"reconnects\":2}",
+    "4981 presence {\"p\":0,\"to\":\"present\"}",
+    "4981 rejoin {\"p\":0,\"resent\":0}",
+    "4981 state {\"from\":\"paused\",\"to\":\"resuming\"}",
+    "4981 back {\"by\":0,\"away\":842,\"resumeAt\":5161}",
+    "5161 state {\"from\":\"resuming\",\"to\":\"playing\"}",
+    "5458 showdown {\"kind\":\"double\",\"phase\":\"soon\"}",
+    "5758 showdown {\"kind\":\"double\",\"phase\":\"start\"}",
+    "6360 presence {\"p\":0,\"to\":\"gone\"}",
+    "6360 state {\"from\":\"playing\",\"to\":\"paused\"}",
+    "6360 pause {\"by\":0,\"reason\":\"closed\",\"budgeted\":true,\"pausesLeft\":1,\"reconnects\":2}",
+    "6961 presence {\"p\":0,\"to\":\"present\"}",
+    "6961 rejoin {\"p\":0,\"resent\":0}",
+    "6961 state {\"from\":\"paused\",\"to\":\"resuming\"}",
+    "6961 back {\"by\":0,\"away\":601,\"resumeAt\":7141}",
+    "7141 state {\"from\":\"resuming\",\"to\":\"playing\"}",
+    "7439 showdown {\"kind\":\"double\",\"phase\":\"end\"}",
+    "8642 presence {\"p\":1,\"to\":\"away\"}",
+    "8642 state {\"from\":\"playing\",\"to\":\"paused\"}",
+    "8642 pause {\"by\":1,\"reason\":\"tab\",\"budgeted\":true,\"pausesLeft\":0,\"reconnects\":3}",
+    "8762 presence {\"p\":0,\"to\":\"away\"}",
+    "8762 bothAway {\"endsAt\":26762}",
+    "9361 presence {\"p\":0,\"to\":\"present\"}",
+    "9361 bothAwayCancelled {\"waitingFor\":1}",
+    "10143 presence {\"p\":1,\"to\":\"present\"}",
+    "10143 state {\"from\":\"paused\",\"to\":\"resuming\"}",
+    "10143 back {\"by\":1,\"away\":1501,\"resumeAt\":10323}",
+    "10323 state {\"from\":\"resuming\",\"to\":\"playing\"}",
+    "12124 presence {\"p\":1,\"to\":\"away\"}",
+    "12124 presence {\"p\":1,\"to\":\"grace\"}",
+    "12124 grace {\"by\":1,\"until\":13024}",
+    "12484 presence {\"p\":1,\"to\":\"present\"}",
+    "12484 back {\"by\":1,\"away\":360,\"resumeAt\":null}",
+    "12503 power {\"by\":1,\"kind\":\"bomb\",\"at\":12515}",
+    "13320 showdown {\"kind\":\"sudden\",\"phase\":\"soon\"}",
+    "13620 showdown {\"kind\":\"sudden\",\"phase\":\"start\"}",
+    "14304 power {\"by\":1,\"kind\":\"fog\",\"at\":14316}",
+    "14718 state {\"from\":\"playing\",\"to\":\"over\"}",
+    "14718 result {\"winner\":0,\"reason\":\"topout\",\"by\":1}"
+  ]
+}

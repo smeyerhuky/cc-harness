@@ -1,0 +1,8 @@
+kb/
+spikes/
+*.md
+pnpm-lock.yaml
+dist/
+coverage/
+.wrangler/
+src/engine/test/golden/

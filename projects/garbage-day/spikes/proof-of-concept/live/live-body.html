@@ -1,0 +1,299 @@
+<div class="page">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Versus mode · live play · Match DO simulated in the page</p>
+      <h1>Garbage Day <span>Live</span></h1>
+      <p class="lede">Play a real match against RIVAL, a bot, with no turns: each browser runs its own board and a simulated Match DO relays everything with real network delay. The step-through replay comes after that, and at the end two bots play two full matches.</p>
+    </div>
+    <div class="hud">
+      <div class="xp" aria-live="polite">
+        <div class="xp-top"><span class="xp-title" id="xpTitle">Rookie stacker</span><span class="xp-num" id="xpNum">0 XP</span></div>
+        <div class="xp-bar"><i id="xpBar"></i></div>
+      </div>
+      <button class="btn" id="soundBtn" aria-pressed="false" type="button">Sound off</button>
+    </div>
+  </header>
+
+  <nav class="secnav" aria-label="Sections">
+    <a href="#live">1 · Play live</a><a href="#replay">2 · Step-through replay</a><a href="#sims">3 · Two simulated matches</a><a href="#lab">Attack lab</a><a href="#rule">Rules</a><a href="#badges-sec">Badges</a>
+  </nav>
+
+  <!-- ============ 1 · LIVE ============ -->
+  <section id="live" class="sec" aria-labelledby="live-h">
+    <div class="sec-head">
+      <p class="eyebrow">1 · Play live</p>
+      <h2 id="live-h">You against RIVAL</h2>
+      <p class="sub">Your board runs in your browser at 60 ticks a second. RIVAL's board on the right is what your browser receives through the Match DO: position updates 15 times a second and a snapshot on every lock. You never see RIVAL's next pieces.</p>
+    </div>
+    <div class="main">
+      <div class="col">
+        <section class="card" style="padding:12px" aria-label="Live match">
+          <div class="stage lv" id="l-stage">
+            <div class="screen you" id="l-scr-0">
+              <div class="screen-bar"><span class="who">YOU</span><span class="pres" id="l-pres-0" data-s="present"><i></i><span>online</span></span><span class="lvl" id="l-lvl-0"><b>SPEED 1</b><i><s></s></i></span></div>
+              <div class="lv-body">
+                <div class="side" id="l-side-0">
+                  <div class="slot"><span>HOLD</span><div class="sv" id="l-hold-0"></div></div>
+                  <div class="slot"><span>POWER <em>E</em></span><div class="sv" id="l-pw-0"></div></div>
+                  <div class="slot"><span>NEXT</span><div class="sv nx" id="l-next-0"></div></div>
+                </div>
+                <div class="board-box" id="l-box-0"><canvas id="l-cv-0" aria-label="Your board"></canvas><div class="ov"><span class="ov-count" id="l-cnt-0"></span></div><div class="bcover" id="l-cov-0" hidden><b>Hidden while paused</b><span></span></div><div class="popups" id="l-pop-0"></div></div>
+                <div class="meter" id="l-meter-0" title="Your incoming garbage"><div class="meter-fill"></div><div class="meter-ready"></div><span class="meter-n">0</span></div>
+              </div>
+              <p class="lv-stats" id="l-stats-0"></p>
+            </div>
+            <div class="lane"><span class="clock" id="l-clock">0:00</span><div class="do-node" id="l-do">MATCH<br>DO</div><span class="lat" id="l-lat">~50 ms</span></div>
+            <div class="screen rival" id="l-scr-1">
+              <div class="screen-bar"><span class="lvl" id="l-lvl-1"><b>SPEED 1</b><i><s></s></i></span><span class="pres" id="l-pres-1" data-s="present"><i></i><span>online</span></span><span class="who">RIVAL</span></div>
+              <div class="lv-body">
+                <div class="meter" id="l-meter-1" title="RIVAL's incoming garbage"><div class="meter-fill"></div><div class="meter-ready"></div><span class="meter-n">0</span></div>
+                <div class="board-box" id="l-box-1"><canvas id="l-cv-1" aria-label="RIVAL's board as your browser sees it"></canvas><div class="ov"><span class="ov-count" id="l-cnt-1"></span></div><div class="bcover" id="l-cov-1" hidden><b>Hidden while paused</b><span></span></div><div class="popups" id="l-pop-1"></div></div>
+                <div class="side" id="l-side-1">
+                  <div class="slot"><span>HOLD</span><div class="sv" id="l-hold-1"></div></div>
+                  <div class="slot"><span>POWER</span><div class="sv" id="l-pw-1"></div></div>
+                  <div class="slot"><span>NEXT</span><div class="sv nx locked" id="l-next-1"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" style="fill:currentColor"/><path d="M5 7 V5 a3 3 0 0 1 6 0 V7" style="fill:none;stroke:currentColor;stroke-width:1.6"/></svg><small>hidden</small></div></div>
+                </div>
+              </div>
+              <p class="lv-stats" id="l-stats-1"></p>
+            </div>
+            <div class="sd-banner" id="l-sd" hidden></div>
+            <div class="fx" id="l-fx"><canvas id="l-confetti"></canvas></div>
+            <div class="modal" id="l-modal" role="dialog" aria-modal="true" aria-labelledby="l-mTitle" hidden>
+              <div class="hazard"></div>
+              <div class="modal-in">
+                <p class="eyebrow">Paused · on your screen</p>
+                <h3 id="l-mTitle">RIVAL left the game tab</h3>
+                <p id="l-mText"></p>
+                <div class="ring-row">
+                  <svg class="ring" viewBox="0 0 68 68" aria-hidden="true"><circle class="bgc" cx="34" cy="34" r="28"/><circle class="fgc" id="l-mRing" cx="34" cy="34" r="28"/><text id="l-mTime" x="34" y="39" text-anchor="middle">2:00</text></svg>
+                  <p class="ring-note" id="l-mNote"></p>
+                </div>
+                <div class="modal-actions">
+                  <button class="btn primary wide" id="l-mWait" type="button">Wait for RIVAL</button>
+                  <button class="btn" id="l-mExtend" type="button">+1:00</button>
+                  <button class="btn" id="l-mLeave" type="button">Leave</button>
+                </div>
+                <button class="linkbtn" id="l-mFF" type="button">Demo: fast-forward timers ×10</button>
+              </div>
+            </div>
+            <div class="card-ov" id="l-start">
+              <div class="co-in">
+                <p class="eyebrow">Live match · you vs a bot</p>
+                <h3>Ready when you are</h3>
+                <p><span class="kbd">←</span> <span class="kbd">→</span> move · <span class="kbd">↑</span> or <span class="kbd">X</span> rotate · <span class="kbd">Z</span> rotate back · <span class="kbd">↓</span> soft drop · <span class="kbd">Space</span> hard drop · <span class="kbd">C</span> hold · <span class="kbd">E</span> power-up. On a phone, use the pad under the boards.</p>
+                <button class="btn primary big" id="l-go" type="button">Find a match</button>
+                <p class="fine" id="l-sum"></p>
+              </div>
+            </div>
+            <div class="card-ov" id="l-result" hidden><div class="co-in" id="l-resIn"></div></div>
+          </div>
+          <div class="pad" id="l-pad" hidden>
+            <button type="button" data-k="hold">Hold</button><button type="button" data-k="ccw" aria-label="Rotate left">⟲</button><button type="button" data-k="cw" aria-label="Rotate right">⟳</button><button type="button" data-k="power">Power</button>
+            <button type="button" data-k="left" aria-label="Move left">◀</button><button type="button" data-k="soft" aria-label="Soft drop">▼</button><button type="button" data-k="right" aria-label="Move right">▶</button><button type="button" data-k="hard" class="hard">Drop</button>
+          </div>
+          <div class="lab-bar" id="l-plab">
+            <span class="lbl">Pause lab</span>
+            <button class="btn small" id="l-rTab" type="button">RIVAL switches tabs</button>
+            <button class="btn small" id="l-rClose" type="button">RIVAL closes the tab</button>
+            <button class="btn small" id="l-rWifi" type="button">RIVAL loses Wi-Fi</button>
+            <button class="btn small primary" id="l-rBack" type="button" hidden>Bring RIVAL back</button>
+            <button class="btn small" id="l-yStep" type="button">Step away (uses a pause)</button>
+            <button class="btn small" id="l-yLeave" type="button">Leave match</button>
+            <button class="linkbtn" id="l-ff" type="button" hidden>Demo: fast-forward timers ×10</button>
+            <span class="note" id="l-plNote">Or switch away from this browser tab mid-match. Your pause budget applies.</span>
+          </div>
+          <details class="settings" id="l-settings">
+            <summary>Match settings</summary>
+            <div class="set-grid">
+              <label>Opponent<select id="l-sOpp"><option value="rookie">Rookie bot</option><option value="regular" selected>Regular bot</option><option value="pro">Pro bot</option></select></label>
+              <label>Network delay<select id="l-sLat"><option value="15">Same city · ~15 ms</option><option value="50" selected>Typical · ~50 ms</option><option value="150">Far away · ~150 ms</option></select></label>
+              <label>If the waiting player leaves<select id="l-sLeave"><option value="nocontest" selected>No contest (default)</option><option value="win">It counts as their win</option></select></label>
+              <label>Pause budget<select id="l-sBudget"><option value="0">0 pauses</option><option value="1">1 pause</option><option value="2" selected>2 pauses</option><option value="3">3 pauses</option></select></label>
+              <label>Pause timer<select id="l-sPause"><option value="60">1:00</option><option value="120" selected>2:00</option><option value="180">3:00</option></select></label>
+              <label>Speed up every<select id="l-sRamp"><option value="10">10 s</option><option value="15" selected>15 s</option><option value="20">20 s</option><option value="30">30 s</option></select></label>
+              <label class="chk"><input type="checkbox" id="l-sPad"> On-screen controls</label>
+            </div>
+          </details>
+        </section>
+      </div>
+      <div class="col">
+        <section class="card">
+          <h2>Engine room</h2>
+          <p class="sub">Live state machines for this match. The filled box is the current state; the orange arrow is the last transition.</p>
+          <div class="machines" style="margin-top:14px">
+            <figure class="sm"><div class="sm-head"><h3>Match</h3><span class="sm-where">lives in the Match DO</span></div><div class="sm-wrap"><svg id="l-smMatch"></svg></div><p class="sm-last" id="l-lastMatch"></p></figure>
+            <figure class="sm"><div class="sm-head"><h3>Presence</h3><span class="sm-where">one per player · Y and R</span></div><div class="sm-wrap"><svg id="l-smPres"></svg></div><p class="sm-last" id="l-lastPres"></p></figure>
+            <figure class="sm"><div class="sm-head"><h3>Your piece</h3><span class="sm-where">runs in your browser</span></div><div class="sm-wrap"><svg id="l-smPiece"></svg></div><p class="sm-last" id="l-lastPiece"></p></figure>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Wire</h3>
+          <p class="sub">What crosses the network. Position updates and heartbeats are only counted, so the log stays readable.</p>
+          <div class="usage" id="l-usage"></div>
+          <ol class="wire" id="l-wire" style="margin-top:10px"><li class="wire-empty">Start a match to see the traffic.</li></ol>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 · REPLAY ============ -->
+  <section id="replay" class="sec" aria-labelledby="replay-h">
+    <div class="sec-head">
+      <p class="eyebrow">2 · Step-through replay</p>
+      <h2 id="replay-h">One match, moment by moment</h2>
+      <p class="sub">The original walkthrough from the first page: quizzes, your moves, the pause popover and its own engine room. It uses a fixed seed so every hole and piece is the same each time.</p>
+    </div>
+<!--__REPLAY_HTML__-->
+  </section>
+
+  <!-- ============ 3 · SIMS ============ -->
+  <section id="sims" class="sec" aria-labelledby="sims-h">
+    <div class="sec-head">
+      <p class="eyebrow">3 · Two simulated matches</p>
+      <h2 id="sims-h">KESTREL against HERON</h2>
+      <p class="sub">Two bots play two full matches on the same engine, network model and Match DO as the live game. KESTREL hunts Tetrises; HERON plays safer. Match 2 adds tab switches, a Wi-Fi drop, both players away at once, and a return with no pauses left. The results below were computed instantly when the page loaded. Watch either match and it plays out tick for tick the same way.</p>
+    </div>
+    <div class="main">
+      <div class="col">
+        <section class="card" style="padding:12px" aria-label="Simulated match">
+          <div class="stage lv spect" id="s-stage">
+            <div class="screen you" id="s-scr-0">
+              <div class="screen-bar"><span class="who">KESTREL</span><span class="pres" id="s-pres-0" data-s="present"><i></i><span>online</span></span><span class="lvl" id="s-lvl-0"><b>SPEED 1</b><i><s></s></i></span></div>
+              <div class="lv-body">
+                <div class="side"><div class="slot"><span>HOLD</span><div class="sv" id="s-hold-0"></div></div><div class="slot"><span>POWER</span><div class="sv" id="s-pw-0"></div></div><div class="slot"><span>NEXT</span><div class="sv nx" id="s-next-0"></div></div></div>
+                <div class="board-box" id="s-box-0"><canvas id="s-cv-0" aria-label="KESTREL's board"></canvas><div class="ov"><span class="ov-count" id="s-cnt-0"></span></div><div class="bcover" id="s-cov-0" hidden><b>Hidden while paused</b><span></span></div><div class="popups" id="s-pop-0"></div></div>
+                <div class="meter" id="s-meter-0"><div class="meter-fill"></div><div class="meter-ready"></div><span class="meter-n">0</span></div>
+              </div>
+              <p class="lv-stats" id="s-stats-0"></p>
+            </div>
+            <div class="lane"><span class="clock" id="s-clock">0:00</span><div class="do-node" id="s-do">MATCH<br>DO</div><span class="lat" id="s-speed">×1</span></div>
+            <div class="screen rival" id="s-scr-1">
+              <div class="screen-bar"><span class="lvl" id="s-lvl-1"><b>SPEED 1</b><i><s></s></i></span><span class="pres" id="s-pres-1" data-s="present"><i></i><span>online</span></span><span class="who">HERON</span></div>
+              <div class="lv-body">
+                <div class="meter" id="s-meter-1"><div class="meter-fill"></div><div class="meter-ready"></div><span class="meter-n">0</span></div>
+                <div class="board-box" id="s-box-1"><canvas id="s-cv-1" aria-label="HERON's board"></canvas><div class="ov"><span class="ov-count" id="s-cnt-1"></span></div><div class="bcover" id="s-cov-1" hidden><b>Hidden while paused</b><span></span></div><div class="popups" id="s-pop-1"></div></div>
+                <div class="side"><div class="slot"><span>HOLD</span><div class="sv" id="s-hold-1"></div></div><div class="slot"><span>POWER</span><div class="sv" id="s-pw-1"></div></div><div class="slot"><span>NEXT</span><div class="sv nx" id="s-next-1"></div></div></div>
+              </div>
+              <p class="lv-stats" id="s-stats-1"></p>
+            </div>
+            <div class="sd-banner" id="s-sd" hidden></div>
+            <div class="fx" id="s-fx"><canvas id="s-confetti"></canvas></div>
+            <div class="card-ov" id="s-idle"><div class="co-in"><p class="eyebrow">Spectator view</p><h3>Two matches, ready to watch</h3><p>Both results are already known from the instant run. Pick a match; pauses fast-forward automatically.</p><div class="res-actions"><button class="btn primary" type="button" data-watch="0">Watch match 1</button><button class="btn" type="button" data-watch="1">Watch match 2</button><button class="btn" type="button" data-watch="both">Watch both</button></div></div></div>
+          </div>
+          <div class="lab-bar">
+            <span class="lbl">Watch</span>
+            <button class="btn small" type="button" data-watch="0">Match 1</button>
+            <button class="btn small" type="button" data-watch="1">Match 2</button>
+            <button class="btn small" type="button" data-watch="both">Both</button>
+            <span class="seg sm-seg" id="s-speedSeg" role="group" aria-label="Playback speed"><button type="button" data-sp="1" aria-pressed="true">×1</button><button type="button" data-sp="2" aria-pressed="false">×2</button><button type="button" data-sp="4" aria-pressed="false">×4</button></span>
+            <button class="btn small" type="button" id="s-stop">Stop</button>
+            <span class="note" id="s-status">Spectators see both next queues; players never see each other's.</span>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Key moments</h3>
+          <p class="sub">From the instant run. Times are active play time, so pauses don't count.</p>
+          <div class="moments" id="s-keys"></div>
+        </section>
+      </div>
+      <div class="col">
+        <section class="card">
+          <h2>Scoreboard</h2>
+          <p class="sub" id="s-series"></p>
+          <div id="s-score"></div>
+        </section>
+        <section class="card">
+          <h3>Wire</h3>
+          <p class="sub">Pauses, power-ups, showdowns, big attacks and results for the match you're watching.</p>
+          <ol class="wire" id="s-wire" style="margin-top:10px"><li class="wire-empty">Watch a match to see its traffic.</li></ol>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <div class="lower">
+    <section class="card" id="lab">
+      <h2>Attack lab</h2>
+      <p class="sub">Pick a clear and see what it sends. These are the values the live engine uses.</p>
+      <div class="lab-grid">
+        <div class="seg" id="labClear" role="group" aria-label="Line clear"></div>
+        <div class="lab-row">
+          <label class="toggle"><input type="checkbox" id="labB2b"> Back-to-back active</label>
+          <label class="toggle"><input type="checkbox" id="labSd"> Showdown ×2</label>
+          <span class="stepper">Combo <button type="button" id="cMinus" aria-label="Fewer combo clears">−</button><output id="cOut">0</output><button type="button" id="cPlus" aria-label="More combo clears">+</button></span>
+          <label class="range" for="labInc">Rows already in your meter: <output id="incOut">3</output><input type="range" id="labInc" min="0" max="12" value="3"></label>
+        </div>
+      </div>
+      <div class="lab-out">
+        <div class="eq" id="labEq"></div>
+        <div class="lab-viz">
+          <div class="lab-meter"><span class="cap">Your meter</span><div class="sq" id="labYou"></div></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="lab-meter"><span class="cap">Opponent's meter</span><div class="sq" id="labOpp"></div></div>
+        </div>
+        <p class="lab-say" id="labSay"></p>
+      </div>
+      <h3 style="margin-top:20px">Power-ups</h3>
+      <p class="sub">Some pieces carry a gem. Clear the gem's row to bank its power-up (one slot). Every activation goes through the Match DO, which stamps when both screens apply it.</p>
+      <div class="tbl-wrap" style="margin-top:10px"><table>
+        <thead><tr><th>Power-up</th><th>Effect</th></tr></thead>
+        <tbody id="pwTable"></tbody>
+      </table></div>
+    </section>
+
+    <section class="card" id="rule">
+      <h2>The rules, as built</h2>
+      <p class="sub">Your decisions, the netcode that makes live play work, and what is still open.</p>
+      <div class="rule-grid">
+        <h3>Decided</h3>
+        <ul class="decided">
+          <li><span>Leaving the tab or closing it pauses <b>both</b> games at once, and both boards are <b>hidden</b> while paused.</span></li>
+          <li><span>The player who stayed gets a popover with the reason, a <b>2:00</b> timer they can extend at any time, and <b>Leave</b>, which ends the match as <b>no contest</b> (configurable).</span></li>
+          <li><span>Each player has a <b>pause budget</b> (2). A connection loss caught by missed heartbeats doesn't use it, up to 3 free reconnects.</span></li>
+          <li><span>With no pauses left, leaving doesn't pause: the match keeps running and the player has 15 s to return or forfeit.</span></li>
+          <li><span>If both players are away, the session ends after <b>5:00</b>.</span></li>
+          <li><span>Returning players see how long they were gone and how many pauses they have left.</span></li>
+          <li><span>Phones are supported: on-screen controls, a screen wake lock, and heartbeats as the source of truth.</span></li>
+        </ul>
+        <h3>Live netcode</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Piece of the design</th><th>How it works here</th></tr></thead>
+          <tbody>
+            <tr><td>Your own board</td><td>Runs locally at 60 ticks a second with DAS and ARR, so moves never wait on the network.</td></tr>
+            <tr><td>Opponent's board</td><td>Position updates 15 times a second plus a snapshot on every lock, relayed by the DO.</td></tr>
+            <tr><td>Hidden next pieces</td><td>The DO keeps the seed and deals one bag of seven pieces at a time. Both players get the same pieces and gems.</td></tr>
+            <tr><td>Speed-up</td><td>Every 15 s of active play on the DO's clock, so both players speed up together and pauses don't count.</td></tr>
+            <tr><td>Showdowns</td><td>Announced 5 s ahead. <b>1:00</b>: double garbage for 15 s. <b>2:30</b>: sudden death, speed +4 and garbage ×2 until someone tops out. The DO applies the ×2 when it routes attacks.</td></tr>
+            <tr><td>Garbage</td><td>Each routed attack gets an id. Clients acknowledge ids in their next update, and on rejoin the DO resends anything unacknowledged.</td></tr>
+            <tr><td>Pause timer</td><td>A DO alarm. Extend reschedules it. Both screens show the DO's deadline.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>What happened</th><th>How the Match DO finds out</th><th>Uses a pause?</th></tr></thead>
+          <tbody>
+            <tr><td>Switched tab or app</td><td><code>visibilitychange</code> → client sends <code>away</code></td><td>Yes</td></tr>
+            <tr><td>Closed the tab</td><td>WebSocket closes → <code>webSocketClose</code></td><td>Yes</td></tr>
+            <tr><td>Lost Wi-Fi, crash, sleep</td><td>No heartbeat for 5 s</td><td>No, up to 3 times</td></tr>
+          </tbody>
+        </table></div>
+        <div>
+          <h3 id="open-questions">Still open</h3>
+          <ol class="open" style="margin-top:10px">
+            <li>Is 15 s of grace enough on a phone, where a call or a notification can take longer than that?</li>
+            <li>Should power-ups and showdowns be switched off for ranked matches?</li>
+            <li>When a player closes the tab, the piece in their hand is dealt again on rejoin. Is that fair, or should it be kept?</li>
+            <li>Should a player who has run out of free reconnects be told before they drop again?</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" id="badges-sec">
+    <h2>Badges</h2>
+    <p class="sub">Collected in this browser only.</p>
+    <div class="badges" id="badges"></div>
+    <div class="badge-foot"><span class="sm-where" id="badgeCount"></span><button class="btn small" id="resetBtn" type="button">Reset progress</button></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>

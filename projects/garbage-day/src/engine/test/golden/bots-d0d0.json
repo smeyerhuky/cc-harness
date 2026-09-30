@@ -1,0 +1,82 @@
+{
+  "seed": "0xd0d0",
+  "bots": [
+    [
+      1,
+      10
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "rules": "default",
+  "scriptsFired": 0,
+  "result": {
+    "winner": 1,
+    "reason": "topout",
+    "by": 0,
+    "activeTicks": 2975,
+    "ticks": 3155
+  },
+  "ticks": 3155,
+  "activeTicks": 2975,
+  "boardHashes": [
+    "43db5a6d",
+    "8c731c25"
+  ],
+  "stats": [
+    {
+      "pieces": 118,
+      "lines": 37,
+      "sent": 14,
+      "received": 6,
+      "cancelled": 0,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 1,
+      "powersGot": 2,
+      "maxCombo": 2,
+      "garbageRows": 6
+    },
+    {
+      "pieces": 37,
+      "lines": 14,
+      "sent": 6,
+      "received": 14,
+      "cancelled": 3,
+      "fourLineClears": 0,
+      "tspins": 0,
+      "perfectClears": 0,
+      "powersUsed": 1,
+      "powersGot": 2,
+      "maxCombo": 3,
+      "garbageRows": 11
+    }
+  ],
+  "pausesLeft": [
+    2,
+    2
+  ],
+  "reconnectsLeft": [
+    3,
+    3
+  ],
+  "counts": {
+    "in": 1085,
+    "pos": 783,
+    "hb": 105,
+    "lock": 155,
+    "relayed": 937
+  },
+  "messagesPerMinute": 1238,
+  "timeline": [
+    "0 state {\"from\":\"lobby\",\"to\":\"countdown\"}",
+    "180 state {\"from\":\"countdown\",\"to\":\"playing\"}",
+    "428 power {\"by\":0,\"kind\":\"fog\",\"at\":440}",
+    "1375 power {\"by\":1,\"kind\":\"fog\",\"at\":1387}",
+    "3155 state {\"from\":\"playing\",\"to\":\"over\"}",
+    "3155 result {\"winner\":1,\"reason\":\"topout\",\"by\":0}"
+  ]
+}

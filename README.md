@@ -15,6 +15,8 @@ cc-harness/
 │       └── okf-wikify/            # OKF deep-wiki skill
 │       └── scad-design-to-print/  # SCAD Design to Print skill
 │
+├── .github/                       # CI: one workflow set per project with code (Garbage Day so far)
+│
 ├── kb/                            # Repository-wide knowledge base (OKF bundle)
 │   ├── CLAUDE.md                  # Governs the repo-wide KB
 │   ├── pdlc/                      # The PDLC method: how work is planned and recorded
@@ -37,6 +39,7 @@ cc-harness/
 ├── projects/                      # All project containers
 │   ├── CLAUDE.md                  # Governs the projects/ directory
 │   ├── common/                    # Shared utilities and common code
+│   ├── garbage-day/               # A two-player, real-time falling-block versus game (React + Durable Objects)
 │   ├── hello-worker/              # A minimal Cloudflare Worker — the deploy recipes' worked example
 │   ├── sample-project/            # The scaffold every new project is copied from
 │   └── kb/                        # Projects index/governance KB (CLAUDE.md, index.md, projects/)
@@ -46,6 +49,7 @@ cc-harness/
 │
 ├── README.md                      # This file
 ├── CLAUDE.md                      # Root-level Claude configuration
+├── renovate.json                  # Dependency updates (Renovate reads it only here), scoped per project
 └── LICENSE                        # Project license
 ```
 

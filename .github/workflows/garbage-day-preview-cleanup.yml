@@ -1,0 +1,46 @@
+# Deletes a pull request's Worker Preview, and its Durable Object storage, when the pull request
+# closes. Design: projects/garbage-day/kb/design/stack-and-ci.md, "Deployment".
+name: garbage-day-preview-cleanup
+
+on:
+  pull_request:
+    types: [closed]
+    paths:
+      - projects/garbage-day/**
+      - .github/workflows/garbage-day.yml
+
+permissions:
+  contents: read
+
+jobs:
+  delete-preview:
+    name: delete-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - id: creds
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No Cloudflare secrets: nothing to delete."
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.creds.outputs.ok == 'true'
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/garbage-day-setup
+        if: steps.creds.outputs.ok == 'true'
+      - if: steps.creds.outputs.ok == 'true'
+        working-directory: projects/garbage-day/src/app
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          NAME: pr-${{ github.event.pull_request.number }}
+        # --skip-confirmation: CI has no one to answer the prompt. A pull request that never got a
+        # preview has nothing to delete.
+        run: pnpm exec wrangler preview delete --name "$NAME" --skip-confirmation || echo "::notice::No preview $NAME to delete."
