@@ -73,11 +73,47 @@ export class ClientMatch {
   readonly opponent = new OpponentView();
   controller: Controller | null = null;
   result: ResultMessage | null = null;
+  /**
+   * The connection is down (GD-TICKET-013): this player stands still from the moment it drops,
+   * and what it would send waits in the outbox.
+   */
+  offline = false;
   /** What arrived before `start`: the first two bags. */
   private early: ServerMessage[] = [];
+  /** Game messages made while offline, in order; positions and heartbeats aren't kept. */
+  private readonly outbox: ClientMessage[] = [];
 
   constructor(private readonly o: ClientMatchOptions) {
     this.rules = { ...DEFAULT_RULES, ...o.rules };
+  }
+
+  /** The connection dropped: freeze at once, and hold what would be sent. */
+  drop(): void {
+    if (this.offline || this.result) return;
+    this.offline = true;
+  }
+
+  /**
+   * Connected again, and the new socket has said hello: send what waited, in order, then `rejoin`
+   * with the last garbage received, so the referee resends the rest. This player stays frozen
+   * until the referee says when play resumes, which it always does for a rejoin. A bag asked
+   * for and never heard is asked for again.
+   */
+  rejoin(awayMs?: number): void {
+    if (!this.offline) return;
+    this.offline = false;
+    for (const m of this.outbox.splice(0)) this.o.send(m);
+    const P = this.me;
+    if (P && !this.result) {
+      P.frozen = true;
+      P.resumeAt = -1;
+    }
+    this.o.send({
+      type: 'rejoin',
+      gack: P?.gotGarbage ?? 0,
+      ...(awayMs === undefined ? {} : { awayMs: Math.round(awayMs) }),
+    });
+    if (P?.awaitingBag) this.o.send({ type: 'bagReq' });
   }
 
   /** This player's seat at the referee: from `start`, or the option until then. */
@@ -101,7 +137,7 @@ export class ClientMatch {
         return;
       }
       this.me = new PlayerSim(extras.you ?? this.seat, extras.holes ?? 0, this.rules, {
-        send: (m) => this.o.send(m),
+        send: (m) => this.send(m),
         emit: (ev) => this.o.onPlayerEvent?.(ev),
       });
       // `start` is sent as the countdown begins: this player's clock is set there, whatever it
@@ -118,12 +154,18 @@ export class ClientMatch {
     const P = this.me;
     if (!P) return;
     P.checkResume(t);
-    if (P.frozen || !P.alive || this.result) return;
+    if (P.frozen || this.offline || !P.alive || this.result) return;
     this.activeTicks++;
     P.step(t, this.controller?.tick(t) ?? NO_INPUT, this.activeTicks);
     if (t % 4 === P.idx * 2) {
       const pos = P.posMessage();
-      if (pos) this.o.send(pos);
+      if (pos) this.send(pos);
     }
+  }
+
+  /** Sends a message to the referee, or, while offline, keeps it for the rejoin. */
+  send(msg: ClientMessage): void {
+    if (!this.offline) this.o.send(msg);
+    else if (msg.type !== 'hb' && msg.type !== 'pos') this.outbox.push(msg);
   }
 }

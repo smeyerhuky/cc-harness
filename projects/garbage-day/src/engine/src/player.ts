@@ -160,6 +160,11 @@ export class PlayerSim {
     return !!p && !fits(this.board, p.t, p.r, p.x, p.y - 1);
   }
 
+  /** A bag has been asked for and hasn't come yet. */
+  get awaitingBag(): boolean {
+    return this.bagPending;
+  }
+
   /** Unfreezes once the referee's start or resume tick arrives. */
   checkResume(t: number): void {
     if (this.resumeAt >= 0 && t >= this.resumeAt) {
@@ -250,6 +255,8 @@ export class PlayerSim {
         this.resumeAt = -1;
         break;
       case 'resume':
+        // Play resumes at `at` and not before, also for a player who missed the pause.
+        this.frozen = true;
         this.resumeAt = msg.at;
         break;
       case 'showdown':

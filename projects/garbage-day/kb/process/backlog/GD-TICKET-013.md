@@ -5,7 +5,7 @@ description: "Give the client socket an outbox that holds messages while offline
 resource: "../coverage-audit.md"
 tags: ["backlog", "network"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M3"
 relationships:
   - type: PART_OF

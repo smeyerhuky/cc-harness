@@ -184,6 +184,10 @@ export class LocalMatch {
       }
       const out = L.outbox.splice(0);
       for (const msg of out) this.clientSend(i, msg);
+      // It missed the pause while gone: frozen until the referee says when play resumes, so it
+      // resumes on the same tick as the other player (pause and presence, "Returning").
+      P.frozen = true;
+      P.resumeAt = -1;
       this.clientSend(i, { type: 'rejoin', gack: P.gotGarbage, ...extra });
     } else if (L.away) {
       L.away = false;
