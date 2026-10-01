@@ -16,75 +16,37 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M2 — Play solo — **active**; [`GD-TICKET-021`](backlog/GD-TICKET-021.md) and
-  [`GD-TICKET-023`](backlog/GD-TICKET-023.md) (the `ui` commons, with a gallery at `/gallery`) and
-  [`GD-TICKET-014`](backlog/GD-TICKET-014.md) (the app machine, routes and contexts),
-  [`GD-STORY-001`](backlog/GD-STORY-001.md) (a local match by keyboard against a bot),
-  [`GD-STORY-007`](backlog/GD-STORY-007.md) (home, handles, preferences, settings) and
-  [`GD-STORY-003`](backlog/GD-STORY-003.md) (rebinding and the repeat timings) are done
-  ([roadmap](roadmap.md)), merged in pull request #13 and live in production, and so is
-  [`GD-TICKET-018`](backlog/GD-TICKET-018.md) (a four-row clear is a **Quad**). The owner asked
-  for the rest of M2 in this order: [`GD-STORY-002`](backlog/GD-STORY-002.md),
-  [`GD-STORY-004`](backlog/GD-STORY-004.md) with `015`, and [`GD-STORY-005`](backlog/GD-STORY-005.md)
-  and [`GD-STORY-006`](backlog/GD-STORY-006.md), then [`GD-STORY-008`](backlog/GD-STORY-008.md)
-  and [`GD-TICKET-024`](backlog/GD-TICKET-024.md) (all done: the fight, touch play, the layouts,
-  bot setup, accessibility and the developer overlay, in pull request #14). Building `024` found
-  literal colours in the CSS, now tokens: [`GD-TICKET-025`](backlog/GD-TICKET-025.md), done.
-  Every M2 work item is done except the owner's token rotation, `GD-TICKET-022` (by
-  2026-12-29). M1 closed at its owner
-  check-in on 2026-09-30: "let's go", every default approved
-  ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
-  `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
-  ([sweep](coverage-audit.md)), and M2 has 8 stories and 5 tickets. M0 closed at its owner
-  check-in: "Continue", with every default kept (no kickoff ceremony, no XP or badges in v1, the
-  new piece palette, TypeScript 6.0.3 and Vitest 4.1.11 held back).
+- **Milestone:** M2 — Play solo — **at its exit, waiting for the owner check-in.**
+  - **Every M2 item is done** except the owner's token rotation, [`GD-TICKET-022`](backlog/GD-TICKET-022.md), due by 2026-12-29 ([roadmap](roadmap.md)).
+  - **M2's exit criterion is met:** a complete match against a local bot, on desktop and on a phone, by keyboard and by touch, with every screen passing the accessibility scan in both themes.
+  - **The coverage audit** ([sweep of the M2 exit](coverage-audit.md)) filed 2 gaps, [`GD-TICKET-026`](backlog/GD-TICKET-026.md) and [`027`](backlog/GD-TICKET-027.md).
+  - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
+  - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
-- **Landed recently** ([journal entry](journal/2026-09-30-scaffold.md)):
-  - the workspace scaffold, [`GD-TICKET-006`](backlog/GD-TICKET-006.md): a pnpm workspace in
-    `src/` with the `engine`, `protocol`, `ui` and `app` packages, the pinned stack, lint,
-    typecheck, tests, build, a clean audit, and `renovate.json` at the repo root;
-  - CI, [`GD-TICKET-007`](backlog/GD-TICKET-007.md): `.github/workflows/garbage-day.yml` and
-    `garbage-day-codeql.yml`, green on the branch and on pull request #10 (opened by the owner);
-    `garbage-day-ok` is the one check to require;
-  - the engine core, [`GD-TICKET-008`](backlog/GD-TICKET-008.md): `PlayerSim` and its modules
-    in `src/engine/src/`, 174 tests, fixed-point gravity, checked against the proof of concept;
-  - [`GD-TICKET-018`](backlog/GD-TICKET-018.md) filed for M2: the spec uses the Tetris name for a
-    four-row clear; the owner picks the word (default "Quad");
-  - the referee, bot and local match, [`GD-TICKET-009`](backlog/GD-TICKET-009.md): every pause
-    and presence rule, snapshots, bots with skill and speed 1–10, and ten golden replays in
-    `src/engine/test/golden/`; an ESLint guard for the determinism contract;
-  - the golden replays in Chromium, Firefox and WebKit,
-    [`GD-TICKET-019`](backlog/GD-TICKET-019.md): green in CI, the same hashes as Node; since
-    [`GD-TICKET-020`](backlog/GD-TICKET-020.md) the job runs in Playwright's image, pinned by
-    digest, after a slow Ubuntu mirror timed it out;
-  - the protocol, [`GD-TICKET-010`](backlog/GD-TICKET-010.md): schemas for every message, the
-    codec (engine shapes ↔ wire), a board encoding of at most 161 bytes, settings, and a
-    typecheck test that keeps the protocol and the engine's types in agreement;
-  - the app shell, [`GD-TICKET-011`](backlog/GD-TICKET-011.md) (**done**): the Worker with
-    `LobbyDO` and `MatchDO`, the React page, Worker tests in workerd; a Worker Preview per pull
-    request, production on `main` (live, "Server ready · production"), and preview cleanup.
-    Getting there took the account's `workers.dev` subdomain, a fix to the job's JSON parsing,
-    the Durable Object bindings declared again for previews, and deploy conditions that ignore
-    skips upstream ([lessons](../../../../kb/lessons/index.md)). Pull requests #10 and #11 are
-    merged.
-  Before that, the design session ([journal entry](journal/2026-09-30-design.md)).
-- **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29
-  ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)). Pull requests #10 to #13 are merged.
-  Settled on 2026-09-30:
-  - the Cloudflare secrets (the token expires 2026-12-29: rotate it before then);
-  - the Renovate GitHub app, reading `renovate.json` from `main`;
-  - the `main-protect` ruleset, requiring `garbage-day-ok` from GitHub Actions with branches up
-    to date, checked through the API ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
-- **Gates:** the KB gates and, from `projects/garbage-day/`, the
-  [code gates](../design/stack-and-ci.md#code-gates) — all pass, locally and in CI.
+- **In production** (`https://garbage-day.smeyerhuky.workers.dev`), from pull request #13:
+  - [`GD-TICKET-021`](backlog/GD-TICKET-021.md), [`GD-TICKET-023`](backlog/GD-TICKET-023.md) (the `ui` commons, with a gallery at `/gallery`) and [`GD-TICKET-014`](backlog/GD-TICKET-014.md);
+  - [`GD-STORY-001`](backlog/GD-STORY-001.md), [`GD-STORY-007`](backlog/GD-STORY-007.md) and [`GD-STORY-003`](backlog/GD-STORY-003.md): a local match by keyboard, home and settings, and rebinding.
+- **In pull request #14** (open; its Worker Preview is `https://pr-14-garbage-day.smeyerhuky.workers.dev`):
+  - [`GD-TICKET-018`](backlog/GD-TICKET-018.md) (Quad) and [`GD-STORY-002`](backlog/GD-STORY-002.md) (the fight on screen);
+  - [`GD-STORY-004`](backlog/GD-STORY-004.md) with [`GD-TICKET-015`](backlog/GD-TICKET-015.md) (touch play);
+  - [`GD-STORY-005`](backlog/GD-STORY-005.md) (the layouts) and [`GD-STORY-006`](backlog/GD-STORY-006.md) (bot setup);
+  - [`GD-STORY-008`](backlog/GD-STORY-008.md) (accessibility) and [`GD-TICKET-024`](backlog/GD-TICKET-024.md) (the developer overlay: `?dev` or `);
+  - [`GD-TICKET-025`](backlog/GD-TICKET-025.md) (no literal colours).
+
+  CI is green on its head. The history is in the [journal entry](journal/2026-09-30-scaffold.md).
+- **Waiting on the owner:**
+  - the M2 check-in ([its decisions](journal/2026-09-30-scaffold.md#next));
+  - playing pull request #14's preview on a real phone, then merging it;
+  - replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
+
+  Settled earlier: the Cloudflare secrets, the Renovate app, and the `main-protect` ruleset requiring `garbage-day-ok` ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
+- **Gates:** the KB gates and, from `projects/garbage-day/`, the [code gates](../design/stack-and-ci.md#code-gates) and `pnpm test:browser`. All pass, locally and in CI.
 
 ## Immediate next step
 
-M2's exit: the milestone tier of the [definition of done](definition-of-done.md), including the
-coverage audit, ending with the owner check-in. Pull request #14 waits for the owner; work pushed
-before it merges joins it.
+The **M2 owner check-in** ([the decisions, each with its default](journal/2026-09-30-scaffold.md#next)). On a go-ahead, M3 starts with the first item in its index order: [`GD-TICKET-028`](backlog/GD-TICKET-028.md), the socket routes and message checks. Work pushed before pull request #14 merges joins it.
 
-## Standing rules for M1
+## Standing rules
 
 - Re-check every version against the npm registry on the day it is pinned; "latest" means the
   newest release at least a day old. Record any held-back version in
@@ -95,6 +57,11 @@ before it merges joins it.
 - A change to the engine that changes any golden replay is regenerated on purpose
   (`pnpm --filter @garbage-day/engine golden:update`) in its own commit, saying why (definition
   of done, project item 1).
+- **After every build, restart `vite preview`.** A server started before the build serves HTML
+  for the new build's scripts. Find its PIDs with `ps`, kill them in their own command, and start
+  the server in another: `pgrep -f` matches the shell that runs it.
+- **The CSS takes every colour, shadow and tint from a token** (`GD-TICKET-025`). The search in
+  that item's criteria must find nothing outside `tokens.css`.
 
 ## Verify the baseline
 

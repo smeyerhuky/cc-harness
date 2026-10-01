@@ -99,24 +99,38 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
   [`GD-TICKET-022`](backlog/GD-TICKET-022.md)
 - [x] Shadows, scrims and tints taken from tokens, as the definition of done asks —
   [`GD-TICKET-025`](backlog/GD-TICKET-025.md)
+- [x] Run the coverage audit ([`coverage-audit.md`](coverage-audit.md), sweep 2026-09-30, M2 exit)
+
+**Exit:** a complete match against a local bot plays in the React client, on desktop and on a
+phone, by keyboard and by touch, with every screen passing the accessibility scan in both themes.
+(The goal in the table above, written out at the exit; M2 began without an exit line.) Real
+devices are M5's. → **Owner check-in** (pending).
 
 ## M3 — Play online
 
-- [ ] Worker routes, rate limits, static assets with SPA fallback
-- [ ] Lobby DO quick match, waiting count, bot offer after 20 s (US-01)
+- [ ] Worker routes, rate limits, static assets with SPA fallback (the assets are done, `GD-TICKET-011`) —
+  [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
+- [ ] Lobby DO quick match, waiting count, bot offer after 20 s (US-01) —
+  [`GD-STORY-009`](backlog/GD-STORY-009.md)
 - [ ] Private games: create, code and link, Copy and Share, ready lobby, full and expired states
-  (US-02)
+  (US-02) — [`GD-STORY-010`](backlog/GD-STORY-010.md)
 - [ ] Match DO: dealing bags with gems, relay at 15 Hz and per lock, hidden next pieces, garbage
   routing with the ledger and resend, showdown multiplier, power-up stamping, server-side message
-  validation and attack limits (US-06, US-07, US-08, US-10, US-11)
-- [ ] Clock sync and active-time speed levels across two clients (US-09)
-- [ ] The bot as a second client in a Web Worker (US-03 online)
-- [ ] Results and rematch over the network (US-15)
+  validation and attack limits (US-06, US-07, US-08, US-10, US-11) —
+  [`GD-STORY-011`](backlog/GD-STORY-011.md), [`GD-STORY-012`](backlog/GD-STORY-012.md), and the
+  checks in [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
+- [ ] Clock sync and active-time speed levels across two clients (US-09) —
+  [`GD-STORY-013`](backlog/GD-STORY-013.md)
+- [ ] The bot as a second client in a Web Worker (US-03 online) —
+  [`GD-STORY-015`](backlog/GD-STORY-015.md)
+- [ ] Results and rematch over the network (US-15) — [`GD-STORY-014`](backlog/GD-STORY-014.md)
 - [ ] Durable Object tests in the Workers pool; end-to-end quick match and private link with two
-  browsers
+  browsers — [`GD-TICKET-029`](backlog/GD-TICKET-029.md)
 - [ ] Client outbox and reconnect with backoff — [`GD-TICKET-013`](backlog/GD-TICKET-013.md)
 - [ ] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
 - [ ] Connection quality indicator, visible degradation above 150 ms — [`GD-TICKET-017`](backlog/GD-TICKET-017.md)
+- [ ] Match settings for a bot game — [`GD-TICKET-026`](backlog/GD-TICKET-026.md)
+- [ ] The client architecture matches the code — [`GD-TICKET-027`](backlog/GD-TICKET-027.md)
 
 ## M4 — Pauses and presence
 

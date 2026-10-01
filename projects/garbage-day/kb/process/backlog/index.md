@@ -10,9 +10,9 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | Kind | Next number |
 |---|---|
 | `GD-EPIC` | 002 |
-| `GD-STORY` | 009 |
+| `GD-STORY` | 016 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 026 |
+| `GD-TICKET` | 030 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -61,9 +61,23 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-022](GD-TICKET-022.md) — Replace the Cloudflare API token before it expires on 2026-12-29 · open
 - [GD-TICKET-025](GD-TICKET-025.md) — Take shadows, scrims and tints from tokens · done (found while building `GD-TICKET-024`)
 
+*M3 — Play online (part of GD-EPIC-001; minted at the M2 exit, in the order proposed for building it):*
+
+- [GD-TICKET-028](GD-TICKET-028.md) — Route the sockets, and limit and check every message · open
+- [GD-STORY-011](GD-STORY-011.md) — Same pieces, hidden next, and the opponent live · open
+- [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · open (from the M0 audit)
+- [GD-STORY-012](GD-STORY-012.md) — Garbage, power-ups and showdowns over the network · open
+- [GD-STORY-013](GD-STORY-013.md) — The speed-up on the Match DO's clock · open
+- [GD-STORY-009](GD-STORY-009.md) — Quick match with a stranger · open
+- [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (from the M0 audit)
+- [GD-STORY-015](GD-STORY-015.md) — The bot as a second client in a Web Worker · open
+- [GD-STORY-010](GD-STORY-010.md) — Create a game and share a link · open
+- [GD-TICKET-026](GD-TICKET-026.md) — Let a bot game change the match settings · open (from the M2 audit)
+- [GD-STORY-014](GD-STORY-014.md) — Result and rematch over the network · open
+- [GD-TICKET-017](GD-TICKET-017.md) — Show connection quality and degrade visibly above 150 ms · open (from the M0 audit)
+- [GD-TICKET-029](GD-TICKET-029.md) — Test the Durable Objects, and two browsers end to end · open
+- [GD-TICKET-027](GD-TICKET-027.md) — Bring the client architecture in line with what M2 built · open (from the M2 audit)
+
 *Later milestones (gaps from the [coverage audit](../coverage-audit.md), part of GD-EPIC-001):*
 
-- [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · open (M3)
-- [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (M3)
-- [GD-TICKET-017](GD-TICKET-017.md) — Show connection quality and degrade visibly above 150 ms · open (M3)
 - [GD-TICKET-012](GD-TICKET-012.md) — Delete a match's stored state when its session ends · open (M4)
