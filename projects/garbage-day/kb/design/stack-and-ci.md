@@ -145,7 +145,9 @@ copy from the runner ("Cannot read properties of undefined (reading 'config')", 
 - **GitHub dependency review** runs on every pull request that touches the project and blocks
   new vulnerable or wrongly-licensed dependencies ([the pipeline](#the-pipeline)).
 - **CodeQL** (JavaScript/TypeScript, no build needed) runs weekly, on pull requests and on
-  pushes that touch `src/`.
+  pushes that touch `src/`. Its alerts show on the repository's Security tab, and each run also
+  keeps its SARIF file as the `codeql-sarif` artifact for a week, for anyone who can read the
+  run but not the tab, as an agent session can't ([`GD-TICKET-030`](../process/backlog/GD-TICKET-030.md)).
 - `minimumReleaseAge` of one day in `pnpm-workspace.yaml` stops a just-published (possibly
   hijacked) version from being installed. `allowBuilds` allows install scripts only for the
   packages it names (esbuild and workerd, which fetch native binaries); pnpm 12 refuses to finish
