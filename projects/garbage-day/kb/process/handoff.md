@@ -29,8 +29,8 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games;
   - [`GD-TICKET-026`](backlog/GD-TICKET-026.md): a bot game on the player's Mode and Speed-up every.
 
-  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` are on the
-  branch, not yet in production. CI is green to `956ef36`.
+  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` are in
+  pull request #15, not yet in production. CI is green to `37fac64`.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
   A bot plays under the same server rules, from its own worker, and two friends can meet by a
@@ -47,8 +47,10 @@ history lives in the [running journal](journal/index.md).
   merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
   has all of M2 and M3 so far: quick match against a stranger, with reconnects and the fight on
   both screens.
-  There is no open pull request. Work goes on the designated branch, restarted from `main` after
-  the merge, and a new pull request is opened only when the owner asks.
+  **Pull request #15 is open** (the owner asked on 2026-10-01): `GD-STORY-013`, `GD-TICKET-016`,
+  `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026`. The session watches it for CI and reviews,
+  with an hourly check-in, and drives it to green; the owner merges. Work goes on in the same
+  branch, so later items join the pull request.
 - **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
 
   Settled earlier: the Cloudflare secrets, the Renovate app, and the `main-protect` ruleset requiring `garbage-day-ok` ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
