@@ -8,6 +8,7 @@ import {
   Countdown,
   QUAD,
   ShowdownBanner,
+  type StageArrangement,
 } from '@garbage-day/ui';
 import type { PlayerIndex } from '@garbage-day/engine';
 import { useRef } from 'react';
@@ -23,27 +24,47 @@ import styles from './Match.module.css';
 
 const useMatch = MatchSessionContext.useSelector;
 
+/** Cells stop growing at 36 px on a big screen (controls and layout, "Desktop"). */
+const DESKTOP_MAX_CELL = 36;
+
 function Board({
   session,
   seat,
   label,
+  layout,
 }: {
   session: MatchSession;
   seat: PlayerIndex;
   label: string;
+  layout: StageArrangement;
 }) {
   const box = useRef<HTMLDivElement>(null);
   return (
     <div className={styles.board} ref={box} data-board={seat}>
       <BoardCanvas
         label={label}
+        {...(layout === 'desktop' ? { maxCell: DESKTOP_MAX_CELL } : {})}
         source={(now) => {
           session.frame(now);
           return session.board(seat);
         }}
       />
       <BoardFx session={session} seat={seat} board={box} />
+      {seat === 0 && layout === 'portrait' && <BoardCountdown />}
       {seat === 0 && <TouchSurface />}
+    </div>
+  );
+}
+
+/** The countdown over my board, where there is no centre column to hold it (phone portrait). */
+function BoardCountdown() {
+  const phase = useMatch((v) => v.phase);
+  const countdown = useMatch((v) => v.countdown);
+  const clock = useMatch((v) => v.clock);
+  if (!(phase === 'countdown' || (phase === 'playing' && clock === 0))) return null;
+  return (
+    <div className={styles.boardCountdown}>
+      <Countdown value={phase === 'countdown' ? countdown : 0} />
     </div>
   );
 }
@@ -71,42 +92,91 @@ function LiveStats({ seat }: { seat: PlayerIndex }) {
   );
 }
 
-/** My side: hold, power-up and next pieces, my board with its ghost, and my meter. */
-export function PlayerPanel({ session }: { session: MatchSession }) {
+/**
+ * My side: hold, power-up and next pieces, my board with its ghost, and my meter; the live stats
+ * under it on a big screen.
+ */
+export function PlayerPanel({
+  session,
+  layout,
+}: {
+  session: MatchSession;
+  layout: StageArrangement;
+}) {
   const hold = useMatch((v) => v.players[0].hold);
   const holdUsed = useMatch((v) => v.players[0].holdUsed);
   const power = useMatch((v) => v.players[0].power);
   const next = useMatch((v) => v.players[0].next);
   const powerKey = usePrefs((s) => keyLabel(s.bindings.power[0] ?? ''));
   return (
-    <div className={styles.panel}>
-      <div className={styles.side}>
-        <HoldSlot piece={hold} used={holdUsed} />
-        <PowerSlot kind={power} hint={powerKey} />
-        <NextQueue pieces={next} />
+    <div className={styles.panel} data-layout={layout}>
+      <div className={styles.row}>
+        <div className={styles.side}>
+          <HoldSlot piece={hold} used={holdUsed} />
+          <PowerSlot kind={power} hint={powerKey} />
+          <NextQueue pieces={next} />
+        </div>
+        <Board session={session} seat={0} label="Your board" layout={layout} />
+        <PlayerMeter seat={0} />
       </div>
-      <Board session={session} seat={0} label="Your board" />
-      <PlayerMeter seat={0} />
-      <LiveStats seat={0} />
+      {layout === 'desktop' && <LiveStats seat={0} />}
     </div>
   );
 }
 
-/** The rival's side, mirrored: their meter, their board, their hold and power-up; next hidden. */
-export function OpponentPanel({ session, name }: { session: MatchSession; name: string }) {
+/**
+ * The rival's side, mirrored: their meter, their board, their hold and power-up, next hidden,
+ * and their stats on a big screen. Upright on a phone it is just the board and its meter.
+ */
+export function OpponentPanel({
+  session,
+  name,
+  layout,
+}: {
+  session: MatchSession;
+  name: string;
+  layout: StageArrangement;
+}) {
   const hold = useMatch((v) => v.players[1].hold);
   const power = useMatch((v) => v.players[1].power);
+  const compact = layout === 'portrait';
   return (
-    <div className={styles.panel}>
-      <PlayerMeter seat={1} />
-      <Board session={session} seat={1} label={`${name}'s board`} />
-      <div className={styles.side}>
-        <HoldSlot piece={hold} />
-        <PowerSlot kind={power} />
-        <NextQueue pieces="hidden" />
+    <div
+      className={[styles.panel, compact && styles.compact].filter(Boolean).join(' ')}
+      data-layout={layout}
+    >
+      <div className={styles.row}>
+        <PlayerMeter seat={1} />
+        <Board session={session} seat={1} label={`${name}'s board`} layout={layout} />
+        {!compact && (
+          <div className={styles.side}>
+            <HoldSlot piece={hold} />
+            <PowerSlot kind={power} />
+            <NextQueue pieces="hidden" />
+          </div>
+        )}
       </div>
-      <LiveStats seat={1} />
+      {layout === 'desktop' && <LiveStats seat={1} />}
     </div>
+  );
+}
+
+/**
+ * The clock and speed in the header, where there is no centre column (phone portrait), on a
+ * small piece of the stage, so they keep the stage's colours on a light page.
+ */
+export function HeaderClock() {
+  const clock = useMatch((v) => v.clock);
+  const level = useMatch((v) => v.level);
+  const progress = useMatch((v) => v.progress);
+  const hot = useMatch((v) => v.hot);
+  return (
+    <span className={styles.headerClock} data-stage="">
+      <SpeedChip level={level} progress={progress} hot={hot} />
+      <span className={styles.clock} aria-label={`Match clock ${mmss(clock)}`}>
+        {mmss(clock)}
+      </span>
+    </span>
   );
 }
 

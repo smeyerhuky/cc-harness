@@ -52,8 +52,8 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · done
 - [GD-STORY-002](GD-STORY-002.md) — See the fight: garbage, power-ups, showdowns and the result · done
 - [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · done
-- [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · active
-- [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · open
+- [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · done
+- [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · active
 - [GD-STORY-008](GD-STORY-008.md) — Accessible by default · open
 - [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · open
 - [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · done

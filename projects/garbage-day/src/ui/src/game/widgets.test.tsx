@@ -218,6 +218,38 @@ describe('BoardCanvas', () => {
     expect(calls.some((c) => c.name === 'fillRect' && c.fill === PIECE_COLOR.Z)).toBe(true);
   });
 
+  it('fills its container in whole cells, up to maxCell', () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    // The container measures 600 × 1600: 60 px cells would fit, 36 is the cap.
+    const observers: ResizeObserverCallback[] = [];
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(cb: ResizeObserverCallback) {
+          observers.push(cb);
+        }
+        observe() {
+          return undefined;
+        }
+        disconnect() {
+          return undefined;
+        }
+      },
+    );
+    render(<BoardCanvas source={() => null} label="Your board" maxCell={36} />);
+    act(() => {
+      observers.forEach((cb) =>
+        cb(
+          [{ contentRect: { width: 600, height: 1600 } } as ResizeObserverEntry],
+          {} as ResizeObserver,
+        ),
+      );
+    });
+    const canvas = screen.getByRole<HTMLCanvasElement>('img', { name: 'Your board' });
+    expect([canvas.style.width, canvas.style.height]).toEqual(['360px', '720px']);
+    vi.unstubAllGlobals();
+  });
+
   it('draws nothing where the canvas has no 2D context', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     const source = vi.fn(() => null);

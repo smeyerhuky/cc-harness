@@ -20,6 +20,8 @@ export interface BoardCanvasProps {
   readonly cell?: number;
   /** Smallest cell when filling the container. */
   readonly minCell?: number;
+  /** Largest cell when filling the container (desktop: 36 px). */
+  readonly maxCell?: number;
   readonly reducedMotion?: boolean;
 }
 
@@ -46,6 +48,7 @@ export function BoardCanvas({
   label,
   cell: fixedCell,
   minCell = 6,
+  maxCell = Infinity,
   reducedMotion: forced,
 }: BoardCanvasProps) {
   const frame = useRef<HTMLDivElement>(null);
@@ -57,7 +60,10 @@ export function BoardCanvas({
   const reducedMotion = forced ?? systemReduced;
   const cell =
     fixedCell ??
-    Math.max(minCell, Math.floor(Math.min(size.width / W, size.height / VIS)) || minCell);
+    Math.min(
+      maxCell,
+      Math.max(minCell, Math.floor(Math.min(size.width / W, size.height / VIS)) || minCell),
+    );
 
   useEffect(() => {
     const el = canvas.current;

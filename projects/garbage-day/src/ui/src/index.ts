@@ -57,7 +57,7 @@ export { SpeedChip } from './game/SpeedChip';
 export { Sfx, type SoundName } from './sound/sfx';
 
 export { ScreenFrame } from './layout/ScreenFrame';
-export { StageLayout } from './layout/StageLayout';
+export { StageLayout, type StageArrangement } from './layout/StageLayout';
 export { ThumbZone } from './layout/ThumbZone';
 
 export { useAnimationFrame } from './hooks/useAnimationFrame';

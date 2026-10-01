@@ -81,7 +81,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
   [`GD-STORY-003`](backlog/GD-STORY-003.md)
 - [x] Touch gestures per the gesture table, the optional button pad, haptics (US-17) —
   [`GD-STORY-004`](backlog/GD-STORY-004.md)
-- [ ] Desktop layout including the match feed at ≥ 1600 px, phone portrait and landscape, no
+- [x] Desktop layout including the match feed at ≥ 1600 px, phone portrait and landscape, no
   scrolling during a match, wake lock (US-18, US-19) — [`GD-STORY-005`](backlog/GD-STORY-005.md)
 - [ ] Bot setup with presets and separate skill and speed, the skill test (US-03 locally) —
   [`GD-STORY-006`](backlog/GD-STORY-006.md)

@@ -141,6 +141,11 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   early, so a move always shows in the first frame after the key (US-05).
 - Motion that the DOM does well (popups, the attack flying through the centre column, countdown
   pops) uses CSS and the Web Animations API, and turns off with reduced motion.
+- **Layouts.** `useMatchLayout` picks the arrangement from two media queries (a phone upright,
+  a phone on its side; anything else is desktop), and `StageLayout`, the panels and the header
+  follow it: the structure changes in components (no centre column upright, the clock in the
+  header), and CSS sizes within it. A board's box takes the board's 1:2 shape so its side panel
+  and meter hug it; `BoardCanvas` fills that box in whole cells, up to 36 px on desktop.
 - Moments go out as **effects**, not state: `MatchSession.onEffect` reports a clear (with its
   words from `clearLabel`), a cancel, a gem banked, garbage landing, an attack routed, a shield
   block, a power-up used or applied, a showdown's announce, start and end, a top-out, and the

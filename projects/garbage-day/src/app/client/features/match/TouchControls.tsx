@@ -10,6 +10,7 @@ import { use, useState, type PointerEvent } from 'react';
 import type { Action } from '../../input/InputController';
 import { InputContext, MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
+import { useMatchLayout } from './useMatchLayout';
 import styles from './Touch.module.css';
 
 /** The pad's keys, in two rows (controls and layout, "Touch gestures"). */
@@ -93,14 +94,25 @@ function PowerButton() {
   );
 }
 
-/** Below the stage on a touch screen: the power-up button, or the pad when it's on. */
+/**
+ * Below the stage on a touch screen: the power-up button, or the pad when it's on. On a phone on
+ * its side the button floats in the bottom corner instead, so the boards keep the height.
+ */
 export function TouchControls() {
+  const layout = useMatchLayout();
   const active = MatchSessionContext.useSelector((v) => v.phase !== 'over');
   const touch = useMediaQuery('(pointer: coarse)');
   const pad = usePrefs((s) => s.pad);
   const gestures = usePrefs((s) => s.gestures);
   if (pad) return <ButtonPad active={active} />;
   if (!touch || !gestures) return null;
+  if (layout === 'landscape') {
+    return (
+      <div className={styles.floating}>
+        <PowerButton />
+      </div>
+    );
+  }
   return (
     <ThumbZone>
       <div className={styles.power}>

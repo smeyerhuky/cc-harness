@@ -263,6 +263,13 @@ ${decls('dark', STAGE_CONTENT)}
   transition-duration: 0.01ms !important;
 }
 
+/* During a match the page itself holds still: no scroll, no pull-to-refresh (US-19). */
+:root[data-locked],
+:root[data-locked] body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 /* The page itself follows the theme; nothing outside the app shows the browser's defaults. */
 html,
 body {

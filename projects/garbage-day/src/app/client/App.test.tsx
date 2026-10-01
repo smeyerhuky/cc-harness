@@ -70,6 +70,24 @@ describe('routes', () => {
     expect(await screen.findByRole('heading', { name: 'Garbage Day' })).toBeDefined();
   });
 
+  it('a match keeps the screen awake, and lets it sleep after', async () => {
+    const release = vi.fn(() => Promise.resolve());
+    const request = vi.fn(() => Promise.resolve({ released: false, release }));
+    Object.defineProperty(navigator, 'wakeLock', { value: { request }, configurable: true });
+    try {
+      renderAt('/');
+      fireEvent.click(await screen.findByRole('button', { name: 'Play a bot' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
+      await screen.findByRole('img', { name: 'Your board' });
+      expect(request).toHaveBeenCalledWith('screen');
+      fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
+      await screen.findByRole('heading', { name: 'Garbage Day' });
+      expect(release).toHaveBeenCalled();
+    } finally {
+      Reflect.deleteProperty(navigator, 'wakeLock');
+    }
+  });
+
   it('/play with no match under way goes home', async () => {
     const router = renderAt('/play');
     expect(await screen.findByRole('heading', { name: 'Garbage Day' })).toBeDefined();
