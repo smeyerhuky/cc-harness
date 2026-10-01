@@ -54,7 +54,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · done
 - [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · done
 - [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · done
-- [GD-STORY-008](GD-STORY-008.md) — Accessible by default · active
+- [GD-STORY-008](GD-STORY-008.md) — Accessible by default · done
 - [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · open
 - [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · done
 - [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · done ("Quad")

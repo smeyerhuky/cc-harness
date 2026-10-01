@@ -131,7 +131,8 @@ jobs:
       - run: pnpm test:worker
 
   # The golden replays in Chromium, Firefox and WebKit: the determinism contract has to hold on
-  # every JavaScript engine, not only Node's V8 (GD-TICKET-019).
+  # every JavaScript engine, not only Node's V8 (GD-TICKET-019). Then the accessibility scan, axe
+  # over every screen in both themes, in Chromium (GD-STORY-008).
   test-browser:
     name: test-browser
     needs: install

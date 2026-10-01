@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p src/engine && tsc --noEmit -p src/protocol && tsc --noEmit -p src/ui && tsc --noEmit -p src/app && tsc --noEmit -p src/app/worker",
     "test": "vitest run",
     "test:worker": "pnpm --filter @garbage-day/app test:worker",
-    "test:browser": "pnpm --filter @garbage-day/engine test:browser",
+    "test:browser": "pnpm --filter @garbage-day/engine --filter @garbage-day/app test:browser",
     "audit": "pnpm audit --audit-level moderate"
   },
   "devDependencies": {

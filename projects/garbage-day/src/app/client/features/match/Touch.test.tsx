@@ -172,4 +172,22 @@ describe('TouchControls', () => {
     fireEvent.pointerDown(screen.getByRole('button', { name: 'Hard drop' }));
     expect(input.tick()).toMatchObject({ hard: true, dx: 0 });
   });
+
+  it('the pad works from the keyboard too: one step per key press', () => {
+    usePrefs.setState({ pad: true });
+    const input = new InputController();
+    render(
+      <Harness input={input} v={view()}>
+        <TouchControls />
+      </Harness>,
+    );
+    // A keyboard activation is a click with no pointer behind it (detail 0).
+    fireEvent.click(screen.getByRole('button', { name: 'Move right' }), { detail: 0 });
+    fireEvent.click(screen.getByRole('button', { name: 'Soft drop' }), { detail: 0 });
+    fireEvent.click(screen.getByRole('button', { name: 'Rotate clockwise' }), { detail: 0 });
+    expect(input.tick()).toMatchObject({ dx: 1, drop: 1, cw: true });
+    // A click that followed a pointer press does nothing more.
+    fireEvent.click(screen.getByRole('button', { name: 'Move right' }), { detail: 1 });
+    expect(input.tick()).toMatchObject({ dx: 0 });
+  });
 });

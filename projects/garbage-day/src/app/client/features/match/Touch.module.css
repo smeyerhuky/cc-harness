@@ -92,3 +92,9 @@
   bottom: max(12px, env(safe-area-inset-bottom));
   z-index: 8;
 }
+/* The same focus ring as every other control (US-20: focus is always visible). */
+.key:focus-visible,
+.powerButton:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}

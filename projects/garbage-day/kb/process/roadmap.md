@@ -88,7 +88,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 - [x] Home screen, generated handles, preferences store, settings sheet (US-04) —
   [`GD-STORY-007`](backlog/GD-STORY-007.md)
 - [ ] Reduced motion, sound toggle, keyboard operability, axe scan (US-20); the developer overlay
-  — [`GD-STORY-008`](backlog/GD-STORY-008.md), [`GD-TICKET-024`](backlog/GD-TICKET-024.md)
+  — [`GD-STORY-008`](backlog/GD-STORY-008.md) (done), [`GD-TICKET-024`](backlog/GD-TICKET-024.md)
 - [x] App flow machine, routes and contexts — [`GD-TICKET-014`](backlog/GD-TICKET-014.md)
 - [x] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
 - [x] Name the four-row clear without the Tetris name ("Quad", the owner's choice) —

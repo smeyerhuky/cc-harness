@@ -39,6 +39,31 @@ afterEach(() => {
 });
 
 describe('routes', () => {
+  it('names each screen in the tab title, and says the new name when the screen changes', async () => {
+    const announced = () =>
+      document.querySelector('[aria-live="polite"][aria-atomic]')?.textContent;
+    renderAt('/');
+    await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
+    expect(document.title).toBe('Garbage Day');
+    expect(announced()).toBe('Garbage Day');
+    fireEvent.click(screen.getByRole('button', { name: 'Play a bot' }));
+    await screen.findByRole('heading', { level: 1, name: 'Play a bot' });
+    expect(document.title).toBe('Play a bot · Garbage Day');
+    expect(announced()).toBe('Play a bot');
+    fireEvent.click(screen.getByRole('button', { name: 'Rookie' }));
+    await screen.findByRole('button', { name: 'Leave' });
+    expect(document.title).toBe('Match · Garbage Day');
+    fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
+    await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
+    expect(document.title).toBe('Garbage Day');
+  });
+
+  it('an unknown page is named as such', async () => {
+    renderAt('/nowhere');
+    await screen.findByRole('heading', { level: 1, name: 'Nothing here' });
+    expect(document.title).toBe('Nothing here · Garbage Day');
+  });
+
   it('home shows the name, the ways in, and the server status', async () => {
     renderAt('/');
     expect(await screen.findByRole('heading', { level: 1, name: 'Garbage Day' })).toBeDefined();

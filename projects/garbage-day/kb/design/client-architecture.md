@@ -53,7 +53,7 @@ projects/garbage-day/src/
 │   └── gallery/       every token and widget in its states, served at /gallery (a visual check)
 └── app/           @garbage-day/app       one Vite project: the client and the Worker
     ├── client/
-    │   ├── main.tsx, App.tsx, routes.tsx
+    │   ├── main.tsx, App.tsx, routes.tsx, AppShell.tsx (each screen's name)
     │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), MatchSession.ts
     │   ├── net/           Socket (reconnect + outbox), clockSync.ts, lobbyClient.ts
     │   ├── bot/           bot.worker.ts (engine + Bot as a second client)
@@ -76,6 +76,11 @@ none, so the first page carries only the constants it imports and the engine loa
 match. `useKeyBindings` arrived with [`GD-STORY-001`](../process/backlog/GD-STORY-001.md) and
 takes the player's keys since [`GD-STORY-003`](../process/backlog/GD-STORY-003.md);
 `useGestures` arrives with [`GD-STORY-004`](../process/backlog/GD-STORY-004.md).
+
+Every route names its screen in its `handle` (`{ title }`; home names none). The root route's
+`AppShell` puts that name in the tab's title ("Play a bot · Garbage Day") and in a polite live
+region, so a screen reader hears the new screen's name when the screen changes, as it would on a
+page load ([`GD-STORY-008`](../process/backlog/GD-STORY-008.md)).
 
 ## Where state lives
 

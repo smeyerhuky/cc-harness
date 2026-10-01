@@ -6,7 +6,7 @@ import {
   useHaptics,
   useMediaQuery,
 } from '@garbage-day/ui';
-import { use, useState, type PointerEvent } from 'react';
+import { use, useState, type MouseEvent, type PointerEvent } from 'react';
 import type { Action } from '../../input/InputController';
 import { InputContext, MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
@@ -41,6 +41,14 @@ function ButtonPad({ active }: { active: boolean }) {
     if (a === 'hard') vibrate(HAPTICS.hardDrop);
     setHeld((s) => new Set(s).add(a));
   };
+  // From the keyboard (Enter or Space on a focused key, a click with no pointer behind it), a key
+  // does one step: a column, a row, or its action.
+  const keyed = (a: Action) => (e: MouseEvent<HTMLButtonElement>) => {
+    if (e.detail !== 0 || !input || !active) return;
+    if (a === 'left' || a === 'right') input.nudge(a === 'left' ? -1 : 1);
+    else if (a === 'soft') input.drop(1);
+    else input.press(a);
+  };
   const release = (a: Action) => () => {
     input?.up(a);
     setHeld((s) => {
@@ -59,6 +67,7 @@ function ButtonPad({ active }: { active: boolean }) {
           aria-label={label}
           data-held={held.has(a) ? '' : undefined}
           onPointerDown={press(a)}
+          onClick={keyed(a)}
           onPointerUp={release(a)}
           onPointerCancel={release(a)}
           onLostPointerCapture={release(a)}
@@ -87,6 +96,10 @@ function PowerButton() {
       onPointerDown={(e) => {
         e.preventDefault();
         input?.press('power');
+      }}
+      onClick={(e) => {
+        // Enter or Space on the focused button: no pointer went down.
+        if (e.detail === 0) input?.press('power');
       }}
     >
       <PowerIcon kind={power} decorative />

@@ -48,7 +48,7 @@ property defined on `:root` for light, redefined for dark under
 | `--bg` | `#ECEEEA` | `#101315` | page |
 | `--surface` · `--surface-2` | `#F8F9F6` · `#E1E5DF` | `#171B1E` · `#1F2529` | cards, sheets |
 | `--ink` · `--muted` · `--line` | `#1B1F22` · `#56606A` · `#C8CEC7` | `#E6E9E4` · `#98A2A8` · `#2C3338` | text, borders |
-| `--accent` (safety orange) | `#C73E17` | `#FF6B3D` | primary actions, the local player |
+| `--accent` (safety orange) | `#BE3A15` | `#FF6B3D` | primary actions, the local player (also as text: 4.5:1 on the page and on cards) |
 | `--accent-ink` | `#FFFFFF` | `#1A0D07` | text on accent (primary buttons) |
 | `--rival` (bin blue) | `#22629C` | `#5DA5E3` | the opponent |
 | `--hazard` · `--hazard-ink` | `#F2B90F` · `#1B1F22` | `#F2C12E` · `#111416` | garbage meter, stripe bands |

@@ -26,9 +26,9 @@ history lives in the [running journal](journal/index.md).
   [`GD-TICKET-018`](backlog/GD-TICKET-018.md) (a four-row clear is a **Quad**). The owner asked
   for the rest of M2 in this order: [`GD-STORY-002`](backlog/GD-STORY-002.md),
   [`GD-STORY-004`](backlog/GD-STORY-004.md) with `015`, and [`GD-STORY-005`](backlog/GD-STORY-005.md)
-  and [`GD-STORY-006`](backlog/GD-STORY-006.md) (done: the fight, touch play, the layouts and bot
-  setup, in pull request #14), then [`GD-STORY-008`](backlog/GD-STORY-008.md) (active) and
-  `024`. M1 closed at its owner
+  and [`GD-STORY-006`](backlog/GD-STORY-006.md), then [`GD-STORY-008`](backlog/GD-STORY-008.md)
+  (all done: the fight, touch play, the layouts, bot setup and accessibility, in pull request
+  #14), and `024`. M1 closed at its owner
   check-in on 2026-09-30: "let's go", every default approved
   ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
   `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
@@ -77,11 +77,11 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-STORY-008`](backlog/GD-STORY-008.md), accessible by default (active): keyboard operability
-and visible focus everywhere, shapes and patterns that don't rely on colour, reduced motion and
-sound off by default, and an automated accessibility (axe) scan of every M2 screen. Then
-[`GD-TICKET-024`](backlog/GD-TICKET-024.md), the developer overlay, the last M2 item. Pull
-request #14 waits for the owner; work pushed before it merges joins it.
+[`GD-TICKET-024`](backlog/GD-TICKET-024.md), the developer overlay, the last M2 item: off by
+default, it shows the wire log and the app and match machines' states. Then M2's exit: the
+milestone tier of the [definition of done](definition-of-done.md), including the coverage audit,
+ending with the owner check-in. Pull request #14 waits for the owner; work pushed before it
+merges joins it.
 
 ## Standing rules for M1
 
