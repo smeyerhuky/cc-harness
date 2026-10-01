@@ -90,4 +90,8 @@ The device check, against the built Worker in workerd (`vite preview`), with Nod
 - 300 messages at once closed the socket with 1008, "Too many refused messages".
 - A plain GET got 426, and a bad id 404.
 
+The same check against the pull request's Worker Preview on Cloudflare (`wss://pr-14-…`) gave
+the same results. That run also confirmed the account takes the rate-limiting binding: the
+preview deployed with it.
+
 No browser yet: no client opens these sockets until `GD-STORY-011`.

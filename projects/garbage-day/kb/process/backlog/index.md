@@ -64,7 +64,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 *M3 — Play online (part of GD-EPIC-001; minted at the M2 exit, in the order proposed for building it):*
 
 - [GD-TICKET-028](GD-TICKET-028.md) — Route the sockets, and limit and check every message · done
-- [GD-STORY-011](GD-STORY-011.md) — Same pieces, hidden next, and the opponent live · open
+- [GD-STORY-011](GD-STORY-011.md) — Same pieces, hidden next, and the opponent live · active
 - [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · open (from the M0 audit)
 - [GD-STORY-012](GD-STORY-012.md) — Garbage, power-ups and showdowns over the network · open
 - [GD-STORY-013](GD-STORY-013.md) — The speed-up on the Match DO's clock · open

@@ -97,7 +97,7 @@ reject unknown keys; messages to clients tolerate them, so the server can add op
 | `t` | Carries |
 |---|---|
 | `lobby` | both handles (the second empty until someone joins), settings, ready flags, which seat is yours (private games) |
-| `start` | go tick; settings (the server start time for clock sync arrives with M3) |
+| `start` | go tick; settings; this player's garbage-hole seed (`holes`), never the match seed, which deals the pieces (the server start time for clock sync arrives with M3) |
 | `bag` | 7 pieces with any gems |
 | `garbage` | rows, attack id |
 | `opp` | the opponent's `pos` or `lock`, relayed; never their next pieces |

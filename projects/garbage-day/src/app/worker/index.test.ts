@@ -8,40 +8,9 @@ import {
 import { env, exports } from 'cloudflare:workers';
 import { describe, expect, it } from 'vitest';
 import type { Health } from './index';
-import { MATCH_LIMITS } from './index';
+import { MATCH_LIMITS } from './match';
 import { CLOSE_REFUSED } from './sockets';
-
-const ORIGIN = 'https://garbage-day.example';
-
-/** Opens a socket at `path`, from `address`. */
-async function open(path: string, address = '203.0.113.7') {
-  const res = await exports.default.fetch(`${ORIGIN}${path}`, {
-    headers: { Upgrade: 'websocket', 'CF-Connecting-IP': address },
-  });
-  expect(res.status).toBe(101);
-  const ws = res.webSocket;
-  if (!ws) throw new Error('no socket');
-  ws.accept();
-  const inbox: string[] = [];
-  const waiting: ((m: string) => void)[] = [];
-  ws.addEventListener('message', (e) => {
-    const text = String(e.data);
-    const next = waiting.shift();
-    if (next) next(text);
-    else inbox.push(text);
-  });
-  const closed = new Promise<CloseEvent>((resolve) => {
-    ws.addEventListener('close', resolve);
-  });
-  /** The next message from the server. */
-  const next = () =>
-    new Promise<string>((resolve) => {
-      const queued = inbox.shift();
-      if (queued !== undefined) resolve(queued);
-      else waiting.push(resolve);
-    });
-  return { ws, next, closed };
-}
+import { connect as open, openMatch, ORIGIN, seat } from './testkit';
 
 const ready = encodeClientToMatch({ type: 'ready' });
 
@@ -103,14 +72,16 @@ describe('sockets', () => {
   });
 
   it('take a valid message without complaint, and count it', async () => {
-    const s = await open('/ws/match/GD-GOOD');
+    await openMatch('GD-GOOD');
+    const s = await seat('GD-GOOD', 0);
     s.ws.send(ready);
     // A bad message after it: its error proves the DO has handled both.
     s.ws.send('nope');
     const error = parseMatchToClient(await s.next());
     expect(error).toMatchObject({ ok: true, msg: { type: 'error', code: 'invalid' } });
     const counts = await env.MATCH.getByName('GD-GOOD').wireCounts();
-    expect(counts).toMatchObject({ accepted: 1, malformed: 1, closed: 0 });
+    // The hello and the ready.
+    expect(counts).toMatchObject({ accepted: 2, malformed: 1, closed: 0 });
     s.ws.close(1000);
   });
 
@@ -136,7 +107,8 @@ describe('sockets', () => {
   });
 
   it('close a match socket that floods, after its burst', async () => {
-    const s = await open('/ws/match/GD-FLOOD');
+    await openMatch('GD-FLOOD');
+    const s = await seat('GD-FLOOD', 0);
     for (let i = 0; i < 200; i++) s.ws.send(ready);
     expect(parseMatchToClient(await s.next())).toMatchObject({
       msg: { type: 'error', code: 'rate' },

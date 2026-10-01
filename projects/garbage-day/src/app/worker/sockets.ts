@@ -40,7 +40,7 @@ export abstract class SocketDO<T extends { readonly type: string }> extends Dura
   /** The protocol's `error` message to this DO's clients. */
   protected abstract encodeError(code: RefusalCode, message: string): string;
   /** A message that passed the guard. */
-  protected abstract received(ws: WebSocket, msg: T): void;
+  protected abstract received(ws: WebSocket, msg: T): void | Promise<void>;
 
   // A guard lives with its socket in memory. Hibernation drops it, which only happens to a
   // socket quiet for a while, so the next message starts a fresh guard with a full allowance.
@@ -63,7 +63,7 @@ export abstract class SocketDO<T extends { readonly type: string }> extends Dura
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  override webSocketMessage(ws: WebSocket, data: string | ArrayBuffer): void {
+  override async webSocketMessage(ws: WebSocket, data: string | ArrayBuffer): Promise<void> {
     if (this.closing.has(ws)) return;
     let guard = this.guards.get(ws);
     if (!guard) {
@@ -73,7 +73,7 @@ export abstract class SocketDO<T extends { readonly type: string }> extends Dura
     const v = guard.check(data, Date.now());
     if (v.ok) {
       this.counts.accepted++;
-      this.received(ws, v.msg);
+      await this.received(ws, v.msg);
       return;
     }
     this.counts[v.reason]++;

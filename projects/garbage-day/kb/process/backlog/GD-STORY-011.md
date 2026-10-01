@@ -5,7 +5,7 @@ description: "The Match DO deals both players the same bags with gems one bag at
 resource: "../../product/prd.md"
 tags: ["backlog", "network"]
 timestamp: "2026-09-30"
-state: "open"
+state: "active"
 milestone: "M3"
 relationships:
   - type: PART_OF
@@ -47,3 +47,15 @@ From the [PRD](../../product/prd.md#playing), **US-06 Same pieces, hidden next**
 ## AI PDLC Prompt
 
 Goal: a match between two browsers through the Match DO. Read the architecture's Match DO section and `src/engine/src/referee.ts`, which the DO hosts. Run the code gates and `pnpm test:worker`. Check the result in two browsers, one a phone profile. Done when the criteria hold, the KB gates pass, this item is `done` with a Resolution recording the check, the backlog index and roadmap agree, and the journal records it.
+
+## Progress
+
+- **The Match DO half is built** (`src/app/worker/match.ts`).
+  - **Opening a match:** whoever creates it calls `open` with two join tokens and the settings. A second open returns false, so the caller can pick another id.
+  - **Seats:** each socket's `hello` claims the seat its token names. A newer socket for a seat closes the older one, and a bad token or a message before `hello` gets `bad-token` and a close.
+  - **The referee:** with both seats taken, the engine's referee starts on a seed made and kept in the DO. It deals two bags each, then `start`, which carries each player's own garbage-hole seed and never the match seed.
+  - **Its clock:** on every message the DO catches the referee up to the wall-clock tick. It first passes on the heartbeats the auto-response answered without waking it, so silence detection works.
+  - **The relay:** positions and locks go to the other player, and the queue never does.
+  - **Tests:** 7 Worker tests cover dealing (the same bags for both), the seed, the relay, refusals, a replaced seat, and opening once.
+- **Still to do:** the client. A `MatchSession` source that plays one `PlayerSim` over the socket and draws the opponent from `opp`. Then two browsers, which need a way into a match: the quick match of [`GD-STORY-009`](GD-STORY-009.md) is the first.
+

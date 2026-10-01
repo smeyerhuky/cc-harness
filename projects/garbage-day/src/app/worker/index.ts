@@ -1,69 +1,11 @@
-import {
-  encodeLobbyToClient,
-  encodeMatchToClient,
-  matchId,
-  parseClientToLobby,
-  parseClientToMatch,
-  PROTOCOL_VERSION,
-  type ClientToLobby,
-  type ClientToMatch,
-} from '@garbage-day/protocol';
-import type { GuardLimits } from './guard';
-import { SocketDO, type RefusalCode } from './sockets';
+import { matchId, PROTOCOL_VERSION } from '@garbage-day/protocol';
 
-// The limits, and why each number (kb/design/architecture.md, "Limits").
+// The Worker (kb/design/architecture.md, "Components"): the app's static assets, the health
+// check, and the sockets, each handed to the Durable Object that owns it. The limits and why
+// each number: architecture, "Limits".
 
-/**
- * A player sends `pos` at most 15 times a second and a `lock`, with any `attack`, per piece; the
- * busiest golden replay averages under 15 messages a second a player. 40 a second, in bursts of
- * 60, is well over anything a real client sends, and caps what a flood makes the DO parse. Locks
- * are capped at 20 a second, as the architecture's trust rules say.
- */
-export const MATCH_LIMITS: GuardLimits = { rate: 40, burst: 60, locks: 20, strikes: 20 };
-/** The lobby hears a `queue` and a `cancel` (pings are answered without it). */
-export const LOBBY_LIMITS: GuardLimits = { rate: 2, burst: 5, strikes: 10 };
-
-/** The quick-match queue (M3): its socket is guarded; pairing comes with GD-STORY-009. */
-export class LobbyDO extends SocketDO<ClientToLobby> {
-  protected readonly limits = LOBBY_LIMITS;
-
-  protected parse(text: string) {
-    return parseClientToLobby(text);
-  }
-
-  protected encodeError(code: RefusalCode, message: string): string {
-    return encodeLobbyToClient({ type: 'error', code, message });
-  }
-
-  protected received(): void {
-    // Pairing arrives with GD-STORY-009.
-  }
-
-  health(): 'ok' {
-    return 'ok';
-  }
-}
-
-/** One match, private or quick (M3): its sockets are guarded; the referee comes with GD-STORY-011. */
-export class MatchDO extends SocketDO<ClientToMatch> {
-  protected readonly limits = MATCH_LIMITS;
-
-  protected parse(text: string) {
-    return parseClientToMatch(text);
-  }
-
-  protected encodeError(code: RefusalCode, message: string): string {
-    return encodeMatchToClient({ type: 'error', code, message });
-  }
-
-  protected received(): void {
-    // The referee arrives with GD-STORY-011.
-  }
-
-  health(): 'ok' {
-    return 'ok';
-  }
-}
+export { LobbyDO } from './lobby';
+export { MatchDO } from './match';
 
 export interface Health {
   ok: true;
