@@ -235,6 +235,15 @@ export const lobbyToClient = z.discriminatedUnion('t', [
   toClient('error', { code: z.enum(errorCodes), message: z.string().max(200) }),
 ]);
 
+// ---- The Worker's HTTP API ----
+
+/**
+ * What `POST /api/bot-matches` answers (GD-STORY-015): a match opened for two seats, the
+ * player's token and the bot's. The browser hands the bot's to the worker that plays it.
+ */
+export const botMatch = z.object({ matchId, token, botToken: token });
+export type BotMatch = z.infer<typeof botMatch>;
+
 export type ClientToMatchWire = z.infer<typeof clientToMatch>;
 export type MatchToClientWire = z.infer<typeof matchToClient>;
 export type ClientToLobbyWire = z.infer<typeof clientToLobby>;

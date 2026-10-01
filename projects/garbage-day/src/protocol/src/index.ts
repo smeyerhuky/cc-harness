@@ -19,6 +19,7 @@ export {
 export { ProtocolError, type ParseResult, type ProtocolErrorCode } from './errors';
 export {
   botMark,
+  botMatch,
   errorCodes,
   handle,
   matchId,
@@ -28,6 +29,7 @@ export {
   PROTOCOL_VERSION,
   token,
   type BotMark,
+  type BotMatch,
   type MatchSettings,
 } from './schemas';
 export { DEFAULT_SETTINGS, settingsToRules } from './settings';

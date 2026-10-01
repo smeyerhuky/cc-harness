@@ -2,12 +2,14 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react';
 import { createMemoryRouter, type RouteObject } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fakeServer } from '../test/fakeServer';
 import { App } from './App';
 import { MatchRouteError, RouteError } from './RouteError';
 import { DEFAULT_BINDINGS } from './input/bindings';
+import { InputController } from './input/InputController';
 import { routes } from './routes';
 import { useDev } from './state/dev';
-import type { MatchSession } from './state/MatchSession';
+import type { OnlineSession } from './state/OnlineSession';
 import { PREFS_KEY, usePrefs } from './state/prefs';
 
 /** The tab's title is set after the screen paints, so it may lag the screen by a moment. */
@@ -18,6 +20,8 @@ function renderAt(path: string, routeList: RouteObject[] = routes) {
   render(<App router={router} />);
   return router;
 }
+
+let server: ReturnType<typeof fakeServer>;
 
 beforeEach(() => {
   vi.stubGlobal(
@@ -36,9 +40,12 @@ beforeEach(() => {
       ),
     ),
   );
+  // Bot matches are made and played on a stand-in for the Worker and its Match DO.
+  server = fakeServer();
 });
 
 afterEach(() => {
+  server.close();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -280,22 +287,53 @@ describe('bot setup', () => {
   });
 });
 
-describe('a bot always reads as a bot (GD-TICKET-016)', () => {
-  /** A lobby socket that never opens: nobody else is waiting. */
-  class QuietSocket extends EventTarget {
-    static readonly OPEN = 1;
-    readyState = 0;
-    send(): void {}
-    close(): void {}
-  }
+describe('a bot match, through the match server (GD-STORY-015)', () => {
+  afterEach(() => useDev.setState({ open: false, session: null }));
 
+  it('seats the bot from its own worker, and the page plays only its player', async () => {
+    renderAt('/bot');
+    fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
+    await screen.findByRole('img', { name: 'Your board' });
+    // The match was made for two: the page took one seat, and the worker the bot's.
+    await waitFor(() => expect(server.last().referee).not.toBeNull());
+    const match = server.last();
+    const jobs = server.workers.map((w) => w.job);
+    expect(jobs).toMatchObject([{ token: match.tokens[1], bot: { skill: 5, speed: 5 } }]);
+    expect(jobs[0]?.url.endsWith(`/ws/match/${match.id}`)).toBe(true);
+    expect(match.bots).toEqual([null, { skill: 5, speed: 5 }]);
+    // The page's player is driven by its keys, never by a bot.
+    const session = useDev.getState().session as OnlineSession | null;
+    if (!session) throw new Error('no match session');
+    expect(session.match.controller).toBeInstanceOf(InputController);
+    // Past the countdown the bot plays its pieces, and the page sees them as the referee relays them.
+    await waitFor(() => expect(session.match.opponent.stats?.pieces ?? 0).toBeGreaterThan(0), {
+      timeout: 10_000,
+    });
+    // Leaving ends the match at the referee, and the bot's worker goes.
+    fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
+    await waitFor(() => expect(match.referee?.result?.reason).toBe('left'));
+    expect(server.workers[0]?.terminated).toBe(true);
+  });
+
+  it('says the connection is lost when no match can be made', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(new Response('{}', { status: 429 }))),
+    );
+    renderAt('/bot');
+    fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
+    expect(await screen.findByText('Connection lost')).toBeDefined();
+    expect(server.workers).toEqual([]);
+  });
+});
+
+describe('a bot always reads as a bot (GD-TICKET-016)', () => {
   afterEach(() => {
     vi.useRealTimers();
     useDev.setState({ open: false, session: null });
   });
 
   it('names the bot on the offer, the match screen and the result of a bot played while waiting', async () => {
-    vi.stubGlobal('WebSocket', QuietSocket);
     vi.useFakeTimers({ shouldAdvanceTime: true });
     usePrefs.getState().setBot({ skill: 5, speed: 7 });
     renderAt('/');
@@ -311,9 +349,11 @@ describe('a bot always reads as a bot (GD-TICKET-016)', () => {
     expect(await screen.findByRole('region', { name: 'Bot · Regular' })).toBeDefined();
     expect(screen.getByRole('banner').textContent).toContain('Bot · Regular');
     // The bot leaves: the result names it too.
-    const session = useDev.getState().session as MatchSession | null;
+    const session = useDev.getState().session as OnlineSession | null;
     if (!session) throw new Error('no match session');
-    session.match.send(1, { type: 'leave' });
+    await waitFor(() => expect(server.last().referee).not.toBeNull());
+    server.last().leave(1);
+    await waitFor(() => expect(session.match.result).not.toBeNull());
     // happy-dom draws no canvas, so nothing steps the match: two seconds of frames, by hand.
     let now = 0;
     act(() => {

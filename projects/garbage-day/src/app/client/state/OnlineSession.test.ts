@@ -66,14 +66,9 @@ function court(seed = 0x0dd) {
   const inputs = [new InputController(), new InputController()] as const;
   const effects: [MatchEffect[], MatchEffect[]] = [[], []];
   const sessions = ([0, 1] as const).map((i) => {
-    const s = new OnlineSession({
-      connect: connectFor(i),
-      token: TOKENS[i],
-      handle: 'Brisk Heron 42',
-      input: inputs[i],
-    });
+    const s = new OnlineSession({ handle: 'Brisk Heron 42', input: inputs[i] });
     s.onEffect((e) => effects[i].push(e));
-    s.start();
+    s.start({ connect: connectFor(i), token: TOKENS[i] });
     return s;
   }) as [OnlineSession, OnlineSession];
   let now = 1000;
@@ -198,13 +193,11 @@ describe('OnlineSession: a bot rival (GD-TICKET-016)', () => {
     };
     const marks: BotMark[] = [];
     const s = new OnlineSession({
-      connect,
-      token: TOKENS[0],
       handle: 'Brisk Heron 42',
       input: new InputController(),
       onRivalBot: (bot) => marks.push(bot),
     });
-    s.start();
+    s.start({ connect, token: TOKENS[0] });
     await Promise.resolve();
     link.h?.message(encodeMatchToClient({ type: 'start', goAt: 180, holes: 1, you: 0 }));
     expect(marks).toEqual([]);

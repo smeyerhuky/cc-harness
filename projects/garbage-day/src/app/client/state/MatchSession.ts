@@ -148,7 +148,7 @@ export interface MatchView {
   readonly connection: Connection;
 }
 
-export type Connection = 'local' | 'online' | 'reconnecting' | 'lost';
+type Connection = 'local' | 'online' | 'reconnecting' | 'lost';
 
 export interface MatchSessionOptions {
   readonly seed: number;

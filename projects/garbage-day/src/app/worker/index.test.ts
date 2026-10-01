@@ -1,4 +1,5 @@
 import {
+  botMatch,
   CLOSE,
   encodeClientToMatch,
   parseLobbyToClient,
@@ -152,5 +153,64 @@ describe('sockets', () => {
     const other = await open('/ws/match/GD-MANY', '192.0.2.61');
     other.ws.close(1000);
     for (const ws of opened) ws.close(1000);
+  });
+});
+
+describe('bot matches (GD-STORY-015)', () => {
+  const create = (address = '203.0.113.20', method = 'POST') =>
+    exports.default.fetch(`${ORIGIN}/api/bot-matches`, {
+      method,
+      headers: { 'CF-Connecting-IP': address },
+    });
+
+  it('open a match for a player and a bot, who play it like any two clients', async () => {
+    const res = await create();
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    const ticket = botMatch.parse(await res.json());
+    expect(ticket.matchId).toMatch(/^B-[0-9A-Z]{10}$/);
+    expect(ticket.token).not.toBe(ticket.botToken);
+    const player = await open(`/ws/match/${ticket.matchId}`);
+    player.ws.send(
+      encodeClientToMatch({ type: 'hello', token: ticket.token, handle: 'Brisk Heron 42' }),
+    );
+    const bot = await open(`/ws/match/${ticket.matchId}`);
+    bot.ws.send(
+      encodeClientToMatch({
+        type: 'hello',
+        token: ticket.botToken,
+        handle: 'Steady Bot 1',
+        bot: { skill: 5, speed: 5 },
+      }),
+    );
+    const startOf = async (s: Awaited<ReturnType<typeof open>>) => {
+      for (;;) {
+        const r = parseMatchToClient(await s.next());
+        if (r.ok && r.msg.type === 'start') return r.msg;
+      }
+    };
+    expect(await startOf(player)).toMatchObject({ you: 0, rivalBot: { skill: 5, speed: 5 } });
+    expect(await startOf(bot)).not.toHaveProperty('rivalBot');
+    player.ws.close(1000);
+    bot.ws.close(1000);
+  });
+
+  it('are only made by POST', async () => {
+    const res = await create('203.0.113.21', 'GET');
+    expect(res.status).toBe(405);
+    expect(res.headers.get('allow')).toBe('POST');
+  });
+
+  it('count against the address’s upgrades', async () => {
+    // As for upgrades: the refusal comes within two of the limiter's fixed windows.
+    let refused = 0;
+    for (let i = 0; i < 120 && refused === 0; i++) {
+      if ((await create('192.0.2.70')).status === 429) refused = i + 1;
+    }
+    expect(refused).toBeGreaterThan(60);
+    const res = await exports.default.fetch(`${ORIGIN}/ws/match/GD-LATE`, {
+      headers: { Upgrade: 'websocket', 'CF-Connecting-IP': '192.0.2.70' },
+    });
+    expect(res.status).toBe(429);
   });
 });

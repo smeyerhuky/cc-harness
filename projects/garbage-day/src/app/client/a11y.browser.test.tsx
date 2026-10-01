@@ -5,6 +5,7 @@ import axe from 'axe-core';
 import { createMemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
+import { fakeServer } from '../test/fakeServer';
 import { App } from './App';
 import { routes } from './routes';
 import { useDev } from './state/dev';
@@ -15,6 +16,8 @@ import { usePrefs } from './state/prefs';
 // A failure lists each rule broken and the elements that break it.
 
 const THEMES = ['light', 'dark'] as const;
+
+let server: ReturnType<typeof fakeServer>;
 
 beforeEach(() => {
   vi.stubGlobal(
@@ -27,10 +30,13 @@ beforeEach(() => {
       ),
     ),
   );
+  // Bot matches are made and played on a stand-in for the Worker and its Match DO.
+  server = fakeServer();
 });
 
 afterEach(() => {
   cleanup();
+  server.close();
   vi.unstubAllGlobals();
   delete document.documentElement.dataset.theme;
 });

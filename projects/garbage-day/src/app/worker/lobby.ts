@@ -7,6 +7,7 @@ import {
   type LobbyToClient,
 } from '@garbage-day/protocol';
 import type { GuardLimits } from './guard';
+import { newMatchId, newToken } from './ids';
 import { SocketDO, type RefusalCode } from './sockets';
 
 // The quick-match queue (kb/design/architecture.md, "Components"; GD-STORY-009): first come,
@@ -25,24 +26,6 @@ interface Waiting {
 
 const isWaiting = (a: unknown): a is Waiting =>
   typeof a === 'object' && a !== null && typeof (a as Waiting).handle === 'string';
-
-/** Crockford base 32: 32 characters, so five bits of a random byte pick one without bias. */
-const BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-/** URL-safe base 64: six bits of a random byte pick one. */
-const BASE64URL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-
-const randomBytes = (n: number) => Array.from(crypto.getRandomValues(new Uint8Array(n)));
-
-/** A quick match's id: `Q-` and ten characters, apart from private codes (`GD-` and four). */
-const newMatchId = () =>
-  `Q-${randomBytes(10)
-    .map((b) => BASE32[b & 31] ?? '')
-    .join('')}`;
-/** A join token: 32 URL-safe characters, 192 bits. */
-const newToken = () =>
-  randomBytes(32)
-    .map((b) => BASE64URL[b & 63] ?? '')
-    .join('');
 
 export class LobbyDO extends SocketDO<ClientToLobby> {
   protected readonly limits = LOBBY_LIMITS;
@@ -100,11 +83,11 @@ export class LobbyDO extends SocketDO<ClientToLobby> {
       a.serializeAttachment(null);
       b.serializeAttachment(null);
       const tokens = [newToken(), newToken()] as const;
-      let matchId = newMatchId();
+      let matchId = newMatchId('Q');
       while (
         !(await this.env.MATCH.getByName(matchId).open({ tokens, settings: DEFAULT_SETTINGS }))
       )
-        matchId = newMatchId();
+        matchId = newMatchId('Q');
       this.tell(a, { type: 'matched', matchId, token: tokens[0], opponent: wb.handle });
       this.tell(b, { type: 'matched', matchId, token: tokens[1], opponent: wa.handle });
       a.close(CLOSE.done, 'Paired');

@@ -226,8 +226,8 @@ Names are always shown as the players see them: a handle, or a bot's name, its p
 Regular") or its skill and speed ("Bot · skill 7, speed 4"). A bot always reads as a bot, and no
 handle can read as one (`GD-TICKET-016`). The words
 "Durable Object" and "WebSocket" never appear outside the developer overlay. The centre column's badge
-says **Referee**, which is true both against a local bot and online, where the referee is the
-server.
+says **Referee**, which is true of every match: the referee is the server's, against a person or
+a bot.
 
 ## What changes from the demos
 

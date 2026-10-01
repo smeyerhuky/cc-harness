@@ -25,7 +25,7 @@ import {
   parseLobbyToClient,
   parseMatchToClient,
 } from './codec';
-import { PING, PONG, PROTOCOL_VERSION } from './schemas';
+import { botMatch, PING, PONG, PROTOCOL_VERSION } from './schemas';
 import { DEFAULT_SETTINGS } from './settings';
 
 const stats: PlayerStats = {
@@ -333,5 +333,18 @@ describe('the bot mark', () => {
     expect(hello({ handle: 'Steady Bot 1', bot: { skill: 5 } })).toBe(false);
     // A bot's name is never a handle, so a person can't take one.
     expect(hello({ handle: 'Bot · Pro' })).toBe(false);
+  });
+});
+
+describe('a bot match', () => {
+  it('is a match id and two tokens, the player’s and the bot’s', () => {
+    const ok = {
+      matchId: 'B-0123456789',
+      token: 'token-seat-zero-0000',
+      botToken: 'token-seat-one-11111',
+    };
+    expect(botMatch.safeParse(ok).success).toBe(true);
+    expect(botMatch.safeParse({ ...ok, botToken: 'short' }).success).toBe(false);
+    expect(botMatch.safeParse({ ...ok, matchId: '../lobby' }).success).toBe(false);
   });
 });
