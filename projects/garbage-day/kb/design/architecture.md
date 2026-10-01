@@ -53,7 +53,7 @@ is deleted when the session ends.
 | **Engine** (`@garbage-day/engine`) | client, Match DO, bot worker, tests | Pure, deterministic TypeScript: RNG streams, 7-bag, pieces and wall kicks, the per-player board simulation, attacks and cancelling, garbage landing, speed curve, power-ups, the **referee** (match, presence and pause rules), the bot, and replay |
 | **Protocol** (`@garbage-day/protocol`) | client, Worker, DOs | Message types, their runtime schemas (validated on every message the server receives), the protocol version |
 | **Client** (the `app` package, `client/`) | browser | The React app: screens, input, rendering, the network client with reconnect and outbox, clock sync, the bot worker. See [client architecture](client-architecture.md) |
-| **Worker** (the `app` package, `worker/`) | Cloudflare edge | Serves the built SPA as static assets with an SPA fallback; `GET /api/health` answers from both DOs (since `GD-TICKET-011`); `POST /api/games` creates a private game; `GET /api/games/:code` looks one up; upgrades `/ws/lobby` and `/ws/match/:id` to the right DO; rate-limits by IP |
+| **Worker** (the `app` package, `worker/`) | Cloudflare edge | Serves the built SPA as static assets with an SPA fallback; `GET /api/health` answers from both DOs (since `GD-TICKET-011`); `POST /api/games` creates a private game; `GET /api/games/:code` looks one up; upgrades `/ws/lobby` and `/ws/match/:id` to the right DO; limits socket upgrades by address ([limits](#limits)) |
 | **Lobby DO** | Cloudflare | The quick-match queue, first come first served; pairs two players, creates a match id and two join tokens, tells both; publishes the waiting count |
 | **Match DO** | Cloudflare | Hosts one match, private or quick: the lobby phase for private games, then the referee; WebSocket Hibernation for sockets, alarms for every timer, SQLite storage for the snapshot |
 
@@ -115,6 +115,40 @@ Lobby DO messages: `queue` (join, with the handle), `cancel`, `ping`, and back `
 out), which keeps a typical stack to a few dozen bytes, or 4-bit packing in base64url (`p` + at
 most 160 characters), so no board is ever more than 161 bytes.
 
+## Limits
+
+Every socket is guarded twice ([`GD-TICKET-028`](../process/backlog/GD-TICKET-028.md)):
+
+- **Opening sockets.** The Worker allows **60 socket upgrades a minute from one address**. It
+  counts by `CF-Connecting-IP`, with Cloudflare's rate-limiting binding (`UPGRADES`; previews
+  count apart). A player opens a lobby socket and a match socket per match, plus reconnects, so
+  60 leaves room for a household or school behind one address. Over the limit, the answer is
+  429.
+- **Messages on a socket.** Each DO puts every message through a `MessageGuard` (`worker/guard.ts`)
+  before acting on it, in this order:
+  1. **The rate.** A Match DO socket may send **40 messages a second, in bursts of 60**. A
+     player sends `pos` at most 15 times a second, plus a `lock` (and any `attack`) per piece;
+     the busiest golden replay averages under 15 a second a player. The limit is well over that,
+     and it caps what a flood makes the DO parse. A Lobby DO socket may send **2 a second, in
+     bursts of 5**: it only ever hears `queue` and `cancel`. The rate comes first, so a flood
+     costs no parsing.
+  2. **The schema**, from the protocol. This also refuses an `attack` worth more than its clear.
+     A binary frame is refused too.
+  3. **Locks**, at most **20 a second**, as the [determinism contract](#determinism-contract)'s trust rules say.
+
+  `ping` never reaches the guard: the WebSocket auto-response answers it without waking the DO.
+- **What a refusal does.**
+  - **It is dropped and counted.** Each DO counts what it accepted, what it refused and why,
+    and what it closed (`wireCounts()`, over RPC).
+  - **It is reported.** The client gets an `error` (`invalid`, `version` or `rate`) for the first
+    refusal, then at most one a second.
+  - **Persistent refusal closes the socket.** Refusals drain at one a second. At **20 pending**
+    (10 on the lobby), the DO closes the socket with 1008 (policy violation) and ignores whatever
+    was still in flight.
+  - **A real client never gets there.** It sends no invalid messages, and nothing near the rate.
+- **Hibernation.** A guard lives in memory with its socket, so hibernation forgets it. That only
+  happens to a socket quiet for a while, which then starts again with a full allowance.
+
 ## State machines
 
 The referee's machines are plain, serializable TypeScript in the engine so the Match DO, a local
@@ -152,7 +186,7 @@ Everything that decides a board must give the same result on every device and in
 
 Clients are authoritative for their own board. The Match DO trusts them within limits:
 attack rows must be at most what the declared clear allows, locks at most 20 a second, and
-messages rate-limited. Server-side replay checking of every match is a later milestone.
+messages rate-limited ([limits](#limits)). Server-side replay checking of every match is a later milestone.
 
 ## Time: the match clock
 

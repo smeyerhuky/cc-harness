@@ -22,7 +22,7 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
 | **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | done |
 | **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | done |
-| **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | active — `GD-TICKET-028` first |
+| **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | active |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
 | **M5** — Launch | Verified on real devices and networks, within budget, deployed to production | planned |
 
@@ -109,7 +109,7 @@ weren't answered one by one, so each default holds).
 
 ## M3 — Play online
 
-- [ ] Worker routes, rate limits, static assets with SPA fallback (the assets are done, `GD-TICKET-011`) —
+- [x] Worker routes, rate limits, static assets with SPA fallback (the assets are done, `GD-TICKET-011`) —
   [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
 - [ ] Lobby DO quick match, waiting count, bot offer after 20 s (US-01) —
   [`GD-STORY-009`](backlog/GD-STORY-009.md)

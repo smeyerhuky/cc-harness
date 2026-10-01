@@ -16,7 +16,7 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M3 — Play online — **active**, starting with [`GD-TICKET-028`](backlog/GD-TICKET-028.md).
+- **Milestone:** M3 — Play online — **active**. [`GD-TICKET-028`](backlog/GD-TICKET-028.md) (the socket routes, the upgrade limit and the message guard) is done.
   - **M2 closed at its owner check-in on 2026-10-01:** "Keep going". The four decisions weren't answered one by one, so each default holds ([the check-in](journal/2026-09-30-scaffold.md#next)). The defaults: bot-game settings come in M3 after private games; the design is rewritten to match the code for the three unused React APIs; M3 is built in the index's order.
   - **Every M2 item was done** except the owner's token rotation, [`GD-TICKET-022`](backlog/GD-TICKET-022.md), due by 2026-12-29 ([roadmap](roadmap.md)).
   - **M2's exit criterion is met:** a complete match against a local bot, on desktop and on a phone, by keyboard and by touch, with every screen passing the accessibility scan in both themes.
@@ -44,10 +44,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-028`](backlog/GD-TICKET-028.md): route `/ws/lobby` and `/ws/match/<id>` to their
-Durable Objects, check every message against its schema, limit the rate, and reject impossible
-attacks. Then M3 in the [backlog index](backlog/index.md)'s order. Work pushed before pull
-request #14 merges joins it.
+[`GD-STORY-011`](backlog/GD-STORY-011.md): the Match DO deals both players the same bags and
+relays each board to the other, so a match plays between two browsers. The sockets, routes and
+message checks are in place ([`GD-TICKET-028`](backlog/GD-TICKET-028.md), done). Then M3 in the
+[backlog index](backlog/index.md)'s order. Work pushed before pull request #14 merges joins it.
 
 ## Standing rules
 
