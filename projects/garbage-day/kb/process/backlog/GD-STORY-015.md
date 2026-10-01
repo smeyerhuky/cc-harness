@@ -106,6 +106,12 @@ Checks:
   `GD-TICKET-016` test among them.
 - **Gates:** the code gates pass (644 unit tests, 35 Worker tests), and so does
   `pnpm test:browser`'s accessibility scan (23).
+- **CI's scan failed once on the push** (`3a96b03`). In the light theme, axe flagged the
+  countdown's "GO" for contrast. The developer overlay's scan had landed 10 ms into the number's
+  fade-in, at about 5% opacity. CI's runner had loaded slowly, so the scan ran at "GO", not
+  during the countdown. A probe that held the fade at 10 ms gave the same finding, here and in
+  CI's image. The scan now plays with the player's reduced-motion setting, so it judges what each
+  screen settles on; the same probe then finds nothing, here and in the image.
 - **In real browsers,** on `vite preview` (workerd):
   - **Desktop and a Pixel 7 profile.** Play a bot made one `POST`. A `bot.worker` ran during
     play and closed after the result. The match had two sockets: the page's said hello as the

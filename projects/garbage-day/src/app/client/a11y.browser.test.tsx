@@ -18,8 +18,13 @@ import { usePrefs } from './state/prefs';
 const THEMES = ['light', 'dark'] as const;
 
 let server: ReturnType<typeof fakeServer>;
+const initialPrefs = usePrefs.getState();
 
 beforeEach(() => {
+  // Motion off, as the player's own setting turns it off: a scan judges what each screen settles
+  // on. With motion, a match's countdown number fades in each second, and axe, landing mid-fade,
+  // judges it at part opacity, so the verdict would hang on the moment the scan ran.
+  usePrefs.setState({ motion: 'reduce' });
   vi.stubGlobal(
     'fetch',
     vi.fn(() =>
@@ -37,6 +42,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   server.close();
+  usePrefs.setState(initialPrefs, true);
   vi.unstubAllGlobals();
   delete document.documentElement.dataset.theme;
 });
