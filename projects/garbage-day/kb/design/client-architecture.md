@@ -54,7 +54,7 @@ projects/garbage-day/src/
 └── app/           @garbage-day/app       one Vite project: the client and the Worker
     ├── client/
     │   ├── main.tsx, App.tsx, routes.tsx, AppShell.tsx (each screen's name)
-    │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), MatchSession.ts
+    │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), MatchSession.ts, dev.ts
     │   ├── net/           Socket (reconnect + outbox), clockSync.ts, lobbyClient.ts
     │   ├── bot/           bot.worker.ts (engine + Bot as a second client)
     │   └── features/
@@ -65,7 +65,8 @@ projects/garbage-day/src/
     │       ├── match/         MatchScreen, PlayerPanel, OpponentPanel, CentreColumn, MatchFeed,
     │       │                  PausePopover, WaitBar, ReturnNote, TouchSurface, ButtonPad
     │       ├── results/       ResultCard, StatsTable, RematchButton
-    │       └── settings/      SettingsSheet: controls, gestures, sound, motion
+    │       ├── settings/      SettingsSheet: controls, gestures, sound, motion
+    │       └── dev/           DevOverlay, WireLog: the developer overlay, loaded only when on
     └── worker/            index.ts (routes), LobbyDO.ts, MatchDO.ts
 ```
 
@@ -90,6 +91,7 @@ page load ([`GD-STORY-008`](../process/backlog/GD-STORY-008.md)).
 | **Which screen we are on and why**: home, searching, bot offer, lobby, countdown, playing, paused, result, rematch | `appMachine`, an XState v5 actor, with child actors for quick match and the private lobby | `AppActorContext` from `createActorContext`; `useSelector` for values, `useActorRef().send` for events |
 | **Preferences**: handle, key bindings, DAS/ARR, gesture sensitivity, pad on/off, sound, motion override, bot presets, last match settings | a Zustand store with the `persist` middleware (localStorage, versioned, try/catch) | `usePrefs(selector)`; no provider needed |
 | **Server data**: a private game's info from its code, the quick-match waiting count | React Router loaders and actions for `/g/:code` and create-game; the waiting count arrives on the lobby socket into `appMachine` context | `useLoaderData`, `useFetcher`, `useSelector` |
+| **The developer overlay**: on or off, the match on screen | a small Zustand store, `useDev` (`state/dev.ts`); on or off lasts for the tab's session (`sessionStorage`) | `useDev(selector)`; `MatchScreen` attaches its session |
 | **Local UI state**: an open sheet, a form draft, a hovered button | `useState` / `useReducer` in the component | — |
 
 Why this split: the match changes every frame and must not trigger React renders, so it is an
@@ -191,6 +193,26 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
   axis lock and the flick threshold.
 - `MatchSession`: runs against a local referee from the engine, no network, with scripted inputs.
 
+## The developer overlay
+
+Off by default ([`GD-TICKET-024`](../process/backlog/GD-TICKET-024.md)). The ` key (the one
+left of 1, by `KeyboardEvent.code` `Backquote`) opens and closes it on any screen, unless the
+player is typing in a field or has bound that key to a game action. `?dev` in the address opens
+it and `?dev=0` closes it. The choice lasts for the tab's session.
+
+- **What it shows:**
+  - `appMachine`'s state and context: mode, bot, and the match counter.
+  - The match session: phase, tick, clock, level, the referee's state, a showdown, and the result.
+  - The wire log: each message between a player and the referee, with its tick, route, type and fields. Positions and heartbeats are hidden unless asked for.
+- **Where the messages come from:** the engine's `LocalMatch` passes every message through its `wire` hook. The hook is told which player's connection the message is on. `MatchSession.onWire` hands them to listeners.
+- **Why it can't change a match:**
+  - The hook returns each message unchanged.
+  - With no listener, the hook does nothing more than check that there is none.
+  - The session steps by the clock.
+  - The log listens only while the overlay shows it. It refreshes its view at most four times a second.
+- **Loading:** the overlay is a lazy chunk (`features/dev`), so the first page carries only the switch.
+- **Wording:** it is the one screen that names the Durable Object and the WebSocket ([UI language](ui-language.md)).
+
 ## What carries over from the proof of concept
 
 | Proof of concept (`spikes/proof-of-concept/live/app.js`) | Becomes |
@@ -200,4 +222,4 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
 | modal, wait bar, board cards | `PausePopover`, `WaitBar`, `ReturnNote`, `BoardCover` |
 | side slots, meter, speed chip, presence chip | the `ui/game` widgets of the same names |
 | pad and keyboard map | `ButtonPad`, `useKeyBindings` |
-| `drawMachine` diagrams, wire log | a developer overlay, off by default |
+| `drawMachine` diagrams, wire log | the [developer overlay](#the-developer-overlay), off by default |

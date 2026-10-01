@@ -6,6 +6,7 @@ import { App } from './App';
 import { MatchRouteError, RouteError } from './RouteError';
 import { DEFAULT_BINDINGS } from './input/bindings';
 import { routes } from './routes';
+import { useDev } from './state/dev';
 import { PREFS_KEY, usePrefs } from './state/prefs';
 
 function renderAt(path: string, routeList: RouteObject[] = routes) {
@@ -62,6 +63,23 @@ describe('routes', () => {
     renderAt('/nowhere');
     await screen.findByRole('heading', { level: 1, name: 'Nothing here' });
     expect(document.title).toBe('Nothing here · Garbage Day');
+  });
+
+  it('the ` key opens the developer overlay over any screen, and it follows the match', async () => {
+    renderAt('/');
+    await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
+    expect(screen.queryByRole('complementary', { name: 'Developer overlay' })).toBeNull();
+    fireEvent.keyDown(window, { code: 'Backquote' });
+    const overlay = await screen.findByRole('complementary', { name: 'Developer overlay' });
+    expect(overlay.textContent).toContain('home');
+    fireEvent.click(screen.getByRole('button', { name: 'Play a bot' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Rookie' }));
+    await screen.findByRole('button', { name: 'Leave' });
+    expect(overlay.textContent).toContain('countdown');
+    expect(useDev.getState().session).not.toBeNull();
+    fireEvent.keyDown(window, { code: 'Backquote' });
+    expect(screen.queryByRole('complementary', { name: 'Developer overlay' })).toBeNull();
+    useDev.setState({ open: false, session: null });
   });
 
   it('home shows the name, the ways in, and the server status', async () => {

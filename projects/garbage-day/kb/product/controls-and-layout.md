@@ -34,6 +34,10 @@ Defaults, all rebindable (US-16):
 Auto-repeat delay 167 ms and rate 33 ms by default, both adjustable. Game keys never scroll the
 page during a match.
 
+For whoever builds the game, ` (the key left of 1) opens and closes the developer overlay. It
+is not a game key: it does nothing while typing, and nothing if a player binds it to an action.
+`?dev` in the address opens the overlay too ([client architecture](../design/client-architecture.md#the-developer-overlay)).
+
 ## Touch gestures
 
 The whole board area is the touch surface (US-17). A gesture is judged from where the finger

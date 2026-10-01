@@ -11,11 +11,11 @@ import {
 import { ghostY } from '@garbage-day/ui';
 import { describe, expect, it, vi } from 'vitest';
 import { InputController } from '../input/InputController';
-import { MatchSession, type MatchEffect } from './MatchSession';
+import { MatchSession, type MatchEffect, type WireEntry } from './MatchSession';
 
 const FRAME = 1000 / 60;
 
-function setup(rules?: Partial<Rules>) {
+function setup(rules?: Partial<Rules>, onWire?: (e: WireEntry) => void) {
   const input = new InputController();
   const onGo = vi.fn();
   const onEnd = vi.fn<(r: RefereeResult) => void>();
@@ -29,6 +29,7 @@ function setup(rules?: Partial<Rules>) {
   });
   const effects: MatchEffect[] = [];
   session.onEffect((e) => effects.push(e));
+  if (onWire) session.onWire(onWire);
   let now = 1000;
   const frame = (ms = FRAME) => {
     now += ms;
@@ -135,6 +136,40 @@ describe('MatchSession', () => {
     const t0 = s.session.match.t;
     s.frame(10_000);
     expect(s.session.match.t - t0).toBe(Math.floor(0.25 * TPS));
+  });
+
+  it('passes every message on the wire to a listener, with its seat and tick', () => {
+    const wire: WireEntry[] = [];
+    const s = setup(undefined, (e) => wire.push(e));
+    for (let i = 0; i < 600; i++) s.frame();
+    const seen = new Set(wire.map((e) => `${e.dir} ${e.seat} ${e.msg.type}`));
+    for (const seat of [0, 1]) {
+      expect(seen).toContain(`down ${seat} start`);
+      expect(seen).toContain(`down ${seat} bag`);
+    }
+    // The bot locks pieces; the referee tells me about them.
+    expect(seen).toContain('up 1 lock');
+    expect(seen).toContain('down 0 opp');
+    const ticks = wire.map((e) => e.tick);
+    expect(ticks).toEqual([...ticks].sort((a, b) => a - b));
+    expect(ticks.at(-1)).toBeLessThanOrEqual(s.session.match.t);
+  });
+
+  it('plays the same with a wire listener as without one, and stops telling it when asked', () => {
+    const a = setup();
+    const b = setup();
+    let heard = 0;
+    const stop = a.session.onWire(() => heard++);
+    for (let i = 0; i < 600; i++) {
+      a.frame();
+      b.frame();
+    }
+    expect(a.session.match.players[1].board).toEqual(b.session.match.players[1].board);
+    expect(a.session.match.t).toBe(b.session.match.t);
+    stop();
+    const before = heard;
+    for (let i = 0; i < 120; i++) a.frame();
+    expect(heard).toBe(before);
   });
 
   it('notifies subscribers only when the view changes', () => {

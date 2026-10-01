@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { keyMap } from '../../input/bindings';
 import { InputController } from '../../input/InputController';
 import { AppActorContext } from '../../state/appActor';
+import { useDev } from '../../state/dev';
 import { MatchSession } from '../../state/MatchSession';
 import { InputContext, MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
@@ -42,6 +43,8 @@ export function MatchScreen() {
       }),
   );
   const over = state === 'result' || state === 'rematch';
+  // The developer overlay, if it opens, reads this match (GD-TICKET-024).
+  useEffect(() => useDev.getState().attach(session), [session]);
   const keys = keyMap(usePrefs((s) => s.bindings));
   const dasMs = usePrefs((s) => s.dasMs);
   const arrMs = usePrefs((s) => s.arrMs);

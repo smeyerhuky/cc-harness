@@ -7,9 +7,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { App } from './App';
 import { routes } from './routes';
+import { useDev } from './state/dev';
 import { usePrefs } from './state/prefs';
 
-// Every M2 screen, in both themes, through axe's WCAG 2.1 A and AA rules (US-20; GD-STORY-008).
+// Every M2 screen, in both themes, through axe's WCAG 2.1 A and AA rules (US-20; GD-STORY-008),
+// the developer overlay included (GD-TICKET-024).
 // A failure lists each rule broken and the elements that break it.
 
 const THEMES = ['light', 'dark'] as const;
@@ -101,6 +103,21 @@ describe.each(THEMES)('accessibility, %s theme', (theme) => {
     await screen.findByRole('dialog');
     expect(await violations()).toEqual([]);
     screen.getByRole('button', { name: 'Home' }).click();
+  });
+
+  it('the developer overlay over a match, with positions shown, has no violations', async () => {
+    useDev.getState().setOpen(true);
+    try {
+      open('/bot');
+      (await screen.findByRole('button', { name: 'Rookie' })).click();
+      const toggle = await screen.findByRole('switch', { name: 'Positions and heartbeats' });
+      toggle.click();
+      await screen.findByText(/^Wire log: [1-9]\d* shown/, undefined, { timeout: 3000 });
+      expect(await violations()).toEqual([]);
+      screen.getByRole('button', { name: 'Leave' }).click();
+    } finally {
+      useDev.getState().setOpen(false);
+    }
   });
 
   it('a match on a phone, upright, with the button pad, has no violations', async () => {

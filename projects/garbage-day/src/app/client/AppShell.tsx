@@ -1,6 +1,10 @@
 import { VisuallyHidden } from '@garbage-day/ui';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Outlet, useMatches, type UIMatch } from 'react-router';
+import { useDev, useDevKey } from './state/dev';
+
+// The developer overlay loads only once switched on (GD-TICKET-024).
+const DevOverlay = lazy(async () => ({ default: (await import('./features/dev')).DevOverlay }));
 
 // Screens are routes in one page, so a screen change is not a page load: nothing renames the tab
 // and a screen reader hears nothing (GD-STORY-008). Each route names its screen in its `handle`;
@@ -21,9 +25,14 @@ function screenTitle(matches: readonly UIMatch[]): string | null {
   return isScreen(handle) ? handle.title : null;
 }
 
-/** The root route's screen: the current screen, plus its name for the tab and screen readers. */
+/**
+ * The root route's screen: the current screen, its name for the tab and screen readers, and the
+ * developer overlay when it is switched on.
+ */
 export function AppShell() {
   const title = screenTitle(useMatches());
+  const dev = useDev((s) => s.open);
+  useDevKey();
   useEffect(() => {
     document.title = title ? `${title} · Garbage Day` : 'Garbage Day';
   }, [title]);
@@ -33,6 +42,11 @@ export function AppShell() {
       <div aria-live="polite" aria-atomic="true">
         <VisuallyHidden>{title ?? 'Garbage Day'}</VisuallyHidden>
       </div>
+      {dev && (
+        <Suspense fallback={null}>
+          <DevOverlay />
+        </Suspense>
+      )}
     </>
   );
 }

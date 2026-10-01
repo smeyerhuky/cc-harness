@@ -12,7 +12,7 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | `GD-EPIC` | 002 |
 | `GD-STORY` | 009 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 025 |
+| `GD-TICKET` | 026 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -55,10 +55,11 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · done
 - [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · done
 - [GD-STORY-008](GD-STORY-008.md) — Accessible by default · done
-- [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · open
+- [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · done
 - [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · done
 - [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · done ("Quad")
 - [GD-TICKET-022](GD-TICKET-022.md) — Replace the Cloudflare API token before it expires on 2026-12-29 · open
+- [GD-TICKET-025](GD-TICKET-025.md) — Take shadows, scrims and tints from tokens · open (found while building `GD-TICKET-024`)
 
 *Later milestones (gaps from the [coverage audit](../coverage-audit.md), part of GD-EPIC-001):*
 

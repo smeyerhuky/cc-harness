@@ -34,11 +34,12 @@ export interface LocalMatchOptions {
   readonly onRefereeEvent?: (ev: RefereeEvent) => void;
   /**
    * Passes every message through these on its way, as a real connection would: the protocol's
-   * tests encode and parse each one to show a match over the wire plays out the same.
+   * tests encode and parse each one to show a match over the wire plays out the same, and the
+   * app's developer overlay logs them. Each is told whose connection the message is on.
    */
   readonly wire?: {
-    readonly client: (msg: ClientMessage) => ClientMessage;
-    readonly server: (msg: ServerMessage) => ServerMessage;
+    readonly client: (msg: ClientMessage, from: PlayerIndex) => ClientMessage;
+    readonly server: (msg: ServerMessage, to: PlayerIndex) => ServerMessage;
   };
 }
 
@@ -275,7 +276,7 @@ export class LocalMatch {
       if (msg.type !== 'hb' && msg.type !== 'pos') L.outbox.push(msg);
       return;
     }
-    const sent = this.o.wire ? this.o.wire.client(msg) : msg;
+    const sent = this.o.wire ? this.o.wire.client(msg, i) : msg;
     this.net.push({
       at: this.latency(i, `up${i}`),
       seq: this.seq++,
@@ -288,7 +289,7 @@ export class LocalMatch {
   private serverSend(i: PlayerIndex, msg: ServerMessage): void {
     const L = this.link[i];
     if (L.offline || L.closed) return;
-    const sent = this.o.wire ? this.o.wire.server(msg) : msg;
+    const sent = this.o.wire ? this.o.wire.server(msg, i) : msg;
     this.net.push({ at: this.latency(i, `down${i}`), seq: this.seq++, to: i, from: i, msg: sent });
   }
 }

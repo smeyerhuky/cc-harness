@@ -4,6 +4,7 @@ import {
   TPS,
   botConfig,
   meterReady,
+  type ClientMessage,
   type DealtPiece,
   type PieceType,
   type PlayerEvent,
@@ -13,6 +14,7 @@ import {
   type RefereeEvent,
   type RefereeResult,
   type Rules,
+  type ServerMessage,
   type ShowdownMessage,
 } from '@garbage-day/engine';
 import { clearLabel, type BoardView, type ClearLabel } from '@garbage-day/ui';
@@ -27,6 +29,24 @@ import type { Store } from './storeContext';
 // happens in a moment (a clear, an attack, garbage landing) goes out as effects, for the labels,
 // flights, shakes and sounds that play once (GD-STORY-002). In M3 the same surface wraps the
 // socket to the Match Durable Object instead of a local referee.
+
+/**
+ * A message between one player and the referee, for the developer overlay (GD-TICKET-024): `up`
+ * from the player, `down` to them, stamped with the tick it was sent on.
+ */
+export type WireEntry =
+  | {
+      readonly tick: number;
+      readonly dir: 'up';
+      readonly seat: PlayerIndex;
+      readonly msg: ClientMessage;
+    }
+  | {
+      readonly tick: number;
+      readonly dir: 'down';
+      readonly seat: PlayerIndex;
+      readonly msg: ServerMessage;
+    };
 
 /** A player's running totals, for the stats under each board and in the result. */
 export interface PlayerTotals {
@@ -133,6 +153,7 @@ export class MatchSession implements Store<MatchView> {
   private readonly input: InputController;
   private readonly listeners = new Set<() => void>();
   private readonly effectListeners = new Set<(e: MatchEffect) => void>();
+  private readonly wireListeners = new Set<(e: WireEntry) => void>();
   private lastShowdown: ShowdownMessage | null = null;
   private view: MatchView;
   private viewKey: string;
@@ -154,6 +175,17 @@ export class MatchSession implements Store<MatchView> {
       jitterMs: 0,
       onPlayerEvent: (ev) => this.onPlayerEvent(ev),
       onRefereeEvent: (ev) => this.onRefereeEvent(ev),
+      // Every message passes through untouched; with nobody listening, nothing more happens.
+      wire: {
+        client: (msg, seat) => {
+          if (this.wireListeners.size) this.tap({ tick: this.match.t, dir: 'up', seat, msg });
+          return msg;
+        },
+        server: (msg, seat) => {
+          if (this.wireListeners.size) this.tap({ tick: this.match.t, dir: 'down', seat, msg });
+          return msg;
+        },
+      },
     });
     this.match.controllers[0] = o.input;
     this.match.controllers[1] = new Bot(
@@ -176,6 +208,12 @@ export class MatchSession implements Store<MatchView> {
   readonly onEffect = (listener: (e: MatchEffect) => void): (() => void) => {
     this.effectListeners.add(listener);
     return () => this.effectListeners.delete(listener);
+  };
+
+  /** Listens for every message on the wire; returns the function that stops listening. */
+  readonly onWire = (listener: (e: WireEntry) => void): (() => void) => {
+    this.wireListeners.add(listener);
+    return () => this.wireListeners.delete(listener);
   };
 
   /**
@@ -230,6 +268,10 @@ export class MatchSession implements Store<MatchView> {
 
   private emit(e: MatchEffect): void {
     this.effectListeners.forEach((l) => l(e));
+  }
+
+  private tap(e: WireEntry): void {
+    this.wireListeners.forEach((l) => l(e));
   }
 
   private onPlayerEvent(ev: PlayerEvent): void {

@@ -1,0 +1,85 @@
+/* The developer overlay (GD-TICKET-024): a panel in the corner, above the match but taking
+   pointer events only on itself. */
+.overlay {
+  box-sizing: border-box;
+  position: fixed;
+  inset-block-start: max(8px, env(safe-area-inset-top));
+  inset-inline-end: max(8px, env(safe-area-inset-right));
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(440px, calc(100vw - 16px));
+  max-height: min(70vh, 640px);
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-data);
+  font-size: var(--fs-14);
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  text-transform: uppercase;
+}
+.hint {
+  margin-inline-start: auto;
+  color: var(--muted);
+}
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 12px;
+  margin: 0;
+}
+.facts dt {
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+}
+.note {
+  margin: 0;
+  color: var(--muted);
+}
+.logBox {
+  overflow: auto;
+  min-height: 0;
+}
+.log {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.log caption {
+  text-align: start;
+  padding-block-end: 4px;
+  color: var(--muted);
+}
+.log th {
+  text-align: start;
+  color: var(--muted);
+  font-weight: 400;
+  border-bottom: 1px solid var(--line);
+}
+.log td {
+  padding-inline-end: 8px;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.log td:last-child {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.log tr[data-dir='down'] td:nth-child(2) {
+  color: var(--rival);
+}
