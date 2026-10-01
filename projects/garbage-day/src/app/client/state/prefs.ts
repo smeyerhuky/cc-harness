@@ -3,12 +3,13 @@ import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import { DEFAULT_BINDINGS, parseBindings, type Bindings } from '../input/bindings';
 import { DEFAULT_TIMING, TIMING_TICKS, toMs, toTicks } from '../input/InputController';
+import type { BotChoice } from './appMachine';
 import { randomHandle } from './handles';
 
 // The player's preferences (client architecture, "Where state lives"): a small, flat Zustand
 // store, persisted in this browser only (PRD US-04). The control stories add their own fields:
-// key bindings and repeat timings (GD-STORY-003), gestures and the pad (GD-STORY-004); the last
-// bot (GD-STORY-006) to come.
+// key bindings and repeat timings (GD-STORY-003), gestures and the pad (GD-STORY-004), and the
+// last bot played (GD-STORY-006).
 
 /** Follow the system's reduced-motion setting, or reduce motion whatever the system says. */
 export type MotionSetting = 'system' | 'reduce';
@@ -29,6 +30,8 @@ export interface Prefs {
   readonly sensitivity: number;
   /** The on-screen button pad, on by default only once gestures are turned off. */
   readonly pad: boolean;
+  /** The last bot played, offered again next time (US-03). */
+  readonly bot: BotChoice;
 }
 
 interface PrefsActions {
@@ -44,7 +47,16 @@ interface PrefsActions {
   readonly setGestures: (on: boolean) => void;
   readonly setSensitivity: (s: number) => void;
   readonly setPad: (on: boolean) => void;
+  readonly setBot: (bot: BotChoice) => void;
 }
+
+const isSetting = (n: unknown): n is number =>
+  typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= 10;
+const isBot = (b: unknown): b is BotChoice =>
+  typeof b === 'object' &&
+  b !== null &&
+  isSetting((b as BotChoice).skill) &&
+  isSetting((b as BotChoice).speed);
 
 /** Gesture sensitivity's range and step. */
 export const SENSITIVITY = { min: 0.5, max: 2, step: 0.25 } as const;
@@ -108,6 +120,7 @@ function clean(stored: unknown, current: Prefs): Prefs {
     gestures: typeof s.gestures === 'boolean' ? s.gestures : current.gestures,
     sensitivity: validSensitivity(s.sensitivity) ? s.sensitivity : current.sensitivity,
     pad: typeof s.pad === 'boolean' ? s.pad : current.pad,
+    bot: isBot(s.bot) ? { skill: s.bot.skill, speed: s.bot.speed } : current.bot,
   };
 }
 
@@ -127,6 +140,7 @@ export const usePrefs = create<Prefs & PrefsActions>()(
       gestures: true,
       sensitivity: 1,
       pad: false,
+      bot: { skill: 5, speed: 5 },
       newHandle: () => set({ handle: randomHandle() }),
       setSound: (sound) => set({ sound }),
       setMotion: (motion) => set({ motion }),
@@ -139,6 +153,9 @@ export const usePrefs = create<Prefs & PrefsActions>()(
         if (validSensitivity(sensitivity)) set({ sensitivity });
       },
       setPad: (pad) => set({ pad }),
+      setBot: (bot) => {
+        if (isBot(bot)) set({ bot: { skill: bot.skill, speed: bot.speed } });
+      },
     }),
     {
       name: PREFS_KEY,
@@ -154,6 +171,7 @@ export const usePrefs = create<Prefs & PrefsActions>()(
         gestures: s.gestures,
         sensitivity: s.sensitivity,
         pad: s.pad,
+        bot: s.bot,
       }),
       merge: (stored, current) => ({ ...current, ...clean(stored, current) }),
     },

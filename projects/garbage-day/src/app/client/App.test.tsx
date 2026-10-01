@@ -196,6 +196,38 @@ describe('preferences', () => {
   });
 });
 
+describe('bot setup', () => {
+  const initial = usePrefs.getState();
+  afterEach(() => {
+    usePrefs.setState(initial, true);
+    localStorage.clear();
+  });
+
+  it('a preset starts at once, at the speed last chosen, and is remembered', async () => {
+    usePrefs.setState({ bot: { skill: 7, speed: 3 } });
+    const router = renderAt('/bot');
+    expect(
+      (await screen.findByRole('slider', { name: 'Skill' })).getAttribute('aria-valuetext'),
+    ).toBe('7');
+    expect(screen.getByText('Rookie is skill 2, Regular 5, Pro 8, each at speed 3.')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Pro' }));
+    expect(await screen.findByRole('region', { name: 'Bot · Pro' })).toBeDefined();
+    expect(router.state.location.pathname).toBe('/play');
+    expect(usePrefs.getState().bot).toEqual({ skill: 8, speed: 3 });
+  });
+
+  it('plays a bot of your own skill and speed', async () => {
+    renderAt('/bot');
+    const skill = await screen.findByRole('slider', { name: 'Skill' });
+    expect(skill.getAttribute('aria-valuetext')).toBe('5 · Regular');
+    fireEvent.change(skill, { target: { value: '9' } });
+    fireEvent.change(screen.getByRole('slider', { name: 'Speed' }), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Play skill 9, speed 2' }));
+    expect(await screen.findByRole('region', { name: 'Bot · skill 9' })).toBeDefined();
+    expect(usePrefs.getState().bot).toEqual({ skill: 9, speed: 2 });
+  });
+});
+
 describe('error boundaries', () => {
   const broken = (ErrorBoundary: () => ReactNode): RouteObject[] => [
     {

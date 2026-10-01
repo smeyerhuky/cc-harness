@@ -59,6 +59,7 @@ describe('usePrefs', () => {
         gestures: true,
         sensitivity: 1,
         pad: false,
+        bot: { skill: 5, speed: 5 },
       },
       version: 1,
     });
@@ -178,5 +179,32 @@ describe('touch preferences', () => {
     );
     await usePrefs.persist.rehydrate();
     expect(usePrefs.getState()).toMatchObject({ gestures: false, sensitivity: 0.5, pad: false });
+  });
+});
+
+describe('the last bot', () => {
+  it('starts at skill 5, speed 5, keeps what was played, and refuses what is out of range', () => {
+    expect(usePrefs.getState().bot).toEqual({ skill: 5, speed: 5 });
+    usePrefs.getState().setBot({ skill: 8, speed: 3 });
+    usePrefs.getState().setBot({ skill: 11, speed: 3 });
+    usePrefs.getState().setBot({ skill: 2.5, speed: 3 });
+    expect(usePrefs.getState().bot).toEqual({ skill: 8, speed: 3 });
+    expect(stored()).toMatchObject({ state: { bot: { skill: 8, speed: 3 } } });
+  });
+
+  it('is read back after a reload, unless it is broken', async () => {
+    localStorage.setItem(
+      PREFS_KEY,
+      JSON.stringify({ state: { bot: { skill: 9, speed: 1 } }, version: 1 }),
+    );
+    await usePrefs.persist.rehydrate();
+    expect(usePrefs.getState().bot).toEqual({ skill: 9, speed: 1 });
+    localStorage.setItem(
+      PREFS_KEY,
+      JSON.stringify({ state: { bot: { skill: 0, speed: 1 } }, version: 1 }),
+    );
+    usePrefs.setState(initial, true);
+    await usePrefs.persist.rehydrate();
+    expect(usePrefs.getState().bot).toEqual({ skill: 5, speed: 5 });
   });
 });
