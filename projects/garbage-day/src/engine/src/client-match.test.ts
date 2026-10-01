@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { dropBottomRows, emptyBoard, GARBAGE, setCell, snapshot } from './board';
 import { Bot, botConfig } from './bot';
 import { ClientMatch } from './client-match';
-import type { PlayerIndex } from './constants';
+import { TPS, type PlayerIndex } from './constants';
 import type { ClientMessage, PlayerEvent, ServerMessage } from './messages';
 import { Referee } from './referee';
 
@@ -359,5 +359,19 @@ describe('ClientMatch: the referee’s clock (GD-STORY-013)', () => {
     const after = m.clients.map((x) => x.activeTicks - m.referee.activeTicks);
     expect(after).toEqual(before);
     for (const seat of [0, 1] as const) expect(apart(m, seat)).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('ClientMatch: the match’s settings (GD-STORY-010)', () => {
+  it('plays on the rules `start` brings, not its defaults', () => {
+    const slow = new ClientMatch({ send: () => undefined });
+    expect(slow.rules.rampSec).toBe(15);
+    slow.receive({ type: 'start', goAt: 180 }, { you: 1, holes: 3, rules: { rampSec: 30 } });
+    expect(slow.rules.rampSec).toBe(30);
+    const plain = new ClientMatch({ send: () => undefined });
+    plain.receive({ type: 'start', goAt: 180 }, { you: 1, holes: 3 });
+    // 20 s of play: a level up every 15 s by default, every 30 s on these settings.
+    expect(plain.me?.level(plain.t, 20 * TPS)).toBe(2);
+    expect(slow.me?.level(slow.t, 20 * TPS)).toBe(1);
   });
 });

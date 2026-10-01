@@ -1,4 +1,4 @@
-import { handle } from '@garbage-day/protocol';
+import { DEFAULT_SETTINGS, handle } from '@garbage-day/protocol';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_BINDINGS } from '../input/bindings';
 import { PREFS_KEY, safeStorage, usePrefs } from './prefs';
@@ -60,6 +60,7 @@ describe('usePrefs', () => {
         sensitivity: 1,
         pad: false,
         bot: { skill: 5, speed: 5 },
+        settings: DEFAULT_SETTINGS,
       },
       version: 1,
     });

@@ -3,7 +3,9 @@ import {
   encodeClientToMatch,
   isFinalClose,
   parseMatchToClient,
+  settingsToRules,
   type BotMark,
+  type MatchSettings,
   type MatchToClient,
 } from '@garbage-day/protocol';
 import type { Connect } from './link';
@@ -26,6 +28,16 @@ export type RefereeMessage = Exclude<MatchToClient, { type: 'pong' | 'lobby' | '
 /** The connection, as a player sees it. */
 export type LinkState = 'online' | 'reconnecting' | 'lost';
 
+/** A private game's lobby, as the Match DO last told it (GD-STORY-010). */
+export type LobbyMessage = Extract<MatchToClient, { type: 'lobby' }>;
+
+/** What a player says in a private game's lobby. */
+export type LobbySay =
+  { readonly type: 'ready' } | { readonly type: 'settings'; readonly settings: MatchSettings };
+
+/** Why the Match DO turned this seat away: the game expired, or the token seats nobody. */
+export type Refusal = 'expired' | 'bad-token';
+
 export interface MatchClientOptions {
   /** The handle sent in `hello`. */
   readonly handle: string;
@@ -39,6 +51,10 @@ export interface MatchClientOptions {
   readonly onSent?: (msg: ClientMessage) => void;
   /** The connection dropped, came back, or was lost. */
   readonly onLink?: (state: LinkState) => void;
+  /** A private game's lobby changed. */
+  readonly onLobby?: (msg: LobbyMessage) => void;
+  /** The Match DO turned this seat away; it closes the socket after. */
+  readonly onRefused?: (why: Refusal) => void;
 }
 
 /** The longest absence a `rejoin` can report (the protocol's bound on `awayMs`). */
@@ -101,6 +117,11 @@ export class MatchClient {
     this.setLink('lost');
   }
 
+  /** Says something in a private game's lobby. */
+  say(msg: LobbySay): void {
+    this.socket?.send(encodeClientToMatch(msg));
+  }
+
   /** Leaves the match: tells the referee, then closes the socket. */
   leave(): void {
     if (!this.match.result) this.match.send({ type: 'leave' });
@@ -118,12 +139,25 @@ export class MatchClient {
     const r = parseMatchToClient(text);
     if (!r.ok) return;
     const msg = r.msg;
-    if (msg.type === 'pong' || msg.type === 'lobby' || msg.type === 'error') return;
+    if (msg.type === 'pong') return;
+    if (msg.type === 'lobby') {
+      this.o.onLobby?.(msg);
+      return;
+    }
+    if (msg.type === 'error') {
+      if (msg.code === 'expired' || msg.code === 'bad-token') this.o.onRefused?.(msg.code);
+      return;
+    }
     this.o.onHeard?.(msg);
     this.match.receive(
       msg,
       msg.type === 'start'
-        ? { ...(msg.you === undefined ? {} : { you: msg.you }), holes: msg.holes ?? 0 }
+        ? {
+            ...(msg.you === undefined ? {} : { you: msg.you }),
+            holes: msg.holes ?? 0,
+            // The match's settings: a private game's may differ from the defaults.
+            ...(msg.settings ? { rules: settingsToRules(msg.settings) } : {}),
+          }
         : {},
     );
   }

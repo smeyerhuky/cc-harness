@@ -19,8 +19,6 @@ export interface MatchResult {
   readonly reason: ResultReason;
 }
 
-type LobbyError = 'full' | 'expired';
-
 export interface AppContext {
   readonly mode: 'quick' | 'private' | 'bot' | null;
   readonly bot: BotChoice | null;
@@ -32,7 +30,6 @@ export interface AppContext {
   readonly countdownFor: 'start' | 'resume';
   /** Counts matches in this session, so a rematch is a new match with a new seed. */
   readonly match: number;
-  readonly error: LobbyError | null;
   /** In the quick-match pool: from Quick match until paired or gone home, a bot game included. */
   readonly queued: boolean;
   /** Players waiting in the pool, this one included. */
@@ -59,9 +56,9 @@ export type AppEvent =
   | { readonly type: 'WAITING'; readonly count: number }
   /** The Match DO says the online rival is a bot (GD-TICKET-016). */
   | { readonly type: 'RIVAL_BOT'; readonly bot: BotChoice }
-  | { readonly type: 'CREATE_GAME' }
+  /** A private game's screen opened: its creator and its guest both join it by code. */
   | { readonly type: 'JOIN'; readonly code: string }
-  | { readonly type: 'LOBBY_ERROR'; readonly error: LobbyError }
+  /** Both pressed Ready, and the referee started the match (GD-STORY-010). */
   | { readonly type: 'BOTH_READY'; readonly opponent: string }
   | { readonly type: 'LEAVE' }
   | { readonly type: 'GO' }
@@ -101,7 +98,6 @@ const INITIAL: AppContext = {
   result: null,
   countdownFor: 'start',
   match: 0,
-  error: null,
   queued: false,
   waiting: 0,
   offered: false,
@@ -130,7 +126,6 @@ export const appMachine = setup({
             result: null,
             countdownFor: 'start' as const,
             match: context.match + 1,
-            error: null,
           }
         : {},
     ),
@@ -160,9 +155,6 @@ export const appMachine = setup({
     })),
     resume: assign({ countdownFor: 'resume' as const }),
     keepResult: assign(({ event }) => (event.type === 'ENDED' ? { result: event.result } : {})),
-    lobbyError: assign(({ event }) =>
-      event.type === 'LOBBY_ERROR' ? { ...INITIAL, error: event.error } : {},
-    ),
   },
 }).createMachine({
   id: 'app',
@@ -186,17 +178,15 @@ export const appMachine = setup({
       on: {
         QUICK_MATCH: {
           target: 'searching',
-          actions: assign({ mode: 'quick', error: null, queued: true, offered: false, waiting: 0 }),
+          actions: assign({ mode: 'quick', queued: true, offered: false, waiting: 0 }),
         },
         PLAY_BOT: { guard: 'validBot', target: 'countdown', actions: 'startBot' },
-        CREATE_GAME: { target: 'lobby', actions: assign({ mode: 'private', error: null }) },
         JOIN: {
           guard: 'validCode',
           target: 'lobby',
           actions: assign(({ event }) => ({
             mode: 'private' as const,
             code: event.code,
-            error: null,
           })),
         },
       },
@@ -222,7 +212,6 @@ export const appMachine = setup({
       on: {
         BOTH_READY: { target: 'countdown', actions: 'startMatch' },
         LEAVE: { target: 'home', actions: 'reset' },
-        LOBBY_ERROR: { target: 'home', actions: 'lobbyError' },
       },
     },
     countdown: {

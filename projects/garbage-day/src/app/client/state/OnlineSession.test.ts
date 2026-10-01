@@ -6,6 +6,7 @@ import {
   type ServerMessage,
 } from '@garbage-day/engine';
 import {
+  DEFAULT_SETTINGS,
   encodeMatchToClient,
   parseClientToMatch,
   type BotMark,
@@ -211,6 +212,76 @@ describe('OnlineSession: a bot rival (GD-TICKET-016)', () => {
       }),
     );
     expect(marks).toEqual([{ skill: 8, speed: 3 }]);
+    s.close();
+  });
+});
+
+describe('OnlineSession: a private game’s lobby (GD-STORY-010)', () => {
+  it('keeps the lobby, says Ready and the settings, and starts on the game’s rules', async () => {
+    const link: { h?: LinkHandlers } = {};
+    const sent: string[] = [];
+    const connect: Connect = (h) => {
+      link.h = h;
+      queueMicrotask(() => h.open());
+      return { send: (text) => sent.push(text), close: () => undefined };
+    };
+    const starts: unknown[] = [];
+    const s = new OnlineSession({
+      handle: 'Brisk Heron 42',
+      input: new InputController(),
+      onStart: (lobby) => starts.push(lobby?.handles),
+    });
+    const changes = vi.fn();
+    s.subscribe(changes);
+    s.start({ connect, token: TOKENS[0] });
+    await Promise.resolve();
+    expect(s.getLobby()).toBeNull();
+    const lobby: MatchToClient = {
+      type: 'lobby',
+      handles: ['Brisk Heron 42', 'Rowdy Puffin 22'],
+      settings: { ...DEFAULT_SETTINGS, rampSec: 30 },
+      ready: [false, true],
+      you: 0,
+    };
+    link.h?.message(encodeMatchToClient(lobby));
+    expect(s.getLobby()).toEqual(lobby);
+    expect(changes).toHaveBeenCalled();
+    s.ready();
+    s.changeSettings({ ...DEFAULT_SETTINGS, mode: 'classic' });
+    const said = sent.map((t) => parseClientToMatch(t)).flatMap((r) => (r.ok ? [r.msg] : []));
+    expect(said.slice(-2)).toEqual([
+      { type: 'ready' },
+      { type: 'settings', settings: { ...DEFAULT_SETTINGS, mode: 'classic' } },
+    ]);
+    link.h?.message(
+      encodeMatchToClient({
+        type: 'start',
+        goAt: 180,
+        holes: 1,
+        you: 0,
+        settings: { ...DEFAULT_SETTINGS, rampSec: 30 },
+      }),
+    );
+    expect(starts).toEqual([['Brisk Heron 42', 'Rowdy Puffin 22']]);
+    expect(s.match.rules.rampSec).toBe(30);
+    s.close();
+  });
+
+  it('says why the Match DO turned the seat away', async () => {
+    const link: { h?: LinkHandlers } = {};
+    const connect: Connect = (h) => {
+      link.h = h;
+      queueMicrotask(() => h.open());
+      return { send: () => undefined, close: () => undefined };
+    };
+    const s = new OnlineSession({ handle: 'Brisk Heron 42', input: new InputController() });
+    s.start({ connect, token: TOKENS[0] });
+    await Promise.resolve();
+    expect(s.getRefusal()).toBeNull();
+    link.h?.message(encodeMatchToClient({ type: 'error', code: 'rate', message: 'Slow down' }));
+    expect(s.getRefusal()).toBeNull();
+    link.h?.message(encodeMatchToClient({ type: 'error', code: 'expired', message: 'Gone' }));
+    expect(s.getRefusal()).toBe('expired');
     s.close();
   });
 });

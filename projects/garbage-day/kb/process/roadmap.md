@@ -113,7 +113,7 @@ weren't answered one by one, so each default holds).
   [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
 - [x] Lobby DO quick match, waiting count, bot offer after 20 s (US-01) —
   [`GD-STORY-009`](backlog/GD-STORY-009.md)
-- [ ] Private games: create, code and link, Copy and Share, ready lobby, full and expired states
+- [x] Private games: create, code and link, Copy and Share, ready lobby, full and expired states
   (US-02) — [`GD-STORY-010`](backlog/GD-STORY-010.md)
 - [x] Match DO: dealing bags with gems, relay at 15 Hz and per lock, hidden next pieces, garbage
   routing with the ledger and resend, showdown multiplier, power-up stamping, server-side message
@@ -144,7 +144,8 @@ weren't answered one by one, so each default holds).
 - [ ] The waiting player's popover, wait bar, +1:00, Leave with the configurable result (US-13)
 - [ ] Heartbeats by auto-response, free reconnects, the 15 s grace, both-away session end, all as
   DO alarms
-- [ ] Rejoin after closing the tab, SQLite snapshots, restore after a deploy restart
+- [ ] Rejoin after closing the tab, SQLite snapshots, restore after a deploy restart; a fresh page
+  plays on in its running match — [`GD-TICKET-033`](backlog/GD-TICKET-033.md)
 - [ ] A reconnect loses nothing: client messages numbered and acknowledged, missed broadcasts
   caught up, bags asked for by number — [`GD-TICKET-031`](backlog/GD-TICKET-031.md)
 - [ ] Return notes with time away and pauses left (US-14)

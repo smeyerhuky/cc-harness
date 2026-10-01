@@ -25,12 +25,15 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-012`](backlog/GD-STORY-012.md): garbage, power-ups and showdowns between two clients, each seen on both screens;
   - [`GD-STORY-013`](backlog/GD-STORY-013.md): both players' speed level and match clock follow the Match DO's clock;
   - [`GD-TICKET-016`](backlog/GD-TICKET-016.md): a bot reads as a bot on every screen, and the protocol marks a bot client;
-  - [`GD-STORY-015`](backlog/GD-STORY-015.md): every bot match plays through the Match DO, with the bot as a second client in a Web Worker.
+  - [`GD-STORY-015`](backlog/GD-STORY-015.md): every bot match plays through the Match DO, with the bot as a second client in a Web Worker;
+  - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games.
 
-  `GD-STORY-013`, `GD-TICKET-016` and `GD-STORY-015` are on the branch, not yet in production.
+  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015` and `GD-STORY-010` are on the branch, not yet
+  in production.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
-  A bot plays under the same server rules, from its own worker.
+  A bot plays under the same server rules, from its own worker, and two friends can meet by a
+  link. A reload mid-match is [`GD-TICKET-033`](backlog/GD-TICKET-033.md), in M4.
   What a reconnect can still lose is [`GD-TICKET-031`](backlog/GD-TICKET-031.md), in M4.
   - **M2 closed at its owner check-in on 2026-10-01:** "Keep going". The four decisions weren't answered one by one, so each default holds ([the check-in](journal/2026-09-30-scaffold.md#next)). The defaults: bot-game settings come in M3 after private games; the design is rewritten to match the code for the three unused React APIs; M3 is built in the index's order.
   - **Every M2 item was done** except the owner's token rotation, [`GD-TICKET-022`](backlog/GD-TICKET-022.md), due by 2026-12-29 ([roadmap](roadmap.md)).
@@ -52,8 +55,8 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-STORY-010`](backlog/GD-STORY-010.md): create a game and share its link. The Worker's
-`POST /api/bot-matches` and `worker/ids.ts` (`GD-STORY-015`) are the pattern for `POST /api/games`.
+[`GD-TICKET-026`](backlog/GD-TICKET-026.md): the match settings for a bot game. The form is
+`features/match-settings` (`GD-STORY-010`); `POST /api/bot-matches` takes the defaults today.
 Then the rest of M3 in the [backlog index](backlog/index.md)'s order.
 
 ## Standing rules
@@ -77,9 +80,12 @@ Then the rest of M3 in the [backlog index](backlog/index.md)'s order.
 - **To check online play with a real opponent,** play a bot: it plays through the Match DO from
   its own worker (`GD-STORY-015`). Two browser contexts that both choose Quick match are paired
   with each other. Space scripted key presses a frame apart: taps inside one frame count as one.
-- **The app's tests play bot matches against `src/app/test/fakeServer.ts`**, a stand-in for the
-  Worker and a Match DO. A test that only checks the screen passes even when no match starts,
-  so a test of play must check the match itself.
+- **The app's tests play bot matches and private games against `src/app/test/fakeServer.ts`**, a
+  stand-in for the Worker and a Match DO. A test that only checks the screen passes even when no
+  match starts, so a test of play must check the match itself.
+- **CI's browser jobs run in Playwright's image**, whose fonts and timing differ from this
+  container's. To reproduce one, start Docker (`dockerd &`) and run `vitest --config
+  vitest.browser.config.ts` in the pinned image with the repo mounted (see the journal's step 56).
 
 ## Verify the baseline
 

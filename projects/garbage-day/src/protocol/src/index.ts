@@ -20,16 +20,24 @@ export { ProtocolError, type ParseResult, type ProtocolErrorCode } from './error
 export {
   botMark,
   botMatch,
+  createdGame,
   errorCodes,
+  gameCode,
+  gameRefusals,
   handle,
+  joinedGame,
   matchId,
   matchSettings,
+  newGame,
   PING,
   PONG,
   PROTOCOL_VERSION,
   token,
   type BotMark,
   type BotMatch,
+  type CreatedGame,
+  type GameRefusal,
+  type JoinedGame,
   type MatchSettings,
 } from './schemas';
-export { DEFAULT_SETTINGS, settingsToRules } from './settings';
+export { DEFAULT_SETTINGS, isMatchSettings, SETTING_CHOICES, settingsToRules } from './settings';

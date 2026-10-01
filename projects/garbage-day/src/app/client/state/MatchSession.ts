@@ -146,6 +146,8 @@ export interface MatchView {
    * (the player stands frozen meanwhile) or lost for good (GD-TICKET-013).
    */
   readonly connection: Connection;
+  /** Whether the match deals power-ups: a Classic one has none (PRD, "Match settings"). */
+  readonly powerUps: boolean;
 }
 
 type Connection = 'local' | 'online' | 'reconnecting' | 'lost';
@@ -406,6 +408,7 @@ export class MatchSession implements Session {
       players: [playerView(m.players[0], t), playerView(m.players[1], t)],
       result: r.result,
       connection: 'local',
+      powerUps: m.rules.gemChance > 0,
     };
   }
 }

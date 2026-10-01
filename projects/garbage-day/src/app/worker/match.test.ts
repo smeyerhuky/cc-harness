@@ -1,35 +1,10 @@
 import { emptyBoard, snapshot, type PlayerStats } from '@garbage-day/engine';
-import {
-  CLOSE,
-  DEFAULT_SETTINGS,
-  encodeClientToMatch,
-  parseMatchToClient,
-  type MatchToClient,
-} from '@garbage-day/protocol';
+import { CLOSE, DEFAULT_SETTINGS, encodeClientToMatch } from '@garbage-day/protocol';
 import { runInDurableObject } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
 import { describe, expect, it } from 'vitest';
 import type { MatchDO } from './match';
-import { connect, openMatch, seat, TOKENS } from './testkit';
-
-type Socket = Awaited<ReturnType<typeof seat>>;
-
-/** The next message, parsed; fails the test if it doesn't parse. */
-async function read(s: Socket): Promise<MatchToClient> {
-  const r = parseMatchToClient(await s.next());
-  if (!r.ok) throw r.error;
-  return r.msg;
-}
-
-/** Reads until a message of `type` arrives; returns it and what came before. */
-async function until<T extends MatchToClient['type']>(s: Socket, type: T) {
-  const before: MatchToClient[] = [];
-  for (;;) {
-    const m = await read(s);
-    if (m.type === type) return { msg: m as Extract<MatchToClient, { type: T }>, before };
-    before.push(m);
-  }
-}
+import { connect, openMatch, read, seat, TOKENS, until } from './testkit';
 
 const stats: PlayerStats = {
   pieces: 1,
@@ -86,7 +61,7 @@ describe('the Match DO', () => {
 
   it('never sends the match seed: each player gets only their own garbage-hole seed', async () => {
     const { startA, startB } = await started('GD-SEED');
-    expect(Object.keys(startA.msg).sort()).toEqual(['goAt', 'holes', 'type', 'you']);
+    expect(Object.keys(startA.msg).sort()).toEqual(['goAt', 'holes', 'settings', 'type', 'you']);
     expect([startA.msg.you, startB.msg.you]).toEqual([0, 1]);
     expect(startA.msg.holes).not.toBe(startB.msg.holes);
   });

@@ -9,13 +9,15 @@ import {
   type Rules,
   type ShowdownMessage,
 } from '@garbage-day/engine';
-import type { BotMark } from '@garbage-day/protocol';
+import type { BotMark, MatchSettings } from '@garbage-day/protocol';
 import { clearLabel, type BoardView } from '@garbage-day/ui';
 import type { InputController } from '../input/InputController';
 import {
   MatchClient,
   type LinkState,
+  type LobbyMessage,
   type RefereeMessage,
+  type Refusal,
   type SeatTicket,
 } from '../net/MatchClient';
 import {
@@ -48,6 +50,11 @@ export interface OnlineSessionOptions {
   readonly onEnd?: (result: RefereeResult) => void;
   /** The Match DO says the rival is a bot, with these settings (GD-TICKET-016). */
   readonly onRivalBot?: (bot: BotMark) => void;
+  /**
+   * The referee's `start` arrived: the countdown began, and a private game left its lobby, which
+   * comes with it as last told.
+   */
+  readonly onStart?: (lobby: LobbyMessage | null) => void;
 }
 
 /** An empty view of the other player before they have played. */
@@ -66,6 +73,9 @@ export class OnlineSession implements Session {
   private acc = 0;
   private announced = { go: false, end: false };
   private rise: { n: number; t: number } | null = null;
+  /** A private game's lobby, as last told (GD-STORY-010). */
+  private lobby: LobbyMessage | null = null;
+  private refusal: Refusal | null = null;
 
   constructor(private readonly o: OnlineSessionOptions) {
     this.client = new MatchClient({
@@ -74,6 +84,14 @@ export class OnlineSession implements Session {
       onHeard: (msg) => this.onHeard(msg),
       onSent: (msg) => this.onSent(msg),
       onLink: (state) => this.onLink(state),
+      onLobby: (msg) => {
+        this.lobby = msg;
+        this.listeners.forEach((l) => l());
+      },
+      onRefused: (why) => {
+        this.refusal = why;
+        this.listeners.forEach((l) => l());
+      },
     });
     this.match = this.client.match;
     this.match.controller = o.input;
@@ -100,6 +118,22 @@ export class OnlineSession implements Session {
   };
 
   readonly getSnapshot = (): MatchView => this.view;
+
+  /** A private game's lobby, before its match starts; null in any other match. */
+  readonly getLobby = (): LobbyMessage | null => this.lobby;
+
+  /** Why the Match DO turned this seat away, if it did. */
+  readonly getRefusal = (): Refusal | null => this.refusal;
+
+  /** Says this player is ready, in a private game's lobby. */
+  ready(): void {
+    this.client.say({ type: 'ready' });
+  }
+
+  /** Changes a private game's settings: only the host's are taken, and both must be ready again. */
+  changeSettings(settings: MatchSettings): void {
+    this.client.say({ type: 'settings', settings });
+  }
 
   readonly onEffect = (listener: (e: MatchEffect) => void): (() => void) => {
     this.effectListeners.add(listener);
@@ -204,6 +238,7 @@ export class OnlineSession implements Session {
   private onHeard(msg: RefereeMessage): void {
     if (this.wireListeners.size) this.tap({ tick: this.match.t, dir: 'down', seat: 0, msg });
     if (msg.type === 'start' && msg.rivalBot) this.o.onRivalBot?.(msg.rivalBot);
+    if (msg.type === 'start') this.o.onStart?.(this.lobby);
     this.onServer(msg);
   }
 
@@ -352,6 +387,7 @@ export class OnlineSession implements Session {
       players: [mine, theirs],
       result,
       connection: this.client.link,
+      powerUps: m.rules.gemChance > 0,
     };
   }
 }

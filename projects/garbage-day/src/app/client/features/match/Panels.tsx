@@ -101,6 +101,7 @@ export function PlayerPanel({ session, layout }: { session: Session; layout: Sta
   const hold = useMatch((v) => v.players[0].hold);
   const holdUsed = useMatch((v) => v.players[0].holdUsed);
   const power = useMatch((v) => v.players[0].power);
+  const powerUps = useMatch((v) => v.powerUps);
   const next = useMatch((v) => v.players[0].next);
   const powerKey = usePrefs((s) => keyLabel(s.bindings.power[0] ?? ''));
   return (
@@ -108,7 +109,7 @@ export function PlayerPanel({ session, layout }: { session: Session; layout: Sta
       <div className={styles.row}>
         <div className={styles.side}>
           <HoldSlot piece={hold} used={holdUsed} />
-          <PowerSlot kind={power} hint={powerKey} />
+          {powerUps && <PowerSlot kind={power} hint={powerKey} />}
           <NextQueue pieces={next} />
         </div>
         <Board session={session} seat={0} label="Your board" layout={layout} />
@@ -134,6 +135,7 @@ export function OpponentPanel({
 }) {
   const hold = useMatch((v) => v.players[1].hold);
   const power = useMatch((v) => v.players[1].power);
+  const powerUps = useMatch((v) => v.powerUps);
   const compact = layout === 'portrait';
   return (
     <div
@@ -146,7 +148,7 @@ export function OpponentPanel({
         {!compact && (
           <div className={styles.side}>
             <HoldSlot piece={hold} />
-            <PowerSlot kind={power} />
+            {powerUps && <PowerSlot kind={power} />}
             <NextQueue pieces="hidden" />
           </div>
         )}

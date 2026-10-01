@@ -1,0 +1,69 @@
+.page {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.title {
+  margin: 0;
+  font: 800 var(--fs-40) / 1 var(--font-display);
+  text-transform: uppercase;
+}
+.section {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.heading {
+  margin: 0;
+  font: 800 var(--fs-20) / 1 var(--font-display);
+  text-transform: uppercase;
+}
+.note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.link {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 600 var(--fs-14) / 1.2 var(--font-data);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.players {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.player {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+.ready {
+  font-weight: 700;
+}
+.waiting {
+  color: var(--muted);
+}

@@ -188,20 +188,18 @@ describe('appMachine', () => {
       });
     });
 
-    it('private game: create or join a valid code, get ready, or fail', () => {
-      expect(run({ type: 'CREATE_GAME' }).value).toBe('lobby');
+    it('private game: join a valid code, get ready, or leave', () => {
       const joined = run({ type: 'JOIN', code: 'GD-7KQ4' });
       expect(joined.value).toBe('lobby');
       expect(joined.context).toMatchObject({ mode: 'private', code: 'GD-7KQ4' });
       expect(run({ type: 'JOIN', code: 'gd-7kq4' }).value).toBe('home');
       expect(run({ type: 'JOIN', code: 'GD-7KQ45' }).value).toBe('home');
-      expect(run({ type: 'CREATE_GAME' }, { type: 'BOTH_READY', opponent: 'Y' }).value).toBe(
-        'countdown',
-      );
-      expect(run({ type: 'CREATE_GAME' }, { type: 'LEAVE' }).value).toBe('home');
-      const full = run({ type: 'JOIN', code: 'GD-7KQ4' }, { type: 'LOBBY_ERROR', error: 'full' });
-      expect(full.value).toBe('home');
-      expect(full.context).toMatchObject({ error: 'full', code: null });
+      const ready = run({ type: 'JOIN', code: 'GD-7KQ4' }, { type: 'BOTH_READY', opponent: 'Y' });
+      expect(ready.value).toBe('countdown');
+      expect(ready.context).toMatchObject({ mode: 'private', opponent: 'Y', match: 1 });
+      const left = run({ type: 'JOIN', code: 'GD-7KQ4' }, { type: 'LEAVE' });
+      expect(left.value).toBe('home');
+      expect(left.context).toMatchObject({ mode: null, code: null });
     });
   });
 
@@ -214,9 +212,7 @@ describe('appMachine', () => {
       { type: 'PLAY_BOT', bot: REGULAR },
       paired('X'),
       { type: 'WAITING', count: 3 },
-      { type: 'CREATE_GAME' },
       { type: 'JOIN', code: 'GD-AAAA' },
-      { type: 'LOBBY_ERROR', error: 'expired' },
       { type: 'BOTH_READY', opponent: 'X' },
       { type: 'LEAVE' },
       { type: 'GO' },
@@ -232,7 +228,7 @@ describe('appMachine', () => {
       home: [],
       searching: [{ type: 'QUICK_MATCH' }],
       botOffer: [{ type: 'QUICK_MATCH' }, { type: 'BOT_OFFER' }],
-      lobby: [{ type: 'CREATE_GAME' }],
+      lobby: [{ type: 'JOIN', code: 'GD-AAAA' }],
       countdown: [{ type: 'PLAY_BOT', bot: REGULAR }],
       playing: [{ type: 'PLAY_BOT', bot: REGULAR }, { type: 'GO' }],
       paused: [{ type: 'PLAY_BOT', bot: REGULAR }, { type: 'GO' }, { type: 'PAUSED' }],
@@ -247,10 +243,10 @@ describe('appMachine', () => {
       ],
     };
     const allowed: Record<AppState, string[]> = {
-      home: ['QUICK_MATCH', 'PLAY_BOT', 'CREATE_GAME', 'JOIN'],
+      home: ['QUICK_MATCH', 'PLAY_BOT', 'JOIN'],
       searching: ['CANCEL', 'BOT_OFFER', 'MATCHED'],
       botOffer: ['PLAY_BOT', 'KEEP_WAITING', 'CANCEL', 'MATCHED'],
-      lobby: ['BOTH_READY', 'LEAVE', 'LOBBY_ERROR'],
+      lobby: ['BOTH_READY', 'LEAVE'],
       countdown: ['GO', 'ENDED'],
       playing: ['PAUSED', 'ENDED'],
       paused: ['RESUMED', 'ENDED'],

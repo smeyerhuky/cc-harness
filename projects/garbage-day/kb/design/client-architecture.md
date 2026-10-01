@@ -67,9 +67,13 @@ projects/garbage-day/src/
     │       ├── home/          HomeScreen: Quick match, Create game, Play a bot, handle
     │       ├── quick-match/   SearchingScreen (the count, the bot offer, Cancel), QuickMatchLink
     │       │                  (the lobby socket while queued, loaded only then)
-    │       ├── private-game/  CreateGameForm, LobbyScreen (code, Copy, Share, Ready)
+    │       ├── private-game/  CreateGameScreen (`/new` and its action), PrivateGameRoute (`/g/:code`:
+    │       │                  the lobby, then MatchStage on the same session), LobbyScreen (link,
+    │       │                  Copy, Share, players, settings, Ready), GameRefused (full, expired,
+    │       │                  unknown), routeData (the create action, the seat loader), seats
+    │       ├── match-settings/ MatchSettingsForm and SettingsSummary, for private and bot games
     │       ├── bot/           BotSetup (presets, skill and speed sliders)
-    │       ├── match/         MatchScreen, PlayerPanel, OpponentPanel, CentreColumn, MatchFeed,
+    │       ├── match/         MatchScreen (seats a quick or bot match), MatchStage, PlayerPanel, OpponentPanel, CentreColumn, MatchFeed,
     │       │                  PausePopover, WaitBar, ReturnNote, TouchSurface, ButtonPad
     │       ├── results/       ResultCard, StatsTable, RematchButton
     │       ├── settings/      SettingsSheet: controls, gestures, sound, motion

@@ -1,4 +1,6 @@
 import { isHandle } from '@garbage-day/protocol/handle';
+import { DEFAULT_SETTINGS, isMatchSettings } from '@garbage-day/protocol/settings';
+import type { MatchSettings } from '@garbage-day/protocol';
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import { DEFAULT_BINDINGS, parseBindings, type Bindings } from '../input/bindings';
@@ -8,8 +10,8 @@ import { randomHandle } from './handles';
 
 // The player's preferences (client architecture, "Where state lives"): a small, flat Zustand
 // store, persisted in this browser only (PRD US-04). The control stories add their own fields:
-// key bindings and repeat timings (GD-STORY-003), gestures and the pad (GD-STORY-004), and the
-// last bot played (GD-STORY-006).
+// key bindings and repeat timings (GD-STORY-003), gestures and the pad (GD-STORY-004), the last
+// bot played (GD-STORY-006), and the last private game's settings (GD-STORY-010).
 
 /** Follow the system's reduced-motion setting, or reduce motion whatever the system says. */
 export type MotionSetting = 'system' | 'reduce';
@@ -32,6 +34,8 @@ export interface Prefs {
   readonly pad: boolean;
   /** The last bot played, offered again next time (US-03). */
   readonly bot: BotChoice;
+  /** The settings of the last game created, offered again next time. */
+  readonly settings: MatchSettings;
 }
 
 interface PrefsActions {
@@ -48,6 +52,7 @@ interface PrefsActions {
   readonly setSensitivity: (s: number) => void;
   readonly setPad: (on: boolean) => void;
   readonly setBot: (bot: BotChoice) => void;
+  readonly setSettings: (settings: MatchSettings) => void;
 }
 
 const isSetting = (n: unknown): n is number =>
@@ -121,6 +126,7 @@ function clean(stored: unknown, current: Prefs): Prefs {
     sensitivity: validSensitivity(s.sensitivity) ? s.sensitivity : current.sensitivity,
     pad: typeof s.pad === 'boolean' ? s.pad : current.pad,
     bot: isBot(s.bot) ? { skill: s.bot.skill, speed: s.bot.speed } : current.bot,
+    settings: isMatchSettings(s.settings) ? { ...s.settings } : current.settings,
   };
 }
 
@@ -141,6 +147,7 @@ export const usePrefs = create<Prefs & PrefsActions>()(
       sensitivity: 1,
       pad: false,
       bot: { skill: 5, speed: 5 },
+      settings: DEFAULT_SETTINGS,
       newHandle: () => set({ handle: randomHandle() }),
       setSound: (sound) => set({ sound }),
       setMotion: (motion) => set({ motion }),
@@ -155,6 +162,9 @@ export const usePrefs = create<Prefs & PrefsActions>()(
       setPad: (pad) => set({ pad }),
       setBot: (bot) => {
         if (isBot(bot)) set({ bot: { skill: bot.skill, speed: bot.speed } });
+      },
+      setSettings: (settings) => {
+        if (isMatchSettings(settings)) set({ settings: { ...settings } });
       },
     }),
     {
@@ -172,6 +182,7 @@ export const usePrefs = create<Prefs & PrefsActions>()(
         sensitivity: s.sensitivity,
         pad: s.pad,
         bot: s.bot,
+        settings: s.settings,
       }),
       merge: (stored, current) => ({ ...current, ...clean(stored, current) }),
     },

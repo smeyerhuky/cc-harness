@@ -65,3 +65,26 @@
   text-transform: uppercase;
   color: var(--accent);
 }
+
+/* A game code, entered by hand (PRD US-02). */
+.join {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+.join .note {
+  flex-basis: 100%;
+}
+.code {
+  box-sizing: border-box;
+  width: 9ch;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 600 var(--fs-16) / 1.2 var(--font-data);
+  text-transform: uppercase;
+}

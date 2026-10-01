@@ -18,6 +18,12 @@ export const newMatchId = (prefix: 'Q' | 'B') =>
     .map((b) => BASE32[b & 31] ?? '')
     .join('')}`;
 
+/** A private game's code: `GD-` and four characters, about a million codes (PRD US-02). */
+export const newGameCode = () =>
+  `GD-${randomBytes(4)
+    .map((b) => BASE32[b & 31] ?? '')
+    .join('')}`;
+
 /** A join token: 32 URL-safe characters, 192 bits. */
 export const newToken = () =>
   randomBytes(32)

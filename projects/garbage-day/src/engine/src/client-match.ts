@@ -88,10 +88,14 @@ export class OpponentView {
   }
 }
 
-/** What comes with `start` besides the engine's message: this player's seat and hole seed. */
+/**
+ * What comes with `start` besides the engine's message: this player's seat and hole seed, and
+ * the rules the match's settings change (GD-STORY-010).
+ */
 export interface StartExtras {
   readonly you?: PlayerIndex;
   readonly holes?: number;
+  readonly rules?: Partial<Rules>;
 }
 
 export interface ClientMatchOptions {
@@ -105,7 +109,8 @@ export interface ClientMatchOptions {
 }
 
 export class ClientMatch {
-  readonly rules: Rules;
+  /** The match's rules: the options' until `start` brings the match's own. */
+  rules: Rules;
   /** This player's tick: set from `start`, then one a step. */
   t = 0;
   /** Ticks of play, as the referee counts them: from the go tick, while not frozen. */
@@ -187,6 +192,7 @@ export class ClientMatch {
         this.early.push(msg);
         return;
       }
+      if (extras.rules) this.rules = { ...DEFAULT_RULES, ...this.o.rules, ...extras.rules };
       this.me = new PlayerSim(extras.you ?? this.seat, extras.holes ?? 0, this.rules, {
         send: (m) => this.send(m),
         emit: (ev) => this.o.onPlayerEvent?.(ev),

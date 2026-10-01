@@ -219,8 +219,11 @@ labels.
 | No pauses left | **Away, no pauses left.** The match keeps running. Come back within 0:15 or you forfeit. |
 | Return | You were away 0:47 · 1 pause left |
 | Result | **You win.** RIVAL topped out at 2:14. / **No contest.** You left while RIVAL was away. |
-| Private game | Send this link to one friend. The game closes after 30 minutes if nobody joins. |
-| Full game | This game is full. Start a quick match instead? |
+| Private game | Send this link to one friend, or the code GD-7KQ4 for their home screen. The game closes after 30 minutes if nobody joins. |
+| Lobby | HANDLE (you) · Not ready, and "Waiting for your friend…" until they arrive. **Ready**, then "Waiting for RIVAL". The host: "A change asks you both to be ready again." The guest: "The player who made the game sets these." |
+| Full game | **This game is full.** Game GD-7KQ4. Two players are already in it. Start a quick match instead? |
+| Expired game | **This game has expired.** Games close after 30 minutes if nobody plays them. |
+| Unknown code | **No game has that code.** Check the code, or ask for the link again. |
 
 Names are always shown as the players see them: a handle, or a bot's name, its preset ("Bot ·
 Regular") or its skill and speed ("Bot · skill 7, speed 4"). A bot always reads as a bot, and no
