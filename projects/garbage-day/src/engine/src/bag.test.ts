@@ -18,6 +18,22 @@ describe('Dealer', () => {
     expect(d.bag(1).map((p) => p.t)).toEqual(['J', 'T', 'Z', 'S', 'L', 'O', 'I']);
   });
 
+  it('deals from a 128-bit seed: seven-piece bags, the same for the same seed', () => {
+    const seed = [0x9e3779b9, 0x243f6a88, 0xb7e15162, 0xdeadbeef] as const;
+    const [a, b] = [new Dealer(seed, 0.16), new Dealer(seed, 0.16)];
+    for (let k = 0; k < 20; k++) {
+      expect(
+        a
+          .bag(k)
+          .map((p) => p.t)
+          .sort(),
+      ).toEqual([...PIECE_TYPES].sort());
+      expect(b.bag(k)).toEqual(a.bag(k));
+    }
+    const other = new Dealer([0x9e3779b9, 0x243f6a88, 0xb7e15162, 0xdeadbeee], 0.16);
+    expect([0, 1, 2].map((k) => other.bag(k))).not.toEqual([0, 1, 2].map((k) => a.bag(k)));
+  });
+
   it('puts all seven pieces in every bag', () => {
     const d = new Dealer(42, 0.16);
     for (let k = 0; k < 100; k++) {

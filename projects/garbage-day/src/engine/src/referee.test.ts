@@ -471,4 +471,21 @@ describe('Referee: snapshots', () => {
     expect(b.ref.snapshot()).toEqual(a.ref.snapshot());
     expect(b.ref.state).toBe('playing');
   });
+
+  it('keeps a 128-bit dealing seed through a snapshot', () => {
+    const sent: [ServerMessage[], ServerMessage[]] = [[], []];
+    const host = (k: 0 | 1): RefereeHost => ({
+      send: (_to, m) => sent[k].push(m),
+      emit: () => undefined,
+    });
+    const a = new Referee([1, 2, 3, 0xffffffff], DEFAULT_RULES, host(0));
+    a.start(0);
+    const snap = JSON.parse(JSON.stringify(a.snapshot())) as ReturnType<Referee['snapshot']>;
+    expect(snap.seed).toEqual([1, 2, 3, 0xffffffff]);
+    const b = Referee.restore(snap, host(1));
+    a.onMessage(0, { type: 'bagReq' }, 1);
+    b.onMessage(0, { type: 'bagReq' }, 1);
+    expect(sent[1]).toEqual([sent[0].at(-1)]);
+    expect(sent[1][0]).toMatchObject({ type: 'bag' });
+  });
 });

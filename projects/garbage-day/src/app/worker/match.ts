@@ -3,6 +3,7 @@ import {
   Referee,
   TPS,
   type PlayerIndex,
+  type Seed128,
   type ServerMessage,
 } from '@garbage-day/engine';
 import {
@@ -49,6 +50,12 @@ const isSeat = (a: unknown): a is Seat =>
   typeof a === 'object' && a !== null && ((a as Seat).seat === 0 || (a as Seat).seat === 1);
 
 const randomU32 = () => crypto.getRandomValues(new Uint32Array(1))[0] ?? 0;
+
+/** The dealing seed: 128 bits, so no player can work it out from the pieces they see. */
+const randomSeed128 = (): Seed128 => {
+  const [a = 0, b = 0, c = 0, d = 0] = crypto.getRandomValues(new Uint32Array(4));
+  return [a, b, c, d];
+};
 
 /** A running referee and the clock it runs on. */
 interface Running {
@@ -150,7 +157,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     if (!setup) return;
     const holes: [number, number] = [randomU32(), randomU32()];
     const referee = new Referee(
-      randomU32(),
+      randomSeed128(),
       { ...DEFAULT_RULES, ...settingsToRules(setup.settings) },
       {
         send: (to, msg) => this.send(to, msg),

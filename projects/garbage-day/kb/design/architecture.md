@@ -173,7 +173,11 @@ Everything that decides a board must give the same result on every device and in
 
 1. **Integer ticks at 60 Hz** drive all game time; nothing reads the wall clock inside the engine.
 2. **Seeded streams** (mulberry32): the piece sequence and gems (server only), each player's
-   garbage holes (receiver side), the bot. Garbage never consumes a piece-stream draw.
+   garbage holes (receiver side), the bot. Garbage never consumes a piece-stream draw. An online
+   match deals from **xoshiro128\*\* with a 128-bit seed** the Match DO draws and never sends:
+   a 32-bit seed could be found by trying every one against the three or so bags a player has
+   seen, which would show them every piece to come ([`GD-TICKET-030`](../process/backlog/GD-TICKET-030.md)).
+   Local and replayed matches keep their 32-bit seeds, so the golden replays don't change.
 3. **No floating-point powers at runtime.** The proof of concept computed gravity with
    `Math.pow`; production uses a precomputed table of rows per tick in 16.16 fixed point, so no
    JavaScript engine can disagree in the last bit. The table (`src/engine/src/speed-table.ts`)

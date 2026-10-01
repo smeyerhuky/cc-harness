@@ -10,6 +10,7 @@ import type {
   ServerMessage,
 } from './messages';
 import type { Rules } from './rules';
+import type { Seed } from './rng';
 
 /** Ticks from `start` to go, and from a return to the resume: the 3-second countdown. */
 export const COUNTDOWN_TICKS = 3 * TPS;
@@ -101,7 +102,7 @@ interface Pause {
 
 /** Everything the referee knows, as plain JSON: what the Match DO stores in SQLite. */
 export interface RefereeSnapshot {
-  readonly seed: number;
+  readonly seed: Seed;
   readonly rules: Rules;
   readonly state: MatchState;
   readonly seats: readonly [Seat, Seat];
@@ -177,7 +178,7 @@ export class Referee {
   private showdown: { kind: 'double' | 'sudden'; until: number | null } | null = null;
 
   constructor(
-    private readonly seed: number,
+    private readonly seed: Seed,
     readonly rules: Rules,
     private readonly host: RefereeHost,
   ) {
