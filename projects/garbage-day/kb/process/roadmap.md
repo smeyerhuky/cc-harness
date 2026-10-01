@@ -120,7 +120,7 @@ weren't answered one by one, so each default holds).
   validation and attack limits (US-06, US-07, US-08, US-10, US-11) —
   [`GD-STORY-011`](backlog/GD-STORY-011.md), [`GD-STORY-012`](backlog/GD-STORY-012.md), and the
   checks in [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
-- [ ] Clock sync and active-time speed levels across two clients (US-09) —
+- [x] Clock sync and active-time speed levels across two clients (US-09) —
   [`GD-STORY-013`](backlog/GD-STORY-013.md)
 - [ ] The bot as a second client in a Web Worker (US-03 online) —
   [`GD-STORY-015`](backlog/GD-STORY-015.md)

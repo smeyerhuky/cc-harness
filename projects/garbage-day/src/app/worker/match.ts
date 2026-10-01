@@ -185,8 +185,22 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     referee.start(0);
     run.clock = setInterval(() => {
       this.catchUp(run);
+      this.tellClock(run);
       this.settle(run);
     }, CLOCK_MS);
+  }
+
+  /**
+   * Tells both players the referee's tick and active time, from which each takes its own: the
+   * speed level and match clock follow the referee's active time, paused time not counted
+   * (GD-STORY-013). Not before play starts, and not once it's over.
+   */
+  private tellClock(run: Running): void {
+    const { state, activeTicks } = run.referee;
+    if (state !== 'playing' && state !== 'paused' && state !== 'resuming') return;
+    for (const seat of [0, 1] as const) {
+      this.send(seat, { type: 'clock', tick: run.tick, active: activeTicks });
+    }
   }
 
   /** Stops the clock once the match is over: nothing is left to time. */

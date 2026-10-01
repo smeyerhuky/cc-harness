@@ -56,7 +56,8 @@ projects/garbage-day/src/
     │   ├── main.tsx, App.tsx, routes.tsx, AppShell.tsx (each screen's name)
     │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), MatchSession.ts, dev.ts
     │   ├── net/           link.ts (a socket that pings and gives up on silence), Socket.ts (reconnects
-    │   │                  with backoff, GD-TICKET-013); clockSync.ts and lobbyClient.ts (M3)
+    │   │                  with backoff, GD-TICKET-013); the clock is the engine ClientMatch's,
+    │   │                  from the DO's `clock` (GD-STORY-013); lobbyClient.ts (M3)
     │   ├── bot/           bot.worker.ts (engine + Bot as a second client)
     │   └── features/
     │       ├── home/          HomeScreen: Quick match, Create game, Play a bot, handle

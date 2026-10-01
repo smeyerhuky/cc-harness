@@ -138,6 +138,11 @@ export type ServerMessage =
       readonly free: boolean;
     }
   | { readonly type: 'deadline'; readonly deadline: number }
+  /**
+   * The referee's clock, sent by the Match DO every second (GD-STORY-013): its tick and its
+   * active ticks, which drive the speed level. A client takes both from it.
+   */
+  | { readonly type: 'clock'; readonly tick: number; readonly active: number }
   | { readonly type: 'bothAway'; readonly endsAt: number }
   | { readonly type: 'grace'; readonly by: PlayerIndex; readonly until: number }
   | {

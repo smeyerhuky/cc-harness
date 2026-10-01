@@ -99,11 +99,12 @@ reject unknown keys; messages to clients tolerate them, so the server can add op
 | `t` | Carries |
 |---|---|
 | `lobby` | both handles (the second empty until someone joins), settings, ready flags, which seat is yours (private games) |
-| `start` | go tick; settings; this player's garbage-hole seed (`holes`), never the match seed, which deals the pieces (the server start time for clock sync arrives with M3) |
+| `start` | go tick; settings; this player's garbage-hole seed (`holes`), never the match seed, which deals the pieces; this player's seat (`you`) |
 | `bag` | 7 pieces with any gems |
 | `garbage` | rows, attack id |
 | `opp` | the opponent's `pos` or `lock`, relayed; never their next pieces |
 | `power` | kind, who fired it, the tick both apply it |
+| `clock` | every second while a match runs: the referee's tick and active time |
 | `showdown` | kind, `soon` / `start` / `end`, when it starts or ends |
 | `paused` · `deadline` · `grace` · `bothAway` · `resume` · `back` | pause and presence state, deadlines, time away, pauses left |
 | `result` | winner or none, a reason code (`topout`, `timeout`, `grace`, `left`, `left-while-paused`, `abandoned`) and who it is about; each side's stats come in their last `lock` |
@@ -196,11 +197,21 @@ messages rate-limited ([limits](#limits)). Server-side replay checking of every 
 
 ## Time: the match clock
 
-The Match DO owns the clock. `start` gives the go time in server milliseconds; each client
-measures its offset and round trip with a few `ping`s and converts server time to match ticks.
-**Active time** excludes pauses and drives the speed level and showdowns, so both players speed
-up together. Power-ups and resumes are stamped with a future tick (0.2 s and 3 s ahead) so both
-clients apply them on the same tick. A client simulates only its own player, so it lands a
+The Match DO owns the clock: the referee's ticks, at 60 a second of wall time. `start` gives
+the go tick, and a client sets its own tick there when `start` arrives. From then on it runs
+about one trip behind the referee, the same for every tick the referee stamps: the go, a
+resume, a power-up. So each client applies those on the same tick, each a trip late.
+**Active time** excludes pauses and drives the speed level, the match clock and the showdowns.
+The referee counts it. Every second while a match runs, the DO sends both players `clock`: the
+referee's tick and active time ([`GD-STORY-013`](../process/backlog/GD-STORY-013.md)). A client
+takes its active time from it, counted on to its own tick while it plays, so both players speed
+up together. A drop the referee never noticed leaves a frozen player no time behind. A client
+more than half a second behind the referee's tick has stalled (a busy main thread, a throttled
+tab), and jumps there without simulating the gap.
+
+Pings can't measure the offset instead: the auto-response answers them with a fixed `pong`,
+without waking the DO, so they carry no server time. Power-ups and resumes are stamped with a
+future tick (0.2 s and 3 s ahead) so both clients apply them on the same tick. A client simulates only its own player, so it lands a
 stamped power-up twice over: on its own simulation, and on its view of the rival when the
 power-up lands on them, Bomb rows and all, so both boards show it on both screens
 ([`GD-STORY-012`](../process/backlog/GD-STORY-012.md)).

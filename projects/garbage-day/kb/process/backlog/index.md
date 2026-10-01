@@ -69,7 +69,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · done (from the M0 audit)
 - [GD-TICKET-032](GD-TICKET-032.md) — Wait long enough in the app's tests for a loaded CI runner · done (found while building `012`)
 - [GD-STORY-012](GD-STORY-012.md) — Garbage, power-ups and showdowns over the network · done
-- [GD-STORY-013](GD-STORY-013.md) — The speed-up on the Match DO's clock · open
+- [GD-STORY-013](GD-STORY-013.md) — The speed-up on the Match DO's clock · done
 - [GD-STORY-009](GD-STORY-009.md) — Quick match with a stranger · done (built before `013` and `012`, to give `011` a way in)
 - [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (from the M0 audit)
 - [GD-STORY-015](GD-STORY-015.md) — The bot as a second client in a Web Worker · open

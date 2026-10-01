@@ -197,6 +197,21 @@ describe('the Match DO', () => {
     b.ws.close(1000);
   });
 
+  it('tells both players the referee’s clock every second once play starts', async () => {
+    const { a, b, startA } = await started('GD-CLOCK');
+    const [ca, cb] = [await until(a, 'clock'), await until(b, 'clock')];
+    for (const { msg } of [ca, cb]) {
+      // Not before go: the countdown ends at the start's go tick.
+      expect(msg.tick).toBeGreaterThanOrEqual(startA.msg.goAt);
+      expect(msg.active).toBeGreaterThanOrEqual(0);
+      expect(msg.active).toBeLessThanOrEqual(msg.tick - startA.msg.goAt + 1);
+    }
+    const next = await until(a, 'clock');
+    expect(next.msg.tick - ca.msg.tick).toBeGreaterThanOrEqual(50);
+    a.ws.close(1000);
+    b.ws.close(1000);
+  }, 15_000);
+
   it('opens a match once', async () => {
     expect(await openMatch('GD-ONCE')).toBe(true);
     expect(

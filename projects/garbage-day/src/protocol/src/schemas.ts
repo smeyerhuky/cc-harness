@@ -196,6 +196,7 @@ export const matchToClient = z.discriminatedUnion('t', [
     free: z.boolean(),
   }),
   toClient('deadline', { deadline: tick }),
+  toClient('clock', { tick, active: tick }),
   toClient('bothAway', { endsAt: tick }),
   toClient('grace', { by: player, until: tick }),
   toClient('back', { by: player, away: tick, pausesLeft: int(0, 3) }),

@@ -120,6 +120,7 @@ export const MESSAGE_TYPES = {
     'paused',
     'resume',
     'deadline',
+    'clock',
     'bothAway',
     'grace',
     'back',

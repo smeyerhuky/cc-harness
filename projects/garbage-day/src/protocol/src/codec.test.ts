@@ -91,6 +91,7 @@ const matchToClient: MatchToClient[] = [
   { type: 'start', goAt: 180 },
   { type: 'start', goAt: 180, settings: DEFAULT_SETTINGS },
   { type: 'start', goAt: 180, holes: 3_141_592_653, you: 1 },
+  { type: 'clock', tick: 1260, active: 1080 },
   {
     type: 'bag',
     pieces: [
