@@ -26,10 +26,11 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-013`](backlog/GD-STORY-013.md): both players' speed level and match clock follow the Match DO's clock;
   - [`GD-TICKET-016`](backlog/GD-TICKET-016.md): a bot reads as a bot on every screen, and the protocol marks a bot client;
   - [`GD-STORY-015`](backlog/GD-STORY-015.md): every bot match plays through the Match DO, with the bot as a second client in a Web Worker;
-  - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games.
+  - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games;
+  - [`GD-TICKET-026`](backlog/GD-TICKET-026.md): a bot game on the player's Mode and Speed-up every.
 
-  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015` and `GD-STORY-010` are on the branch, not yet
-  in production.
+  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` are on the
+  branch, not yet in production. CI is green to `956ef36`.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
   A bot plays under the same server rules, from its own worker, and two friends can meet by a
@@ -55,9 +56,9 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-026`](backlog/GD-TICKET-026.md): the match settings for a bot game. The form is
-`features/match-settings` (`GD-STORY-010`); `POST /api/bot-matches` takes the defaults today.
-Then the rest of M3 in the [backlog index](backlog/index.md)'s order.
+[`GD-STORY-014`](backlog/GD-STORY-014.md): the result and rematch over the network. Between
+people the result card offers only Home today (`ResultCard`); a bot rematch already asks for a
+new match. Then the rest of M3 in the [backlog index](backlog/index.md)'s order.
 
 ## Standing rules
 

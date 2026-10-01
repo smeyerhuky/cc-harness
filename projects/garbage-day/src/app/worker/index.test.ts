@@ -1,6 +1,7 @@
 import {
   botMatch,
   CLOSE,
+  DEFAULT_SETTINGS,
   encodeClientToMatch,
   parseLobbyToClient,
   parseMatchToClient,
@@ -11,7 +12,7 @@ import { env, exports } from 'cloudflare:workers';
 import { describe, expect, it } from 'vitest';
 import type { Health } from './index';
 import { MATCH_LIMITS } from './match';
-import { connect as open, openMatch, ORIGIN, seat } from './testkit';
+import { connect as open, openMatch, ORIGIN, seat, until } from './testkit';
 
 const ready = encodeClientToMatch({ type: 'ready' });
 
@@ -193,6 +194,35 @@ describe('bot matches (GD-STORY-015)', () => {
     expect(await startOf(bot)).not.toHaveProperty('rivalBot');
     player.ws.close(1000);
     bot.ws.close(1000);
+  });
+
+  it('are made on the settings posted, or the defaults', async () => {
+    const classic = { ...DEFAULT_SETTINGS, mode: 'classic' as const, rampSec: 30 as const };
+    const res = await exports.default.fetch(`${ORIGIN}/api/bot-matches`, {
+      method: 'POST',
+      headers: { 'CF-Connecting-IP': '203.0.113.22', 'content-type': 'application/json' },
+      body: JSON.stringify({ settings: classic }),
+    });
+    const { matchId, token, botToken } = botMatch.parse(await res.json());
+    const player = await open(`/ws/match/${matchId}`);
+    player.ws.send(encodeClientToMatch({ type: 'hello', token, handle: 'Brisk Heron 42' }));
+    const bot = await open(`/ws/match/${matchId}`);
+    bot.ws.send(encodeClientToMatch({ type: 'hello', token: botToken, handle: 'Steady Bot 1' }));
+    expect((await until(player, 'start')).msg.settings).toEqual(classic);
+    player.ws.close(1000);
+    bot.ws.close(1000);
+    const bad = await exports.default.fetch(`${ORIGIN}/api/bot-matches`, {
+      method: 'POST',
+      headers: { 'CF-Connecting-IP': '203.0.113.22' },
+      body: '{"settings":{"mode":"turbo"}}',
+    });
+    expect(bad.status).toBe(400);
+    const garbled = await exports.default.fetch(`${ORIGIN}/api/bot-matches`, {
+      method: 'POST',
+      headers: { 'CF-Connecting-IP': '203.0.113.22' },
+      body: 'not json',
+    });
+    expect(garbled.status).toBe(400);
   });
 
   it('are only made by POST', async () => {

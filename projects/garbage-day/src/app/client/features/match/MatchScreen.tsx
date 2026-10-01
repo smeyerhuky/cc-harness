@@ -21,6 +21,7 @@ export function MatchScreen() {
   const matchId = AppActorContext.useSelector((s) => s.context.matchId);
   const token = AppActorContext.useSelector((s) => s.context.token);
   const handle = usePrefs((s) => s.handle);
+  const botSettings = usePrefs((s) => s.botSettings);
   const [input] = useState(() => new InputController());
   const [session] = useState(
     () =>
@@ -36,7 +37,7 @@ export function MatchScreen() {
   // How this screen's session takes its seat, and lets go of it when the screen goes: a bot
   // match is made for it, and a quick match's seat is the one the lobby gave.
   const [join] = useState(() => (s: OnlineSession): (() => void) => {
-    if (mode === 'bot') return playBot(s, bot ?? { skill: 5, speed: 5 });
+    if (mode === 'bot') return playBot(s, bot ?? { skill: 5, speed: 5 }, botSettings);
     if (matchId && token) {
       const url = socketUrl(`/ws/match/${matchId}`, globalThis.location);
       s.start({ connect: webSocketLink(url), token });

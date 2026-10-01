@@ -293,6 +293,25 @@ describe('bot setup', () => {
     expect(await screen.findByRole('region', { name: 'Bot · skill 9, speed 2' })).toBeDefined();
     expect(usePrefs.getState().bot).toEqual({ skill: 9, speed: 2 });
   });
+
+  it('plays a bot on the mode and speed-up chosen, and keeps them with the bot (GD-TICKET-026)', async () => {
+    renderAt('/bot');
+    const mode = await screen.findByRole('combobox', { name: 'Mode' });
+    // Pauses don't exist yet, so a bot game offers only these two.
+    expect(screen.queryByRole('combobox', { name: 'Pauses' })).toBeNull();
+    fireEvent.change(mode, { target: { value: 'classic' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Speed-up every' }), {
+      target: { value: '30' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Regular' }));
+    await screen.findByRole('region', { name: 'Bot · Regular' });
+    await waitFor(() => expect(server.last().referee).not.toBeNull());
+    expect(server.last().settings).toMatchObject({ mode: 'classic', rampSec: 30 });
+    const session = useDev.getState().session as OnlineSession | null;
+    await waitFor(() => expect(session?.match.rules).toMatchObject({ rampSec: 30, gemChance: 0 }));
+    expect(usePrefs.getState().botSettings).toMatchObject({ mode: 'classic', rampSec: 30 });
+    useDev.setState({ open: false, session: null });
+  });
 });
 
 describe('a bot match, through the match server (GD-STORY-015)', () => {

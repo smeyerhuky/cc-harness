@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { AppActorContext } from '../../state/appActor';
 import { BOT_PRESETS, type BotChoice } from '../../state/appMachine';
 import { usePrefs } from '../../state/prefs';
+import { MatchSettingsForm } from '../match-settings';
 import styles from './Bot.module.css';
 
 const PRESETS = Object.entries(BOT_PRESETS) as [keyof typeof BOT_PRESETS, number][];
@@ -11,17 +12,22 @@ const presetOf = (skill: number) => PRESETS.find(([, s]) => s === skill)?.[0];
 
 /**
  * Choosing a bot (US-03): a preset starts at once, at the speed last chosen; or skill and speed
- * set separately from 1 to 10. Whatever is played is remembered on this device and offered again.
+ * set separately from 1 to 10. The match's mode and speed-up apply to either (GD-TICKET-026).
+ * Whatever is played is remembered on this device and offered again.
  */
 export function BotSetupScreen() {
   const app = AppActorContext.useActorRef();
   const navigate = useNavigate();
   const last = usePrefs((s) => s.bot);
   const setBot = usePrefs((s) => s.setBot);
+  const lastSettings = usePrefs((s) => s.botSettings);
+  const setBotSettings = usePrefs((s) => s.setBotSettings);
   const [skill, setSkill] = useState(last.skill);
   const [speed, setSpeed] = useState(last.speed);
+  const [settings, setSettings] = useState(lastSettings);
   const play = (bot: BotChoice) => {
     setBot(bot);
+    setBotSettings(settings);
     app.send({ type: 'PLAY_BOT', bot });
     void navigate('/play');
   };
@@ -29,6 +35,9 @@ export function BotSetupScreen() {
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Play a bot</h1>
+      <section className={styles.section}>
+        <MatchSettingsForm value={settings} onChange={setSettings} only={['mode', 'rampSec']} />
+      </section>
       <section className={styles.section} aria-labelledby="bot-presets">
         <h2 id="bot-presets" className={styles.heading}>
           Presets
@@ -67,7 +76,7 @@ export function BotSetupScreen() {
         <Slider label="Speed" value={speed} min={1} max={10} onChange={setSpeed} />
         <p className={styles.note}>
           Skill is how well it places pieces; speed is how fast it thinks and moves. It plays by the
-          same rules as you: garbage, speed-ups, power-ups and showdowns.
+          same rules as you, on the match settings above.
         </p>
         <Button variant="primary" onClick={() => play({ skill, speed })}>
           Play skill {skill}, speed {speed}

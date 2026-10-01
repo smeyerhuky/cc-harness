@@ -287,8 +287,8 @@ interface FakeServer {
   readonly matches: Map<string, FakeMatch>;
   /** The bots' workers, in the order the page started them. */
   readonly workers: FakeWorker[];
-  /** Opens a match, as `POST /api/bot-matches` does. */
-  open(): FakeMatch;
+  /** Opens a bot match, as `POST /api/bot-matches` does, on the defaults unless told. */
+  open(settings?: MatchSettings): FakeMatch;
   /** Opens a private game, as `POST /api/games` does. */
   openGame(settings?: MatchSettings): FakeMatch;
   /** The newest match. */
@@ -309,10 +309,11 @@ export function fakeServer(): FakeServer {
   const s: FakeServer = {
     matches,
     workers: FakeWorker.made,
-    open: () => {
+    open: (settings = DEFAULT_SETTINGS) => {
       const n = matches.size + 1;
       const id = `B-TEST${String(n).padStart(6, '0')}`;
-      const m = new FakeMatch(id, [`player-token-${n}-000000`, `bot-token-${n}-0000000000`]);
+      const tokens = [`player-token-${n}-000000`, `bot-token-${n}-0000000000`] as const;
+      const m = new FakeMatch(id, tokens, settings);
       matches.set(id, m);
       return m;
     },
@@ -348,7 +349,9 @@ export function fakeServer(): FakeServer {
     const url = input instanceof Request ? input.url : String(input);
     const post = init?.method === 'POST';
     if (post && url.endsWith('/api/bot-matches')) {
-      const { id, tokens } = s.open();
+      const body = typeof init.body === 'string' ? init.body : '{}';
+      const { settings } = JSON.parse(body) as { settings?: MatchSettings };
+      const { id, tokens } = s.open(settings);
       return answer({ matchId: id, token: tokens[0], botToken: tokens[1] });
     }
     if (post && url.endsWith('/api/games')) {

@@ -35,6 +35,17 @@ const postOnly = () =>
   Response.json({ error: 'Use POST' }, { status: 405, headers: { allow: 'POST' } });
 const noStore = { 'cache-control': 'no-store' } as const;
 
+/** A request's JSON body; undefined for none, and null for one that isn't JSON. */
+async function bodyOf(request: Request): Promise<unknown> {
+  const text = await request.text();
+  if (!text) return undefined;
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return null;
+  }
+}
+
 /** Whether this address has one left of its 60 a minute (the `UPGRADES` rate limiter). */
 async function allowed(request: Request, env: Env): Promise<boolean> {
   const address = request.headers.get('CF-Connecting-IP') ?? 'unknown';
@@ -56,19 +67,25 @@ async function socket(request: Request, env: Env, path: string): Promise<Respons
 }
 
 /**
- * `POST /api/bot-matches` (GD-STORY-015): opens a match for a player and a bot, on the defaults,
- * and answers its id and both seats' tokens. The browser takes one seat and starts the bot's
- * worker on the other. Each counts against the address's 60 a minute, as an upgrade does.
+ * `POST /api/bot-matches` (GD-STORY-015): opens a match for a player and a bot, on the settings
+ * posted (GD-TICKET-026) or the defaults, and answers its id and both seats' tokens. The browser
+ * takes one seat and starts the bot's worker on the other. Each counts against the address's 60
+ * a minute, as an upgrade does.
  */
 async function botMatch(request: Request, env: Env): Promise<Response> {
   if (request.method !== 'POST') return postOnly();
   if (!(await allowed(request, env))) return tooMany();
+  const body = await bodyOf(request);
+  const posted = body === undefined ? null : newGame.safeParse(body);
+  if (posted && !posted.success) {
+    return Response.json({ error: 'Expected the match settings' }, { status: 400 });
+  }
+  const settings = posted?.data.settings ?? DEFAULT_SETTINGS;
   const tokens = [newToken(), newToken()] as const;
   let id = newMatchId('B');
-  while (!(await env.MATCH.getByName(id).open({ tokens, settings: DEFAULT_SETTINGS })))
-    id = newMatchId('B');
-  const body: BotMatch = { matchId: id, token: tokens[0], botToken: tokens[1] };
-  return Response.json(body, { headers: noStore });
+  while (!(await env.MATCH.getByName(id).open({ tokens, settings }))) id = newMatchId('B');
+  const made: BotMatch = { matchId: id, token: tokens[0], botToken: tokens[1] };
+  return Response.json(made, { headers: noStore });
 }
 
 /**
@@ -79,10 +96,12 @@ async function botMatch(request: Request, env: Env): Promise<Response> {
 async function createGame(request: Request, env: Env): Promise<Response> {
   if (request.method !== 'POST') return postOnly();
   if (!(await allowed(request, env))) return tooMany();
-  const body = newGame.safeParse(await request.json().catch(() => null));
-  if (!body.success) return Response.json({ error: 'Expected the game settings' }, { status: 400 });
+  const posted = newGame.safeParse(await bodyOf(request));
+  if (!posted.success) {
+    return Response.json({ error: 'Expected the game settings' }, { status: 400 });
+  }
   const tokens = [newToken(), newToken()] as const;
-  const setup = { tokens, settings: body.data.settings, lobby: true };
+  const setup = { tokens, settings: posted.data.settings, lobby: true };
   let code = newGameCode();
   while (!(await env.MATCH.getByName(code).open(setup))) code = newGameCode();
   const created: CreatedGame = { code, token: tokens[0] };

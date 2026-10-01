@@ -249,7 +249,10 @@ export const lobbyToClient = z.discriminatedUnion('t', [
 export const botMatch = z.object({ matchId, token, botToken: token });
 export type BotMatch = z.infer<typeof botMatch>;
 
-/** `POST /api/games` takes the host's settings (GD-STORY-010). */
+/**
+ * A new match's settings: `POST /api/games` takes the host's (GD-STORY-010), and
+ * `POST /api/bot-matches` the player's for a bot game (GD-TICKET-026).
+ */
 export const newGame = z.strictObject({ settings: matchSettings });
 /** It answers the game's code and the host's join token. */
 export const createdGame = z.object({ code: gameCode, token });

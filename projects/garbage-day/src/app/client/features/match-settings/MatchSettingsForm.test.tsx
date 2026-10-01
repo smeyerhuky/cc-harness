@@ -29,6 +29,19 @@ describe('MatchSettingsForm', () => {
     expect(isMatchSettings(changed)).toBe(true);
   });
 
+  it('shows only the settings it is told to, as a bot game asks', () => {
+    render(
+      <MatchSettingsForm
+        value={DEFAULT_SETTINGS}
+        onChange={() => undefined}
+        only={['mode', 'rampSec']}
+      />,
+    );
+    expect(screen.getAllByRole('combobox')).toHaveLength(2);
+    expect(screen.getByRole('combobox', { name: 'Mode' })).toBeDefined();
+    expect(screen.getByRole('combobox', { name: 'Speed-up every' })).toBeDefined();
+  });
+
   it('reads back the settings for a guest, in the form’s words', () => {
     expect(settingsSummary({ ...DEFAULT_SETTINGS, mode: 'classic', pauseBudget: 0 })).toEqual([
       ['Mode', 'Classic: neither'],

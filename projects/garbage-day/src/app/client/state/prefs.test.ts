@@ -61,6 +61,7 @@ describe('usePrefs', () => {
         pad: false,
         bot: { skill: 5, speed: 5 },
         settings: DEFAULT_SETTINGS,
+        botSettings: DEFAULT_SETTINGS,
       },
       version: 1,
     });

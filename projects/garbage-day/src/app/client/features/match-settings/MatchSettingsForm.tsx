@@ -31,50 +31,66 @@ export function settingsSummary(s: MatchSettings): readonly (readonly [string, s
 const pick = <T extends string | number>(choices: readonly T[], text: string, fallback: T): T =>
   choices.find((c) => String(c) === text) ?? fallback;
 
-/** The five settings, each a native select of the PRD's choices. */
+/**
+ * The settings, each a native select of the PRD's choices: all five, or the ones `only` names
+ * (a bot game has no pauses to set until pauses exist).
+ */
 export function MatchSettingsForm({
   value,
   onChange,
+  only,
 }: {
   value: MatchSettings;
   onChange: (settings: MatchSettings) => void;
+  only?: readonly (keyof MatchSettings)[];
 }) {
   const C = SETTING_CHOICES;
+  const shown = (k: keyof MatchSettings) => !only || only.includes(k);
   return (
     <fieldset className={styles.form}>
       <legend className={styles.legend}>Match settings</legend>
-      <Select
-        label="Mode"
-        value={value.mode}
-        options={C.mode.map((m) => ({ value: m, label: MODE[m] }))}
-        onChange={(mode) => onChange({ ...value, mode })}
-      />
-      <Select
-        label="Speed-up every"
-        value={String(value.rampSec)}
-        options={C.rampSec.map((s) => ({ value: String(s), label: `${s} s of play` }))}
-        onChange={(v) => onChange({ ...value, rampSec: pick(C.rampSec, v, value.rampSec) })}
-      />
-      <Select
-        label="Pauses"
-        value={String(value.pauseBudget)}
-        options={C.pauseBudget.map((n) => ({ value: String(n), label: pauses(n) }))}
-        onChange={(v) =>
-          onChange({ ...value, pauseBudget: pick(C.pauseBudget, v, value.pauseBudget) })
-        }
-      />
-      <Select
-        label="Pause timer"
-        value={String(value.pauseSec)}
-        options={C.pauseSec.map((s) => ({ value: String(s), label: minutes(s) }))}
-        onChange={(v) => onChange({ ...value, pauseSec: pick(C.pauseSec, v, value.pauseSec) })}
-      />
-      <Select
-        label="If the waiting player leaves"
-        value={value.leaveResult}
-        options={C.leaveResult.map((l) => ({ value: l, label: LEAVE[l] }))}
-        onChange={(leaveResult) => onChange({ ...value, leaveResult })}
-      />
+      {shown('mode') && (
+        <Select
+          label="Mode"
+          value={value.mode}
+          options={C.mode.map((m) => ({ value: m, label: MODE[m] }))}
+          onChange={(mode) => onChange({ ...value, mode })}
+        />
+      )}
+      {shown('rampSec') && (
+        <Select
+          label="Speed-up every"
+          value={String(value.rampSec)}
+          options={C.rampSec.map((s) => ({ value: String(s), label: `${s} s of play` }))}
+          onChange={(v) => onChange({ ...value, rampSec: pick(C.rampSec, v, value.rampSec) })}
+        />
+      )}
+      {shown('pauseBudget') && (
+        <Select
+          label="Pauses"
+          value={String(value.pauseBudget)}
+          options={C.pauseBudget.map((n) => ({ value: String(n), label: pauses(n) }))}
+          onChange={(v) =>
+            onChange({ ...value, pauseBudget: pick(C.pauseBudget, v, value.pauseBudget) })
+          }
+        />
+      )}
+      {shown('pauseSec') && (
+        <Select
+          label="Pause timer"
+          value={String(value.pauseSec)}
+          options={C.pauseSec.map((s) => ({ value: String(s), label: minutes(s) }))}
+          onChange={(v) => onChange({ ...value, pauseSec: pick(C.pauseSec, v, value.pauseSec) })}
+        />
+      )}
+      {shown('leaveResult') && (
+        <Select
+          label="If the waiting player leaves"
+          value={value.leaveResult}
+          options={C.leaveResult.map((l) => ({ value: l, label: LEAVE[l] }))}
+          onChange={(leaveResult) => onChange({ ...value, leaveResult })}
+        />
+      )}
     </fieldset>
   );
 }

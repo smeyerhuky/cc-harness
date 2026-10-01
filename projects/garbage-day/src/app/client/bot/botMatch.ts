@@ -1,4 +1,4 @@
-import { botMatch, type BotMark, type BotMatch } from '@garbage-day/protocol';
+import { botMatch, type BotMark, type BotMatch, type MatchSettings } from '@garbage-day/protocol';
 import { socketUrl, webSocketLink } from '../net/link';
 import type { OnlineSession } from '../state/OnlineSession';
 import type { BotJob } from './bot.worker';
@@ -7,9 +7,13 @@ import type { BotJob } from './bot.worker';
 // a player and a bot, the bot's Web Worker takes one seat, and the player's session the other.
 // The page draws the match and never runs the bot.
 
-/** Asks the Worker for a bot match: its id and both seats' tokens. */
-async function createBotMatch(): Promise<BotMatch> {
-  const res = await fetch('/api/bot-matches', { method: 'POST' });
+/** Asks the Worker for a bot match on `settings`: its id and both seats' tokens. */
+async function createBotMatch(settings: MatchSettings): Promise<BotMatch> {
+  const res = await fetch('/api/bot-matches', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ settings }),
+  });
   if (!res.ok) throw new Error(`No bot match: ${res.status}`);
   return botMatch.parse(await res.json());
 }
@@ -31,14 +35,14 @@ function startBot(job: BotJob): () => void {
 const matches = new WeakMap<OnlineSession, Promise<BotMatch>>();
 
 /**
- * Plays a bot match on `session`: makes the match, starts the bot on its seat and the session on
- * the other. Returns what ends it: the player leaves, so the referee ends the match, and the
+ * Plays a bot match on `session`, on the player's settings for bot games (GD-TICKET-026): makes
+ * the match, starts the bot on its seat and the session on the other. Returns what ends it: the player leaves, so the referee ends the match, and the
  * bot's worker goes. Without a match, the session reads as having lost its connection.
  */
-export function playBot(session: OnlineSession, bot: BotMark): () => void {
+export function playBot(session: OnlineSession, bot: BotMark, settings: MatchSettings): () => void {
   let gone = false;
   let stopBot: (() => void) | null = null;
-  const made = matches.get(session) ?? createBotMatch();
+  const made = matches.get(session) ?? createBotMatch(settings);
   matches.set(session, made);
   made.then(
     (m) => {

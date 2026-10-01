@@ -53,7 +53,7 @@ is deleted when the session ends.
 | **Engine** (`@garbage-day/engine`) | client, Match DO, bot worker, tests | Pure, deterministic TypeScript: RNG streams, 7-bag, pieces and wall kicks, the per-player board simulation, attacks and cancelling, garbage landing, speed curve, power-ups, the **referee** (match, presence and pause rules), the bot, and replay |
 | **Protocol** (`@garbage-day/protocol`) | client, Worker, DOs | Message types, their runtime schemas (validated on every message the server receives), the protocol version |
 | **Client** (the `app` package, `client/`) | browser | The React app: screens, input, rendering, the network client with reconnect and outbox, clock sync, the bot worker. See [client architecture](client-architecture.md) |
-| **Worker** (the `app` package, `worker/`) | Cloudflare edge | Serves the built SPA as static assets with an SPA fallback; `GET /api/health` answers from both DOs (since `GD-TICKET-011`); `POST /api/games` creates a private game and `POST /api/games/:code/join` hands out its guest seat ([private games](#private-games)); `POST /api/bot-matches` opens a match for a player and a bot (`GD-STORY-015`); upgrades `/ws/lobby` and `/ws/match/:id` to the right DO; limits socket upgrades, new matches and joins by address ([limits](#limits)) |
+| **Worker** (the `app` package, `worker/`) | Cloudflare edge | Serves the built SPA as static assets with an SPA fallback; `GET /api/health` answers from both DOs (since `GD-TICKET-011`); `POST /api/games` creates a private game and `POST /api/games/:code/join` hands out its guest seat ([private games](#private-games)); `POST /api/bot-matches` opens a match for a player and a bot, on the player's settings (`GD-STORY-015`, `GD-TICKET-026`); upgrades `/ws/lobby` and `/ws/match/:id` to the right DO; limits socket upgrades, new matches and joins by address ([limits](#limits)) |
 | **Lobby DO** | Cloudflare | The quick-match queue, first come first served; pairs two players, creates a match id and two join tokens, tells both; publishes the waiting count |
 | **Match DO** | Cloudflare | Hosts one match, private or quick: the lobby phase for private games, then the referee; WebSocket Hibernation for sockets, alarms for every timer, SQLite storage for the snapshot |
 
@@ -294,8 +294,10 @@ A private game is a Match DO with a lobby in front of its referee
 A bot is a **second client**, not special server code ([`GD-STORY-015`](../process/backlog/GD-STORY-015.md)):
 
 - **The match.** For "Play a bot", and for "Play a bot while you wait", the match screen asks
-  the Worker for a bot match (`POST /api/bot-matches`). The Worker opens a Match DO, on the
-  defaults, with two join tokens, and answers both.
+  the Worker for a bot match (`POST /api/bot-matches`), with the settings the player keeps for
+  bot games: Mode and Speed-up every ([`GD-TICKET-026`](../process/backlog/GD-TICKET-026.md)).
+  The Worker opens a Match DO on them, with two join tokens, and answers both. `start` carries
+  the settings to both clients.
 - **The seats.** The page takes one seat with its `OnlineSession`. It starts a Web Worker
   (`client/bot/bot.worker.ts`) and posts it the other seat's socket URL and token, and the bot's
   skill and speed. The worker runs the engine's `Bot` on a `MatchClient`: the same socket,
