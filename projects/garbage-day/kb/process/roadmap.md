@@ -21,8 +21,8 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 |---|---|---|
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
 | **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | done |
-| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | active |
-| **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
+| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | done |
+| **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | active — `GD-TICKET-028` first |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
 | **M5** — Launch | Verified on real devices and networks, within budget, deployed to production | planned |
 
@@ -104,7 +104,8 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 **Exit:** a complete match against a local bot plays in the React client, on desktop and on a
 phone, by keyboard and by touch, with every screen passing the accessibility scan in both themes.
 (The goal in the table above, written out at the exit; M2 began without an exit line.) Real
-devices are M5's. → **Owner check-in** (pending).
+devices are M5's. → **Owner check-in** (held 2026-10-01: "Keep going". The four decisions
+weren't answered one by one, so each default holds).
 
 ## M3 — Play online
 

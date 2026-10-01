@@ -16,8 +16,9 @@ history lives in the [running journal](journal/index.md).
 ## Snapshot
 
 - **Active epic:** [`GD-EPIC-001`](backlog/GD-EPIC-001.md) — Garbage Day v1 (M1–M5).
-- **Milestone:** M2 — Play solo — **at its exit, waiting for the owner check-in.**
-  - **Every M2 item is done** except the owner's token rotation, [`GD-TICKET-022`](backlog/GD-TICKET-022.md), due by 2026-12-29 ([roadmap](roadmap.md)).
+- **Milestone:** M3 — Play online — **active**, starting with [`GD-TICKET-028`](backlog/GD-TICKET-028.md).
+  - **M2 closed at its owner check-in on 2026-10-01:** "Keep going". The four decisions weren't answered one by one, so each default holds ([the check-in](journal/2026-09-30-scaffold.md#next)). The defaults: bot-game settings come in M3 after private games; the design is rewritten to match the code for the three unused React APIs; M3 is built in the index's order.
+  - **Every M2 item was done** except the owner's token rotation, [`GD-TICKET-022`](backlog/GD-TICKET-022.md), due by 2026-12-29 ([roadmap](roadmap.md)).
   - **M2's exit criterion is met:** a complete match against a local bot, on desktop and on a phone, by keyboard and by touch, with every screen passing the accessibility scan in both themes.
   - **The coverage audit** ([sweep of the M2 exit](coverage-audit.md)) filed 2 gaps, [`GD-TICKET-026`](backlog/GD-TICKET-026.md) and [`027`](backlog/GD-TICKET-027.md).
   - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
@@ -35,7 +36,6 @@ history lives in the [running journal](journal/index.md).
 
   CI is green on its head. The history is in the [journal entry](journal/2026-09-30-scaffold.md).
 - **Waiting on the owner:**
-  - the M2 check-in ([its decisions](journal/2026-09-30-scaffold.md#next));
   - playing pull request #14's preview on a real phone, then merging it;
   - replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
 
@@ -44,7 +44,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-The **M2 owner check-in** ([the decisions, each with its default](journal/2026-09-30-scaffold.md#next)). On a go-ahead, M3 starts with the first item in its index order: [`GD-TICKET-028`](backlog/GD-TICKET-028.md), the socket routes and message checks. Work pushed before pull request #14 merges joins it.
+[`GD-TICKET-028`](backlog/GD-TICKET-028.md): route `/ws/lobby` and `/ws/match/<id>` to their
+Durable Objects, check every message against its schema, limit the rate, and reject impossible
+attacks. Then M3 in the [backlog index](backlog/index.md)'s order. Work pushed before pull
+request #14 merges joins it.
 
 ## Standing rules
 
