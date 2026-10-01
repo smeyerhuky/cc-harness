@@ -97,9 +97,17 @@ const attack = toServer('attack', { rows: int(1, 100), clear }).refine(
   { message: 'The attack is more than the declared clear allows' },
 );
 
+/**
+ * A bot's settings. A bot client says so in its `hello`, and the Match DO tells the other player
+ * in `start`, so a bot always reads as a bot (PRD, open question 5; GD-TICKET-016). No handle can
+ * pass for one: a handle is two words and a number.
+ */
+export const botMark = z.strictObject({ skill: int(1, 10), speed: int(1, 10) });
+export type BotMark = z.infer<typeof botMark>;
+
 /** Messages the Match DO accepts; `ping` is answered without waking it. */
 export const clientToMatch = z.discriminatedUnion('t', [
-  toServer('hello', { token, handle }),
+  toServer('hello', { token, handle, bot: botMark.exactOptional() }),
   toServer('ready', {}),
   toServer('settings', { settings: matchSettings }),
   toServer('ping', {}),
@@ -164,12 +172,14 @@ export const matchToClient = z.discriminatedUnion('t', [
     you: player,
   }),
   // `holes` seeds this player's garbage hole columns. It is not the match seed, which deals the
-  // pieces and never leaves the server (PRD US-06). `you` is this player's seat.
+  // pieces and never leaves the server (PRD US-06). `you` is this player's seat. `rivalBot` is
+  // there when the other player is a bot: its settings, as its `hello` said.
   toClient('start', {
     goAt: tick,
     settings: matchSettings.exactOptional(),
     holes: int(0, 4_294_967_295).exactOptional(),
     you: player.exactOptional(),
+    rivalBot: botMark.exactOptional(),
   }),
   toClient('bag', { pieces: z.array(dealtPiece).length(7).readonly() }),
   toClient('garbage', { rows: int(1, 200), id: int(1, 1_000_000) }),

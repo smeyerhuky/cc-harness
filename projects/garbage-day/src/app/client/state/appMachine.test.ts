@@ -271,9 +271,19 @@ describe('appMachine', () => {
     }
   });
 
+  it('renames an online rival the Match DO marks as a bot (GD-TICKET-016)', () => {
+    const quick = [{ type: 'QUICK_MATCH' }, paired('Quiet Wren 7')] as const;
+    expect(run(...quick, { type: 'RIVAL_BOT', bot: { skill: 8, speed: 3 } }).context.opponent).toBe(
+      'Bot · Pro',
+    );
+    expect(run(...quick, { type: 'RIVAL_BOT', bot: { skill: 0, speed: 3 } }).context.opponent).toBe(
+      'Quiet Wren 7',
+    );
+  });
+
   it('names bots by their skill preset (Rookie 2, Regular 5, Pro 8), whatever the speed', () => {
     expect(botName({ skill: 2, speed: 9 })).toBe('Bot · Rookie');
     expect(botName({ skill: 8, speed: 1 })).toBe('Bot · Pro');
-    expect(botName({ skill: 7, speed: 3 })).toBe('Bot · skill 7');
+    expect(botName({ skill: 7, speed: 3 })).toBe('Bot · skill 7, speed 3');
   });
 });

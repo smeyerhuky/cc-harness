@@ -80,7 +80,7 @@ reject unknown keys; messages to clients tolerate them, so the server can add op
 
 | `t` | Sent when | Carries |
 |---|---|---|
-| `hello` | socket opens (every socket, including a reconnect) | join token, handle |
+| `hello` | socket opens (every socket, including a reconnect) | join token, handle; a bot's skill and speed if it is one (`bot`) |
 | `ready` | private lobby, player presses Ready | — |
 | `settings` | private lobby, host changes a setting | match settings |
 | `pos` | ≤ 15 Hz, only when the falling piece or meter changed | piece type, rotation, x, y; meter total; hold; banked power-up; last garbage id received |
@@ -99,7 +99,7 @@ reject unknown keys; messages to clients tolerate them, so the server can add op
 | `t` | Carries |
 |---|---|
 | `lobby` | both handles (the second empty until someone joins), settings, ready flags, which seat is yours (private games) |
-| `start` | go tick; settings; this player's garbage-hole seed (`holes`), never the match seed, which deals the pieces; this player's seat (`you`) |
+| `start` | go tick; settings; this player's garbage-hole seed (`holes`), never the match seed, which deals the pieces; this player's seat (`you`); the rival's bot mark if the rival is a bot (`rivalBot`) |
 | `bag` | 7 pieces with any gems |
 | `garbage` | rows, attack id |
 | `opp` | the opponent's `pos` or `lock`, relayed; never their next pieces |

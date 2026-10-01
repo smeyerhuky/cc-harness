@@ -71,7 +71,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-STORY-012](GD-STORY-012.md) — Garbage, power-ups and showdowns over the network · done
 - [GD-STORY-013](GD-STORY-013.md) — The speed-up on the Match DO's clock · done
 - [GD-STORY-009](GD-STORY-009.md) — Quick match with a stranger · done (built before `013` and `012`, to give `011` a way in)
-- [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (from the M0 audit)
+- [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · done (from the M0 audit)
 - [GD-STORY-015](GD-STORY-015.md) — The bot as a second client in a Web Worker · open
 - [GD-STORY-010](GD-STORY-010.md) — Create a game and share a link · open
 - [GD-TICKET-026](GD-TICKET-026.md) — Let a bot game change the match settings · open (from the M2 audit)

@@ -52,6 +52,7 @@ export function MatchScreen() {
           input,
           onGo,
           onEnd,
+          onRivalBot: (bot) => app.send({ type: 'RIVAL_BOT', bot }),
         })
       : new MatchSession({
           seed: randomSeed(),

@@ -57,6 +57,8 @@ export type AppEvent =
       readonly token: string;
     }
   | { readonly type: 'WAITING'; readonly count: number }
+  /** The Match DO says the online rival is a bot (GD-TICKET-016). */
+  | { readonly type: 'RIVAL_BOT'; readonly bot: BotChoice }
   | { readonly type: 'CREATE_GAME' }
   | { readonly type: 'JOIN'; readonly code: string }
   | { readonly type: 'LOBBY_ERROR'; readonly error: LobbyError }
@@ -79,12 +81,16 @@ const inRange = (n: number) => Number.isInteger(n) && n >= 1 && n <= 10;
 /** The bot presets set skill only; speed is chosen separately (PRD, "Match settings"). */
 export const BOT_PRESETS = { Rookie: 2, Regular: 5, Pro: 8 } as const;
 
-/** The bot's name as players see it (UI language, "Voice and copy"): its preset, or its skill. */
+/**
+ * The bot's name as players see it (UI language, "Voice and copy"): its preset, or its skill and
+ * speed. A bot always reads as a bot (PRD, open question 5); no handle can, since a handle is two
+ * words and a number (GD-TICKET-016).
+ */
 export function botName(bot: BotChoice): string {
   const preset = (Object.keys(BOT_PRESETS) as (keyof typeof BOT_PRESETS)[]).find(
     (name) => BOT_PRESETS[name] === bot.skill,
   );
-  return `Bot · ${preset ?? `skill ${bot.skill}`}`;
+  return `Bot · ${preset ?? `skill ${bot.skill}, speed ${bot.speed}`}`;
 }
 
 const INITIAL: AppContext = {
@@ -166,6 +172,14 @@ export const appMachine = setup({
   on: {
     WAITING: { actions: 'waiting' },
     MATCHED: { guard: 'queued', target: '.countdown', actions: 'startMatch' },
+    // Whatever name the rival came with, a bot reads as a bot.
+    RIVAL_BOT: {
+      guard: ({ event }) =>
+        event.type === 'RIVAL_BOT' && inRange(event.bot.skill) && inRange(event.bot.speed),
+      actions: assign(({ event }) =>
+        event.type === 'RIVAL_BOT' ? { opponent: botName(event.bot) } : {},
+      ),
+    },
   },
   states: {
     home: {

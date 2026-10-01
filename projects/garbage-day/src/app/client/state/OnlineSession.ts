@@ -10,7 +10,12 @@ import {
   type ServerMessage,
   type ShowdownMessage,
 } from '@garbage-day/engine';
-import { encodeClientToMatch, isFinalClose, parseMatchToClient } from '@garbage-day/protocol';
+import {
+  encodeClientToMatch,
+  isFinalClose,
+  parseMatchToClient,
+  type BotMark,
+} from '@garbage-day/protocol';
 import { clearLabel, type BoardView } from '@garbage-day/ui';
 import type { InputController } from '../input/InputController';
 import type { Connect } from '../net/link';
@@ -48,6 +53,8 @@ export interface OnlineSessionOptions {
   readonly onGo?: () => void;
   /** The referee decided the match. */
   readonly onEnd?: (result: RefereeResult) => void;
+  /** The Match DO says the rival is a bot, with these settings (GD-TICKET-016). */
+  readonly onRivalBot?: (bot: BotMark) => void;
 }
 
 /** The longest absence a `rejoin` can report (the protocol's bound on `awayMs`). */
@@ -239,6 +246,7 @@ export class OnlineSession implements Session {
     const msg = r.msg;
     if (msg.type === 'pong' || msg.type === 'lobby' || msg.type === 'error') return;
     if (this.wireListeners.size) this.tap({ tick: this.match.t, dir: 'down', seat: 0, msg });
+    if (msg.type === 'start' && msg.rivalBot) this.o.onRivalBot?.(msg.rivalBot);
     this.onServer(msg);
     this.match.receive(
       msg,

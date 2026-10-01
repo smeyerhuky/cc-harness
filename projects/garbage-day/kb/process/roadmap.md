@@ -132,7 +132,7 @@ weren't answered one by one, so each default holds).
   [`GD-TICKET-030`](backlog/GD-TICKET-030.md)
 - [x] The app's tests wait long enough for a loaded CI runner —
   [`GD-TICKET-032`](backlog/GD-TICKET-032.md)
-- [ ] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
+- [x] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
 - [ ] Connection quality indicator, visible degradation above 150 ms — [`GD-TICKET-017`](backlog/GD-TICKET-017.md)
 - [ ] Match settings for a bot game — [`GD-TICKET-026`](backlog/GD-TICKET-026.md)
 - [ ] The client architecture matches the code — [`GD-TICKET-027`](backlog/GD-TICKET-027.md)

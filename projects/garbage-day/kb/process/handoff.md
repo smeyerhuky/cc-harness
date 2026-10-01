@@ -23,7 +23,10 @@ history lives in the [running journal](journal/index.md).
   - [`GD-TICKET-030`](backlog/GD-TICKET-030.md): CodeQL's alert found (the SARIF is now a run artifact) and fixed; online matches deal from a 128-bit secret seed;
   - [`GD-TICKET-013`](backlog/GD-TICKET-013.md): a dropped connection freezes the player, reconnects with backoff and rejoins without losing garbage;
   - [`GD-STORY-012`](backlog/GD-STORY-012.md): garbage, power-ups and showdowns between two clients, each seen on both screens;
-  - [`GD-STORY-013`](backlog/GD-STORY-013.md): both players' speed level and match clock follow the Match DO's clock (on the branch, not yet in production).
+  - [`GD-STORY-013`](backlog/GD-STORY-013.md): both players' speed level and match clock follow the Match DO's clock;
+  - [`GD-TICKET-016`](backlog/GD-TICKET-016.md): a bot reads as a bot on every screen, and the protocol marks a bot client.
+
+  `GD-STORY-013` and `GD-TICKET-016` are on the branch, not yet in production.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
   What a reconnect can still lose is [`GD-TICKET-031`](backlog/GD-TICKET-031.md), in M4.
@@ -47,9 +50,9 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-016`](backlog/GD-TICKET-016.md): label bots as bots everywhere, as the PRD
-promises. Then the rest of M3 in the [backlog index](backlog/index.md)'s order:
-[`GD-STORY-015`](backlog/GD-STORY-015.md) (the bot as a second client in a Web Worker) next.
+[`GD-STORY-015`](backlog/GD-STORY-015.md): the bot as a second client in a Web Worker, which
+says `bot` in its `hello` (`GD-TICKET-016`). Then the rest of M3 in the
+[backlog index](backlog/index.md)'s order.
 
 ## Standing rules
 

@@ -11,6 +11,7 @@ import {
   encodeMatchToClient,
   parseClientToMatch,
   settingsToRules,
+  type BotMark,
   type ClientToMatch,
   type MatchSettings,
   type MatchToClient,
@@ -40,6 +41,8 @@ interface MatchSetup {
 
 interface Seat {
   readonly seat: PlayerIndex;
+  /** The seat is a bot, with these settings, as its `hello` said (GD-TICKET-016). */
+  readonly bot?: BotMark;
 }
 
 const isSeat = (a: unknown): a is Seat =>
@@ -114,7 +117,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
   protected async received(ws: WebSocket, msg: ClientToMatch): Promise<void> {
     const seat: unknown = ws.deserializeAttachment();
     if (msg.type === 'hello') {
-      await this.hello(ws, msg.token);
+      await this.hello(ws, msg.token, msg.bot);
       return;
     }
     if (!isSeat(seat)) {
@@ -129,7 +132,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     this.settle(run);
   }
 
-  private async hello(ws: WebSocket, token: string): Promise<void> {
+  private async hello(ws: WebSocket, token: string, bot?: BotMark): Promise<void> {
     this.setup ??= (await this.ctx.storage.get<MatchSetup>('setup')) ?? null;
     const seat = this.setup?.tokens.indexOf(token);
     if (seat !== 0 && seat !== 1) {
@@ -147,7 +150,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
       ws.close(CLOSE.gone, 'Match gone');
       return;
     }
-    ws.serializeAttachment({ seat } satisfies Seat);
+    ws.serializeAttachment((bot ? { seat, bot } : { seat }) satisfies Seat);
     if (!this.running && this.sockets().length === 2) this.start();
   }
 
@@ -156,12 +159,12 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     ws.close(CLOSE.badToken, 'Bad token');
   }
 
-  /** The seated sockets, by seat. */
-  private sockets(): [PlayerIndex, WebSocket][] {
-    const out: [PlayerIndex, WebSocket][] = [];
+  /** The seated sockets, by seat, with the seat's bot mark if it is a bot. */
+  private sockets(): [PlayerIndex, WebSocket, BotMark | undefined][] {
+    const out: [PlayerIndex, WebSocket, BotMark | undefined][] = [];
     for (const ws of this.ctx.getWebSockets()) {
       const a: unknown = ws.deserializeAttachment();
-      if (isSeat(a) && ws.readyState === WebSocket.OPEN) out.push([a.seat, ws]);
+      if (isSeat(a) && ws.readyState === WebSocket.OPEN) out.push([a.seat, ws, a.bot]);
     }
     return out;
   }
@@ -211,11 +214,15 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     }
   }
 
-  /** Sends the referee's message to seat `to`, adding its seat and hole seed to `start`. */
+  /**
+   * Sends the referee's message to seat `to`. Its `start` also carries the seat, its hole seed,
+   * and the rival's bot mark if the rival is a bot.
+   */
   private send(to: PlayerIndex, msg: ServerMessage): void {
+    const rivalBot = this.sockets().find(([seat]) => seat !== to)?.[2];
     const out: MatchToClient =
       msg.type === 'start' && this.running
-        ? { ...msg, holes: this.running.holes[to], you: to }
+        ? { ...msg, holes: this.running.holes[to], you: to, ...(rivalBot ? { rivalBot } : {}) }
         : msg;
     for (const [seat, ws] of this.sockets()) if (seat === to) ws.send(encodeMatchToClient(out));
   }

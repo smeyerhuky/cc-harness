@@ -7,6 +7,7 @@ import { MatchRouteError, RouteError } from './RouteError';
 import { DEFAULT_BINDINGS } from './input/bindings';
 import { routes } from './routes';
 import { useDev } from './state/dev';
+import type { MatchSession } from './state/MatchSession';
 import { PREFS_KEY, usePrefs } from './state/prefs';
 
 /** The tab's title is set after the screen paints, so it may lag the screen by a moment. */
@@ -274,8 +275,52 @@ describe('bot setup', () => {
     fireEvent.change(skill, { target: { value: '9' } });
     fireEvent.change(screen.getByRole('slider', { name: 'Speed' }), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: 'Play skill 9, speed 2' }));
-    expect(await screen.findByRole('region', { name: 'Bot · skill 9' })).toBeDefined();
+    expect(await screen.findByRole('region', { name: 'Bot · skill 9, speed 2' })).toBeDefined();
     expect(usePrefs.getState().bot).toEqual({ skill: 9, speed: 2 });
+  });
+});
+
+describe('a bot always reads as a bot (GD-TICKET-016)', () => {
+  /** A lobby socket that never opens: nobody else is waiting. */
+  class QuietSocket extends EventTarget {
+    static readonly OPEN = 1;
+    readyState = 0;
+    send(): void {}
+    close(): void {}
+  }
+
+  afterEach(() => {
+    vi.useRealTimers();
+    useDev.setState({ open: false, session: null });
+  });
+
+  it('names the bot on the offer, the match screen and the result of a bot played while waiting', async () => {
+    vi.stubGlobal('WebSocket', QuietSocket);
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    usePrefs.getState().setBot({ skill: 5, speed: 7 });
+    renderAt('/');
+    fireEvent.click(await screen.findByRole('button', { name: 'Quick match' }));
+    await screen.findByRole('heading', { name: 'Looking for an opponent' });
+    act(() => {
+      vi.advanceTimersByTime(20_000);
+    });
+    const offer = await screen.findByRole('region', { name: 'Nobody yet' });
+    expect(offer.textContent).toContain('Bot · Regular can play you meanwhile.');
+    vi.useRealTimers();
+    fireEvent.click(screen.getByRole('button', { name: 'Play a bot while you wait' }));
+    expect(await screen.findByRole('region', { name: 'Bot · Regular' })).toBeDefined();
+    expect(screen.getByRole('banner').textContent).toContain('Bot · Regular');
+    // The bot leaves: the result names it too.
+    const session = useDev.getState().session as MatchSession | null;
+    if (!session) throw new Error('no match session');
+    session.match.send(1, { type: 'leave' });
+    // happy-dom draws no canvas, so nothing steps the match: two seconds of frames, by hand.
+    let now = 0;
+    act(() => {
+      for (let i = 0; i < 120; i++) session.frame((now += 1000 / 60));
+    });
+    const result = await screen.findByRole('dialog');
+    expect(result.textContent).toContain('Bot · Regular');
   });
 });
 

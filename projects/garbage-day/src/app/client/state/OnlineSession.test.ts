@@ -8,6 +8,7 @@ import {
 import {
   encodeMatchToClient,
   parseClientToMatch,
+  type BotMark,
   type ClientToMatch,
   type MatchToClient,
 } from '@garbage-day/protocol';
@@ -184,6 +185,40 @@ describe('OnlineSession', () => {
     expect(c.sessions[1].getSnapshot().result).toMatchObject({ winner: 0, by: 1 });
     expect(c.sessions[1].getSnapshot().players[1].alive).toBe(false);
     for (const s of c.sessions) expect(s.getSnapshot().phase).toBe('over');
+  });
+});
+
+describe('OnlineSession: a bot rival (GD-TICKET-016)', () => {
+  it('passes on that the rival is a bot when the Match DO says so', async () => {
+    const link: { h?: LinkHandlers } = {};
+    const connect: Connect = (h) => {
+      link.h = h;
+      queueMicrotask(() => h.open());
+      return { send: () => undefined, close: () => undefined };
+    };
+    const marks: BotMark[] = [];
+    const s = new OnlineSession({
+      connect,
+      token: TOKENS[0],
+      handle: 'Brisk Heron 42',
+      input: new InputController(),
+      onRivalBot: (bot) => marks.push(bot),
+    });
+    s.start();
+    await Promise.resolve();
+    link.h?.message(encodeMatchToClient({ type: 'start', goAt: 180, holes: 1, you: 0 }));
+    expect(marks).toEqual([]);
+    link.h?.message(
+      encodeMatchToClient({
+        type: 'start',
+        goAt: 180,
+        holes: 1,
+        you: 0,
+        rivalBot: { skill: 8, speed: 3 },
+      }),
+    );
+    expect(marks).toEqual([{ skill: 8, speed: 3 }]);
+    s.close();
   });
 });
 

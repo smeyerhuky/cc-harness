@@ -212,6 +212,26 @@ describe('the Match DO', () => {
     b.ws.close(1000);
   }, 15_000);
 
+  it('tells a player their rival is a bot when the bot says so, and only them', async () => {
+    await openMatch('GD-BOTS');
+    const person = await seat('GD-BOTS', 0);
+    const bot = await connect('/ws/match/GD-BOTS', '203.0.113.20');
+    bot.ws.send(
+      encodeClientToMatch({
+        type: 'hello',
+        token: TOKENS[1],
+        handle: 'Steady Bot 1',
+        bot: { skill: 8, speed: 3 },
+      }),
+    );
+    const [toPerson, toBot] = [await until(person, 'start'), await until(bot, 'start')];
+    expect(toPerson.msg).toMatchObject({ you: 0, rivalBot: { skill: 8, speed: 3 } });
+    expect(toBot.msg.you).toBe(1);
+    expect(toBot.msg).not.toHaveProperty('rivalBot');
+    person.ws.close(1000);
+    bot.ws.close(1000);
+  });
+
   it('opens a match once', async () => {
     expect(await openMatch('GD-ONCE')).toBe(true);
     expect(

@@ -18,6 +18,7 @@ export {
 } from './codec';
 export { ProtocolError, type ParseResult, type ProtocolErrorCode } from './errors';
 export {
+  botMark,
   errorCodes,
   handle,
   matchId,
@@ -26,6 +27,7 @@ export {
   PONG,
   PROTOCOL_VERSION,
   token,
+  type BotMark,
   type MatchSettings,
 } from './schemas';
 export { DEFAULT_SETTINGS, settingsToRules } from './settings';

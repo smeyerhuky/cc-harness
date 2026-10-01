@@ -222,7 +222,9 @@ labels.
 | Private game | Send this link to one friend. The game closes after 30 minutes if nobody joins. |
 | Full game | This game is full. Start a quick match instead? |
 
-Names are always shown as the players see them (a handle, or "Bot · Regular"); the words
+Names are always shown as the players see them: a handle, or a bot's name, its preset ("Bot ·
+Regular") or its skill and speed ("Bot · skill 7, speed 4"). A bot always reads as a bot, and no
+handle can read as one (`GD-TICKET-016`). The words
 "Durable Object" and "WebSocket" never appear outside the developer overlay. The centre column's badge
 says **Referee**, which is true both against a local bot and online, where the referee is the
 server.

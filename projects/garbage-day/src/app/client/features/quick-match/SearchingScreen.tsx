@@ -1,6 +1,7 @@
 import { Button } from '@garbage-day/ui';
 import { useNavigate } from 'react-router';
 import { AppActorContext } from '../../state/appActor';
+import { botName } from '../../state/appMachine';
 import { usePrefs } from '../../state/prefs';
 import styles from '../screen.module.css';
 
@@ -27,7 +28,7 @@ export function SearchingScreen() {
       </p>
       {offered && (
         <section aria-label="Nobody yet" className={styles.row}>
-          <p>Nobody has turned up yet.</p>
+          <p>Nobody has turned up yet. {botName(bot)} can play you meanwhile.</p>
           <Button variant="primary" onClick={() => app.send({ type: 'PLAY_BOT', bot })}>
             Play a bot while you wait
           </Button>
