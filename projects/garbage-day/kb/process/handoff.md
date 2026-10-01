@@ -34,9 +34,9 @@ history lives in the [running journal](journal/index.md).
   - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
 - **In production** (`https://garbage-day.smeyerhuky.workers.dev`): everything above. The owner
-  merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13; its production deploy was running
-  when this was written. With it, production has all of M2 and M3 so far: quick match against a
-  stranger, with reconnects and the fight on both screens.
+  merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
+  has all of M2 and M3 so far: quick match against a stranger, with reconnects and the fight on
+  both screens.
   There is no open pull request. Work goes on the designated branch, restarted from `main` after
   the merge, and a new pull request is opened only when the owner asks.
 - **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
