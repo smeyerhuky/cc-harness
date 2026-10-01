@@ -1,10 +1,15 @@
 import { VisuallyHidden } from '@garbage-day/ui';
 import { lazy, Suspense, useEffect } from 'react';
 import { Outlet, useMatches, type UIMatch } from 'react-router';
+import { AppActorContext } from './state/appActor';
 import { useDev, useDevKey } from './state/dev';
 
-// The developer overlay loads only once switched on (GD-TICKET-024).
+// The developer overlay loads only once switched on (GD-TICKET-024), and the lobby socket only
+// once the player queues for a quick match (GD-STORY-009).
 const DevOverlay = lazy(async () => ({ default: (await import('./features/dev')).DevOverlay }));
+const QuickMatchLink = lazy(async () => ({
+  default: (await import('./features/quick-match')).QuickMatchLink,
+}));
 
 // Screens are routes in one page, so a screen change is not a page load: nothing renames the tab
 // and a screen reader hears nothing (GD-STORY-008). Each route names its screen in its `handle`;
@@ -32,6 +37,7 @@ function screenTitle(matches: readonly UIMatch[]): string | null {
 export function AppShell() {
   const title = screenTitle(useMatches());
   const dev = useDev((s) => s.open);
+  const queued = AppActorContext.useSelector((s) => s.context.queued);
   useDevKey();
   useEffect(() => {
     document.title = title ? `${title} · Garbage Day` : 'Garbage Day';
@@ -45,6 +51,11 @@ export function AppShell() {
       {dev && (
         <Suspense fallback={null}>
           <DevOverlay />
+        </Suspense>
+      )}
+      {queued && (
+        <Suspense fallback={null}>
+          <QuickMatchLink />
         </Suspense>
       )}
     </>

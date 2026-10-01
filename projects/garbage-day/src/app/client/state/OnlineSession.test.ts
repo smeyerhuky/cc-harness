@@ -56,6 +56,7 @@ function court(seed = 0x0dd) {
       input: inputs[i],
     });
     s.onEffect((e) => effects[i].push(e));
+    s.start();
     return s;
   }) as [OnlineSession, OnlineSession];
   let now = 1000;

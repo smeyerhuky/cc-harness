@@ -74,6 +74,10 @@ export function ResultCard({
   onSound: (name: 'win' | 'lose') => void;
 }) {
   const app = AppActorContext.useActorRef();
+  // Against a person, a rematch needs both to agree (GD-STORY-014); until then, only Home.
+  const online = AppActorContext.useSelector(
+    (s) => s.context.mode === 'quick' || s.context.mode === 'private',
+  );
   const navigate = useNavigate();
   const result = useMatch((v) => v.result);
   const [confettiDone, setConfettiDone] = useState(false);
@@ -93,16 +97,18 @@ export function ResultCard({
         <p>{why}</p>
         <StatsTable opponent={opponent} seconds={result.activeTicks / TPS} />
         <div className={styles.actions}>
-          <Button
-            variant="primary"
-            onClick={() => {
-              app.send({ type: 'REMATCH' });
-              // A bot always accepts at once; between people this waits for both (M3).
-              app.send({ type: 'REMATCH_ACCEPTED' });
-            }}
-          >
-            Rematch
-          </Button>
+          {!online && (
+            <Button
+              variant="primary"
+              onClick={() => {
+                app.send({ type: 'REMATCH' });
+                // A bot always accepts at once; between people this waits for both (M3).
+                app.send({ type: 'REMATCH_ACCEPTED' });
+              }}
+            >
+              Rematch
+            </Button>
+          )}
           <Button
             onClick={() => {
               app.send({ type: 'HOME' });

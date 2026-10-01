@@ -51,7 +51,7 @@ const NO_TOTALS = { lines: 0, sent: 0, quads: 0, tspins: 0, powersUsed: 0, piece
 
 export class OnlineSession implements Session {
   readonly match: ClientMatch;
-  private readonly link: Link;
+  private link: Link | null = null;
   private readonly listeners = new Set<() => void>();
   private readonly effectListeners = new Set<(e: MatchEffect) => void>();
   private readonly wireListeners = new Set<(e: WireEntry) => void>();
@@ -72,14 +72,25 @@ export class OnlineSession implements Session {
     this.match.controller = o.input;
     this.view = this.computeView();
     this.viewKey = JSON.stringify(this.view);
-    this.link = o.connect({
+  }
+
+  /**
+   * Opens the socket and says hello. The screen calls it once mounted, not in a constructor a
+   * render may run twice, so only one socket ever takes the seat.
+   */
+  start(): void {
+    this.closed = false;
+    const link = this.o.connect({
       open: () =>
-        this.link.send(encodeClientToMatch({ type: 'hello', token: o.token, handle: o.handle })),
+        link.send(
+          encodeClientToMatch({ type: 'hello', token: this.o.token, handle: this.o.handle }),
+        ),
       message: (text) => this.onText(text),
       close: () => {
-        this.closed = true;
+        if (this.link === link) this.closed = true;
       },
     });
+    this.link = link;
   }
 
   readonly subscribe = (onChange: () => void): (() => void) => {
@@ -107,9 +118,16 @@ export class OnlineSession implements Session {
     return { tick: this.match.t, referee: this.closed ? 'disconnected' : this.view.phase };
   }
 
-  /** Leaves the match: closes the socket. */
+  /** Leaves the match: tells the referee, then closes the socket. */
+  leave(): void {
+    if (!this.match.result) this.send({ type: 'leave' });
+    this.close();
+  }
+
+  /** Closes the socket, as the screen goes. */
   close(): void {
-    this.link.close();
+    this.link?.close();
+    this.link = null;
   }
 
   frame(now: number): void {
@@ -171,7 +189,7 @@ export class OnlineSession implements Session {
       this.emit({ kind: 'attack', from: 0, to: 1, rows: msg.rows, doubled: this.doubled() });
     }
     if (this.wireListeners.size) this.tap({ tick: this.match.t, dir: 'up', seat: 0, msg });
-    this.link.send(encodeClientToMatch(msg));
+    this.link?.send(encodeClientToMatch(msg));
   }
 
   private onText(text: string): void {

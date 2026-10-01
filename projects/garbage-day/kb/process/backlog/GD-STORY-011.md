@@ -5,7 +5,7 @@ description: "The Match DO deals both players the same bags with gems one bag at
 resource: "../../product/prd.md"
 tags: ["backlog", "network"]
 timestamp: "2026-09-30"
-state: "active"
+state: "done"
 milestone: "M3"
 relationships:
   - type: PART_OF
@@ -68,3 +68,32 @@ Goal: a match between two browsers through the Match DO. Read the architecture's
     - 3 link tests.
 - **Still to do:** two browsers, which need a way into a match. The quick match of [`GD-STORY-009`](GD-STORY-009.md) is the first, so this story closes with it.
 
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md), in three commits: the Match DO,
+the client, and the way in through quick match ([`GD-STORY-009`](GD-STORY-009.md)). The Progress
+section above says what each part does. In short:
+
+- **The Match DO hosts the engine's referee.** It seats the two join tokens and deals both
+  players the same bags with gems, one bag at a time, from a seed made and kept in the DO. Each
+  player gets only their own garbage-hole seed and seat, in `start`. Positions and locks are
+  relayed; queues never are.
+- **The client plays its side with the engine's `ClientMatch`.** It sends positions every
+  fourth tick (15 a second), and draws the other player from what the referee relays.
+
+The device check, in Chromium on the production build (`vite preview`), two browsers through
+quick match:
+
+- **The players:** a desktop dropped six pieces while a Pixel 7 profile (dark, reduced
+  motion) watched.
+- **Desktop to phone:** the phone's rival board showed the desktop's stack cell for cell, gems
+  included, with the desktop's falling piece at the top.
+- **Phone to desktop:** the desktop's rival board showed the phone's falling piece.
+- **Hidden next:** each saw its own next five; the rival's next said "hidden".
+- **The ending:** the desktop left, and the phone's result read "You win: Gentle Plover 65 left
+  the match at 0:03", with Home and no Rematch.
+- **No page errors.**
+
+The 150 ms network case belongs to [`GD-TICKET-017`](GD-TICKET-017.md) and M5's real networks.
+Locally the relay is immediate, and the engine test holds positions to at most 15 a second.

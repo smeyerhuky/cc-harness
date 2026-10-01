@@ -111,7 +111,7 @@ weren't answered one by one, so each default holds).
 
 - [x] Worker routes, rate limits, static assets with SPA fallback (the assets are done, `GD-TICKET-011`) —
   [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
-- [ ] Lobby DO quick match, waiting count, bot offer after 20 s (US-01) —
+- [x] Lobby DO quick match, waiting count, bot offer after 20 s (US-01) —
   [`GD-STORY-009`](backlog/GD-STORY-009.md)
 - [ ] Private games: create, code and link, Copy and Share, ready lobby, full and expired states
   (US-02) — [`GD-STORY-010`](backlog/GD-STORY-010.md)

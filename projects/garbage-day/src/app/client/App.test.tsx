@@ -92,7 +92,9 @@ describe('routes', () => {
       'Server ready · preview · protocol 1',
     );
     expect(screen.getByRole('button', { name: 'Play a bot' })).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Quick match' }).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Quick match' }).hasAttribute('disabled')).toBe(
+      false,
+    );
   });
 
   it('home says so when the server cannot be reached', async () => {

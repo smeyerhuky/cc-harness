@@ -64,7 +64,8 @@ export abstract class SocketDO<T extends { readonly type: string }> extends Dura
   }
 
   override async webSocketMessage(ws: WebSocket, data: string | ArrayBuffer): Promise<void> {
-    if (this.closing.has(ws)) return;
+    // A socket this DO has closed, by its guard or by its own logic: what was in flight is ignored.
+    if (this.closing.has(ws) || ws.readyState !== WebSocket.OPEN) return;
     let guard = this.guards.get(ws);
     if (!guard) {
       guard = new MessageGuard((text) => this.parse(text), this.limits);
@@ -82,6 +83,15 @@ export abstract class SocketDO<T extends { readonly type: string }> extends Dura
       this.counts.closed++;
       this.closing.add(ws);
       ws.close(CLOSE_REFUSED, 'Too many refused messages');
+    }
+  }
+
+  /** The client closed its socket: answer, so it ends cleanly on both sides (RFC 6455). */
+  override webSocketClose(ws: WebSocket): void {
+    try {
+      ws.close(1000, 'Closed');
+    } catch {
+      // Already closed: nothing to answer.
     }
   }
 

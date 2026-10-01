@@ -1,6 +1,7 @@
 import { TPS, type RefereeResult } from '@garbage-day/engine';
 import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { InputController } from '../../input/InputController';
 import { AppActorContext } from '../../state/appActor';
@@ -29,7 +30,18 @@ function viewWith(result: RefereeResult, totals: MatchView['players'][0]['totals
   };
 }
 
-function renderCard(view: MatchView, onSound = vi.fn()) {
+/** Puts the app machine into a quick match against another person, as a pairing would. */
+function Paired() {
+  const app = AppActorContext.useActorRef();
+  useState(() => {
+    app.send({ type: 'QUICK_MATCH' });
+    app.send({ type: 'MATCHED', opponent: 'Quiet Wren 7', matchId: 'Q-1', token: 'token-x' });
+    return null;
+  });
+  return null;
+}
+
+function renderCard(view: MatchView, onSound = vi.fn(), online = false) {
   const store = { subscribe: () => () => undefined, getSnapshot: () => view };
   const stage = { current: null };
   const router = createMemoryRouter(
@@ -38,6 +50,7 @@ function renderCard(view: MatchView, onSound = vi.fn()) {
         path: '/',
         element: (
           <AppActorContext.Provider>
+            {online && <Paired />}
             <MatchSessionContext.Provider store={store}>
               <ResultCard opponent="Bot · Regular" stage={stage} onSound={onSound} />
             </MatchSessionContext.Provider>
@@ -54,6 +67,19 @@ function renderCard(view: MatchView, onSound = vi.fn()) {
 const TOTALS = { lines: 24, sent: 11, quads: 2, tspins: 1, powersUsed: 3, pieces: 108 };
 
 describe('ResultCard', () => {
+  it('offers only Home after a match against a person, until rematches need both (M3)', () => {
+    renderCard(
+      viewWith(
+        { winner: 1, reason: 'topout', by: 0, activeTicks: 30 * TPS, ticks: 31 * TPS },
+        TOTALS,
+      ),
+      vi.fn(),
+      true,
+    );
+    expect(screen.queryByRole('button', { name: 'Rematch' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Home' })).toBeDefined();
+  });
+
   it('says who won and why, with both players’ stats', async () => {
     const onSound = renderCard(
       viewWith(

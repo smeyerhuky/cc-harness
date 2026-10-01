@@ -125,10 +125,11 @@ describe('sockets', () => {
 
   it('close a lobby socket that floods, with the lobby error shape', async () => {
     const s = await open('/ws/lobby', '198.51.100.9');
-    for (let i = 0; i < 50; i++) s.ws.send('{"v":1,"t":"cancel"}');
-    expect(parseLobbyToClient(await s.next())).toMatchObject({
-      msg: { type: 'error', code: 'rate' },
-    });
+    for (let i = 0; i < 50; i++) s.ws.send('{"v":1,"t":"queue","handle":"Brisk Heron 42"}');
+    // Past the waiting counts its accepted messages earned, the refusal.
+    let msg = parseLobbyToClient(await s.next());
+    while (msg.ok && msg.msg.type === 'waiting') msg = parseLobbyToClient(await s.next());
+    expect(msg).toMatchObject({ msg: { type: 'error', code: 'rate' } });
     expect((await s.closed).code).toBe(CLOSE_REFUSED);
   });
 

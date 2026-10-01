@@ -8,6 +8,9 @@ import { defineConfig } from 'vitest/config';
 const chromium = process.env.PW_CHROMIUM;
 
 export default defineConfig({
+  // Zod comes in with the match screen's online session. Found mid-run, Vite re-bundles it and
+  // reloads the page under the tests, leaving two copies of React; bundled up front, it can't.
+  optimizeDeps: { include: ['@garbage-day/protocol > zod'] },
   test: {
     name: 'app-browser',
     include: ['client/**/*.browser.test.tsx'],

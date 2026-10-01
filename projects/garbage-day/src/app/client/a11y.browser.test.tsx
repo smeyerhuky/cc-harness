@@ -105,6 +105,14 @@ describe.each(THEMES)('accessibility, %s theme', (theme) => {
     screen.getByRole('button', { name: 'Home' }).click();
   });
 
+  it('looking for an opponent has no violations', async () => {
+    open('/');
+    (await screen.findByRole('button', { name: 'Quick match' })).click();
+    await screen.findByRole('heading', { name: 'Looking for an opponent' });
+    expect(await violations()).toEqual([]);
+    screen.getByRole('button', { name: 'Cancel' }).click();
+  });
+
   it('the developer overlay over a match, with positions shown, has no violations', async () => {
     useDev.getState().setOpen(true);
     try {

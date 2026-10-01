@@ -60,7 +60,8 @@ projects/garbage-day/src/
     │   ├── bot/           bot.worker.ts (engine + Bot as a second client)
     │   └── features/
     │       ├── home/          HomeScreen: Quick match, Create game, Play a bot, handle
-    │       ├── quick-match/   SearchingScreen, BotOfferPanel
+    │       ├── quick-match/   SearchingScreen (the count, the bot offer, Cancel), QuickMatchLink
+    │       │                  (the lobby socket while queued, loaded only then)
     │       ├── private-game/  CreateGameForm, LobbyScreen (code, Copy, Share, Ready)
     │       ├── bot/           BotSetup (presets, skill and speed sliders)
     │       ├── match/         MatchScreen, PlayerPanel, OpponentPanel, CentreColumn, MatchFeed,

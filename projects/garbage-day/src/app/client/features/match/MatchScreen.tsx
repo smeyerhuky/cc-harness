@@ -1,3 +1,4 @@
+import type { RefereeResult } from '@garbage-day/engine';
 import { Button, ScreenFrame, StageLayout, useKeyBindings, useWakeLock } from '@garbage-day/ui';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -5,7 +6,9 @@ import { keyMap } from '../../input/bindings';
 import { InputController } from '../../input/InputController';
 import { AppActorContext } from '../../state/appActor';
 import { useDev } from '../../state/dev';
+import { socketUrl, webSocketLink } from '../../net/link';
 import { MatchSession } from '../../state/MatchSession';
+import { OnlineSession } from '../../state/OnlineSession';
 import { InputContext, MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
 import { AttackLayer } from './AttackLayer';
@@ -22,8 +25,9 @@ function randomSeed(): number {
 }
 
 /**
- * A match against a local bot (GD-STORY-001): the session, the player's input, the stage, and the
- * result. One screen per match; a rematch mounts a new one with a new seed.
+ * A match (GD-STORY-001): the session, the player's input, the stage, and the result. Against a
+ * bot the session runs the match here; against a person found by quick match it plays through
+ * the Match DO (GD-STORY-011). One screen per match; a rematch mounts a new one with a new seed.
  */
 export function MatchScreen() {
   const app = AppActorContext.useActorRef();
@@ -31,17 +35,38 @@ export function MatchScreen() {
   const bot = AppActorContext.useSelector((s) => s.context.bot);
   const opponent = AppActorContext.useSelector((s) => s.context.opponent) ?? 'Rival';
   const state = AppActorContext.useSelector((s) => s.value);
+  const mode = AppActorContext.useSelector((s) => s.context.mode);
+  const matchId = AppActorContext.useSelector((s) => s.context.matchId);
+  const token = AppActorContext.useSelector((s) => s.context.token);
+  const handle = usePrefs((s) => s.handle);
   const [input] = useState(() => new InputController());
-  const [session] = useState(
-    () =>
-      new MatchSession({
-        seed: randomSeed(),
-        bot: bot ?? { skill: 5, speed: 5 },
-        input,
-        onGo: () => app.send({ type: 'GO' }),
-        onEnd: (r) => app.send({ type: 'ENDED', result: { winner: r.winner, reason: r.reason } }),
-      }),
-  );
+  const [session] = useState(() => {
+    const onGo = () => app.send({ type: 'GO' });
+    const onEnd = (r: RefereeResult) =>
+      app.send({ type: 'ENDED', result: { winner: r.winner, reason: r.reason } });
+    return mode === 'quick' && matchId && token
+      ? new OnlineSession({
+          connect: webSocketLink(socketUrl(`/ws/match/${matchId}`, globalThis.location)),
+          token,
+          handle,
+          input,
+          onGo,
+          onEnd,
+        })
+      : new MatchSession({
+          seed: randomSeed(),
+          bot: bot ?? { skill: 5, speed: 5 },
+          input,
+          onGo,
+          onEnd,
+        });
+  });
+  // An online session connects once the screen is mounted, and lets go when it goes.
+  useEffect(() => {
+    if (!(session instanceof OnlineSession)) return;
+    session.start();
+    return () => session.close();
+  }, [session]);
   const over = state === 'result' || state === 'rematch';
   // The developer overlay, if it opens, reads this match (GD-TICKET-024).
   useEffect(() => useDev.getState().attach(session), [session]);
@@ -57,6 +82,7 @@ export function MatchScreen() {
   useWakeLock(!over);
 
   const leave = () => {
+    if (session instanceof OnlineSession) session.leave();
     if (!over) app.send({ type: 'ENDED', result: { winner: 1, reason: 'left' } });
     app.send({ type: 'HOME' });
     void navigate('/');

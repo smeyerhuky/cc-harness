@@ -1,7 +1,6 @@
-import { Button } from '@garbage-day/ui';
-import { Navigate, useNavigate } from 'react-router';
+import { Navigate } from 'react-router';
 import { AppActorContext } from '../../state/appActor';
-import styles from '../screen.module.css';
+import { SearchingScreen } from '../quick-match';
 import { MatchScreen } from './MatchScreen';
 
 const IN_MATCH = new Set(['countdown', 'playing', 'paused', 'result', 'rematch']);
@@ -14,23 +13,8 @@ const IN_MATCH = new Set(['countdown', 'playing', 'paused', 'result', 'rematch']
 export function MatchRoute() {
   const state = AppActorContext.useSelector((s) => s.value);
   const match = AppActorContext.useSelector((s) => s.context.match);
-  const app = AppActorContext.useActorRef();
-  const navigate = useNavigate();
-  if (state === 'home') return <Navigate to="/" replace />;
   if (IN_MATCH.has(state)) return <MatchScreen key={match} />;
-  // Searching, the bot offer and the private lobby arrive with online play (M3).
-  return (
-    <main className={styles.page}>
-      <h1 className={styles.title}>Finding a match</h1>
-      <p role="status">{state}</p>
-      <Button
-        onClick={() => {
-          app.send({ type: 'CANCEL' });
-          void navigate('/');
-        }}
-      >
-        Cancel
-      </Button>
-    </main>
-  );
+  if (state === 'searching' || state === 'botOffer') return <SearchingScreen />;
+  // The private lobby arrives with GD-STORY-010.
+  return <Navigate to="/" replace />;
 }

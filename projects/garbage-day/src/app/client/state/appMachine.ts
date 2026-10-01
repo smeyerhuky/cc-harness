@@ -33,6 +33,15 @@ export interface AppContext {
   /** Counts matches in this session, so a rematch is a new match with a new seed. */
   readonly match: number;
   readonly error: LobbyError | null;
+  /** In the quick-match pool: from Quick match until paired or gone home, a bot game included. */
+  readonly queued: boolean;
+  /** Players waiting in the pool, this one included. */
+  readonly waiting: number;
+  /** The bot offer has been made: once a search (PRD US-01). */
+  readonly offered: boolean;
+  /** The online match the lobby paired this player into, and this player's token for it. */
+  readonly matchId: string | null;
+  readonly token: string | null;
 }
 
 export type AppEvent =
@@ -41,7 +50,13 @@ export type AppEvent =
   | { readonly type: 'BOT_OFFER' }
   | { readonly type: 'KEEP_WAITING' }
   | { readonly type: 'PLAY_BOT'; readonly bot: BotChoice }
-  | { readonly type: 'MATCHED'; readonly opponent: string }
+  | {
+      readonly type: 'MATCHED';
+      readonly opponent: string;
+      readonly matchId: string;
+      readonly token: string;
+    }
+  | { readonly type: 'WAITING'; readonly count: number }
   | { readonly type: 'CREATE_GAME' }
   | { readonly type: 'JOIN'; readonly code: string }
   | { readonly type: 'LOBBY_ERROR'; readonly error: LobbyError }
@@ -81,6 +96,11 @@ const INITIAL: AppContext = {
   countdownFor: 'start',
   match: 0,
   error: null,
+  queued: false,
+  waiting: 0,
+  offered: false,
+  matchId: null,
+  token: null,
 };
 
 export const appMachine = setup({
@@ -90,6 +110,8 @@ export const appMachine = setup({
       event.type === 'PLAY_BOT' && inRange(event.bot.skill) && inRange(event.bot.speed),
     validCode: ({ event }) => event.type === 'JOIN' && GAME_CODE.test(event.code),
     hasResult: ({ context }) => context.result !== null && context.mode !== null,
+    queued: ({ context }) => context.queued,
+    notOffered: ({ context }) => !context.offered,
   },
   actions: {
     reset: assign(({ context }) => ({ ...INITIAL, match: context.match })),
@@ -113,9 +135,18 @@ export const appMachine = setup({
             result: null,
             countdownFor: 'start' as const,
             match: context.match + 1,
+            ...(event.type === 'MATCHED'
+              ? {
+                  mode: 'quick' as const,
+                  matchId: event.matchId,
+                  token: event.token,
+                  queued: false,
+                }
+              : {}),
           }
         : {},
     ),
+    waiting: assign(({ event }) => (event.type === 'WAITING' ? { waiting: event.count } : {})),
     rematch: assign(({ context }) => ({
       result: null,
       countdownFor: 'start' as const,
@@ -131,10 +162,18 @@ export const appMachine = setup({
   id: 'app',
   initial: 'home',
   context: INITIAL,
+  // The pool's count, and a pairing that ends a bot game played while waiting (PRD US-01).
+  on: {
+    WAITING: { actions: 'waiting' },
+    MATCHED: { guard: 'queued', target: '.countdown', actions: 'startMatch' },
+  },
   states: {
     home: {
       on: {
-        QUICK_MATCH: { target: 'searching', actions: assign({ mode: 'quick', error: null }) },
+        QUICK_MATCH: {
+          target: 'searching',
+          actions: assign({ mode: 'quick', error: null, queued: true, offered: false, waiting: 0 }),
+        },
         PLAY_BOT: { guard: 'validBot', target: 'countdown', actions: 'startBot' },
         CREATE_GAME: { target: 'lobby', actions: assign({ mode: 'private', error: null }) },
         JOIN: {
@@ -149,18 +188,20 @@ export const appMachine = setup({
       },
     },
     searching: {
+      // Nobody after 20 s: offer a bot to play while waiting, once a search (PRD US-01).
+      after: { 20_000: { guard: 'notOffered', target: 'botOffer' } },
       on: {
         CANCEL: { target: 'home', actions: 'reset' },
         BOT_OFFER: 'botOffer',
-        MATCHED: { target: 'countdown', actions: 'startMatch' },
       },
     },
     botOffer: {
+      entry: assign({ offered: true }),
       on: {
+        // Either choice keeps the player in the pool (PRD US-01).
         PLAY_BOT: { guard: 'validBot', target: 'countdown', actions: 'startBot' },
         KEEP_WAITING: 'searching',
         CANCEL: { target: 'home', actions: 'reset' },
-        MATCHED: { target: 'countdown', actions: 'startMatch' },
       },
     },
     lobby: {
