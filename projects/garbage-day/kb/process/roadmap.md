@@ -97,7 +97,7 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
   [`GD-TICKET-021`](backlog/GD-TICKET-021.md)
 - [ ] The Cloudflare API token replaced before it expires on 2026-12-29 —
   [`GD-TICKET-022`](backlog/GD-TICKET-022.md)
-- [ ] Shadows, scrims and tints taken from tokens, as the definition of done asks —
+- [x] Shadows, scrims and tints taken from tokens, as the definition of done asks —
   [`GD-TICKET-025`](backlog/GD-TICKET-025.md)
 
 ## M3 — Play online

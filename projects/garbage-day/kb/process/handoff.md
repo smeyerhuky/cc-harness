@@ -29,7 +29,9 @@ history lives in the [running journal](journal/index.md).
   and [`GD-STORY-006`](backlog/GD-STORY-006.md), then [`GD-STORY-008`](backlog/GD-STORY-008.md)
   and [`GD-TICKET-024`](backlog/GD-TICKET-024.md) (all done: the fight, touch play, the layouts,
   bot setup, accessibility and the developer overlay, in pull request #14). Building `024` found
-  literal colours in the CSS: [`GD-TICKET-025`](backlog/GD-TICKET-025.md), open. M1 closed at its owner
+  literal colours in the CSS, now tokens: [`GD-TICKET-025`](backlog/GD-TICKET-025.md), done.
+  Every M2 work item is done except the owner's token rotation, `GD-TICKET-022` (by
+  2026-12-29). M1 closed at its owner
   check-in on 2026-09-30: "let's go", every default approved
   ([the check-in](journal/2026-09-30-scaffold.md#next)). The shell is live in production at
   `https://garbage-day.smeyerhuky.workers.dev`. M1's coverage audit filed 2 gaps
@@ -78,10 +80,9 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-025`](backlog/GD-TICKET-025.md): give the shadows, scrims and tints tokens, so no
-literal colour is left in the CSS. Then M2's exit: the milestone tier of the
-[definition of done](definition-of-done.md), including the coverage audit, ending with the owner
-check-in. Pull request #14 waits for the owner; work pushed before it merges joins it.
+M2's exit: the milestone tier of the [definition of done](definition-of-done.md), including the
+coverage audit, ending with the owner check-in. Pull request #14 waits for the owner; work pushed
+before it merges joins it.
 
 ## Standing rules for M1
 

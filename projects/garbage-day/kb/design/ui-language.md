@@ -53,10 +53,25 @@ property defined on `:root` for light, redefined for dark under
 | `--rival` (bin blue) | `#22629C` | `#5DA5E3` | the opponent |
 | `--hazard` · `--hazard-ink` | `#F2B90F` · `#1B1F22` | `#F2C12E` · `#111416` | garbage meter, stripe bands |
 | `--ok` · `--warn` · `--bad` | `#2A8453` · `#9A7208` · `#C23A2B` | `#4CC27F` · `#E3B23C` · `#F0604F` | presence and results |
+| `--bad-ink` | `#FFFFFF` | `#1A0D07` | text on `--bad` (the sudden-death banner; on the stage it takes the dark value) |
 | `--well` · `--well-grid` · `--cabinet` | `#14181B` · `#1F2529` · `#262C31` | `#0A0D0F` · `#171C20` · `#0E1113` | board and stage |
 | `--well-ink` | `#E9ECE7` | same | text on the stage and over boards (from the demo) |
 | `--garbage` · `--garbage-stripe` | `#6F777D` · `#5A6167` | `#646C72` · `#50575C` | landed garbage |
 | `--pw-shield` · `-bomb` · `-fog` · `-rush` | `#4FD1E8` · `#F0604F` · `#B3B6D6` · `#F29A2E` | same | gems and power-ups |
+
+**Effects: translucent, the same in both themes.** Shadows, scrims and tints darken or lift
+whatever is behind them, so one value serves both themes. They carry no text or mark of their
+own, so they have no contrast pairs. Text that sits on a tint is checked blended: the slots'
+captions keep 4.6:1 on the tinted cabinet. CSS uses these tokens and never a literal colour
+(`GD-TICKET-025`).
+
+| Token | Value | Use |
+|---|---|---|
+| `--shadow` | `rgb(0 0 0 / 0.3)` | lifts a toast, popover or dialog off the page |
+| `--shadow-deep` | `rgb(0 0 0 / 0.5)` | lifts text and cards off the stage: the countdown, popups, banners, the result card |
+| `--scrim` | `rgb(10 13 15 / 0.6)` | dims what lies behind a dialog, or a board behind its cover |
+| `--tint` · `--tint-strong` · `--tint-line` | white at 0.05 · 0.12 · 0.2 | a slot or the meter's track · the HUD's active part · an empty slot's dashed edge, all on the stage |
+| `--touch-mark` | `--well-ink` at 0.55 | touch feedback marks over the board |
 
 **Pieces: changed from the proof of concept.** The demo used the guideline colour for each shape
 (I cyan, O yellow, T purple, S green, Z red, J blue, L orange), which is part of the trade dress
@@ -83,7 +98,7 @@ token pair the UI relies on, in both themes: 4.5:1 for text, 3:1 for marks and f
 light mode, so what sits on it (names, chips, the meter's count, the banner) would lose contrast
 in light-theme colours: light `--bad` on the light cabinet is 2.65:1, where 3:1 is needed. The stage element carries
 `data-stage`, and inside it `--ink`, `--muted`, `--accent`, `--rival`, `--hazard`, `--ok`,
-`--warn`, `--bad` and the surfaces take their dark values. The cabinet and the well keep their
+`--warn`, `--bad`, the inks that sit on them and the surfaces take their dark values. The cabinet and the well keep their
 own theme's shade. (Found building the commons, `GD-TICKET-023`.)
 
 ## Type

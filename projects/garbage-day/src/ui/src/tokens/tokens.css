@@ -15,6 +15,7 @@
   --ok: #2a8453;
   --warn: #9a7208;
   --bad: #c23a2b;
+  --bad-ink: #ffffff;
   --well: #14181b;
   --well-grid: #1f2529;
   --well-ink: #e9ece7;
@@ -32,6 +33,13 @@
   --piece-z: #7c95ac;
   --piece-j: #8fa33b;
   --piece-l: #9a6cc0;
+  --shadow: rgb(0 0 0 / 0.3);
+  --shadow-deep: rgb(0 0 0 / 0.5);
+  --scrim: rgb(10 13 15 / 0.6);
+  --tint: rgb(255 255 255 / 0.05);
+  --tint-strong: rgb(255 255 255 / 0.12);
+  --tint-line: rgb(255 255 255 / 0.2);
+  --touch-mark: rgb(233 236 231 / 0.55);
   --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
   --font-body: 'Public Sans', system-ui, sans-serif;
   --font-data: 'IBM Plex Mono', ui-monospace, monospace;
@@ -59,6 +67,7 @@
     --ok: #4cc27f;
     --warn: #e3b23c;
     --bad: #f0604f;
+    --bad-ink: #1a0d07;
     --well: #0a0d0f;
     --well-grid: #171c20;
     --cabinet: #0e1113;
@@ -83,6 +92,7 @@
   --ok: #4cc27f;
   --warn: #e3b23c;
   --bad: #f0604f;
+  --bad-ink: #1a0d07;
   --well: #0a0d0f;
   --well-grid: #171c20;
   --cabinet: #0e1113;
@@ -106,6 +116,7 @@
   --ok: #4cc27f;
   --warn: #e3b23c;
   --bad: #f0604f;
+  --bad-ink: #1a0d07;
   color: var(--well-ink);
 }
 

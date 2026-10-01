@@ -26,6 +26,7 @@ export const COLORS = {
   ok: { light: '#2A8453', dark: '#4CC27F' },
   warn: { light: '#9A7208', dark: '#E3B23C' },
   bad: { light: '#C23A2B', dark: '#F0604F' },
+  'bad-ink': { light: '#FFFFFF', dark: '#1A0D07' },
   well: { light: '#14181B', dark: '#0A0D0F' },
   'well-grid': { light: '#1F2529', dark: '#171C20' },
   'well-ink': same('#E9ECE7'),
@@ -47,6 +48,28 @@ export const COLORS = {
 export type ColorToken = keyof typeof COLORS;
 
 /**
+ * Translucent effects: shadows, scrims and tints. Each darkens or lifts whatever is behind it, so
+ * it is the same in both themes. None carries text or a mark the player must read, so none has a
+ * contrast pair; the colours under them do (GD-TICKET-025).
+ */
+export const EFFECTS = {
+  /** Lifts a toast, popover or dialog off the page. */
+  shadow: 'rgb(0 0 0 / 0.3)',
+  /** Lifts text and cards off the stage: the countdown, popups, banners, the result card. */
+  'shadow-deep': 'rgb(0 0 0 / 0.5)',
+  /** Dims what lies behind a dialog, or a board behind its cover. */
+  scrim: 'rgb(10 13 15 / 0.6)',
+  /** A faint lift on the stage: a slot, the meter's track. Captions sit on it, so it stays faint. */
+  tint: 'rgb(255 255 255 / 0.05)',
+  /** A stronger lift on the stage: the HUD's active part. */
+  'tint-strong': 'rgb(255 255 255 / 0.12)',
+  /** A faint edge on the stage: an empty slot's dashed border. */
+  'tint-line': 'rgb(255 255 255 / 0.2)',
+  /** Touch feedback marks over the board: the well's ink, half seen. */
+  'touch-mark': 'rgb(233 236 231 / 0.55)',
+} as const;
+
+/**
  * The stage is a dark cabinet in both themes, so what sits on it (names, chips, the meter's
  * count, the banner) uses the dark theme's content colours even in light mode. Elements inside
  * a `[data-stage]` element get these; the cabinet and the well keep their own theme's shade.
@@ -65,6 +88,7 @@ const STAGE_CONTENT: readonly ColorToken[] = [
   'ok',
   'warn',
   'bad',
+  'bad-ink',
 ];
 
 /** The collection-streams palette: no piece keeps its guideline hue (UI language, "Pieces"). */
@@ -184,6 +208,7 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   text('accent', 'bg', 'page', "the local player's name and handle"),
   text('accent', 'surface', 'page', "the local player's name on cards"),
   text('hazard-ink', 'hazard', 'page', 'stripe bands and the showdown banner'),
+  text('bad-ink', 'bad', 'page', 'the sudden-death banner'),
   mark('accent', 'bg', 'page', 'the local player, focus rings'),
   mark('rival', 'bg', 'page', 'the opponent'),
   mark('ok', 'surface', 'page', 'results and presence'),
@@ -193,6 +218,7 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   text('well-ink', 'well', 'stage', 'text over a board'),
   text('muted', 'cabinet', 'stage', 'stage captions'),
   text('hazard-ink', 'hazard', 'stage', 'the showdown banner'),
+  text('bad-ink', 'bad', 'stage', 'the sudden-death banner'),
   mark('accent', 'cabinet', 'stage', 'the local player on the stage'),
   mark('rival', 'cabinet', 'stage', 'the opponent on the stage'),
   mark('ok', 'cabinet', 'stage', 'presence: online'),
@@ -229,11 +255,15 @@ export function tokensCss(): string {
   const scale = Object.entries(TYPE_SCALE)
     .map(([k, v]) => `  --fs-${k}: ${v};`)
     .join('\n');
+  const effects = Object.entries(EFFECTS)
+    .map(([k, v]) => `  --${k}: ${v};`)
+    .join('\n');
   const dark = `${decls('dark', changedInDark)}\n  color-scheme: dark;`;
   return `/* GENERATED from tokens.ts by \`pnpm --filter @garbage-day/ui tokens:update\`: do not edit.
    Garbage Day design tokens (kb/design/ui-language.md, "Colour tokens" and "Type"). */
 :root {
 ${decls('light')}
+${effects}
   --font-display: ${FONTS.display};
   --font-body: ${FONTS.body};
   --font-data: ${FONTS.data};

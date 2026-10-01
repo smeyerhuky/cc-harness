@@ -5,7 +5,7 @@ description: "Seventeen CSS rules in the ui commons and the match screen use lit
 resource: "../journal/2026-09-30-scaffold.md"
 tags: ["backlog", "UI"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -55,3 +55,36 @@ a scrim over a board, a tint on a slot), then add the fewest tokens that cover t
 dark. Regenerate `tokens.css` with `tokens:update`. Run the code gates and the browser tests, and
 compare screenshots before and after. Done when the criteria hold, the KB gates pass, this item
 is `done` with a Resolution, the backlog index and roadmap agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). The CSS under `src/ui/src`
+and `src/app/client` has no literal colour left: the search in the criteria finds nothing outside
+the generated `tokens.css`.
+
+- **What the 17 literals became:**
+  - **Seven effect tokens** (`EFFECTS` in `tokens.ts`, the same in both themes): `--shadow`, `--shadow-deep`, `--scrim`, `--tint`, `--tint-strong`, `--tint-line` and `--touch-mark` ([UI language](../../design/ui-language.md#colour-tokens)).
+  - **Similar values merged into one:**
+    - Shadows at 0.25 to 0.35 became `--shadow`.
+    - Shadows at 0.4 to 0.6 became `--shadow-deep`.
+    - The two scrims became `--scrim`.
+    - The touch streak's gradient now ends at `--touch-mark` (0.55, from 0.45).
+  - **The pause cover's hatch** uses `--well-grid` and `--well`, so it matches the board in each theme.
+- **One was a colour, not an effect.** The sudden-death banner set `#fff` on `--bad`. On the stage, `--bad` is the dark theme's coral in both themes, so the banner read 3.24:1. That passes only as large text.
+  - It now uses a new `--bad-ink`: white on the page's `--bad`, dark ink on the stage's coral, 5.88:1. It is listed with the other inks the stage darkens.
+  - Its contrast pairs are tested on the page and on the stage.
+- **What the scan caught:** at first `--tint` was 0.06, the HUD's value, up from the slots' 0.05. axe then failed the light theme's match: the rival's "hidden" caption, muted on the tinted cabinet, fell under 4.5:1. The tint is back at 0.05 (4.66:1).
+  - A new token test blends the tint over the cabinet in both themes. It requires 4.6:1 for muted and ink text on it, a margin for the browser's own blending. The test would have failed at 0.06 (4.51:1).
+- **The gallery** shows the effects next to the colours, each over the cabinet.
+
+Checks:
+
+- Seven new unit tests: the banner's pair on the page and on the stage, in both themes, and the blended-tint check.
+- The code gates pass: 577 unit tests, 4 Worker tests, and the build.
+- The browser tests pass: 10 golden replays and 21 scans in both themes.
+
+The device check, in Chromium on the production build, before and after, in both themes, with reduced motion:
+
+- **Screens shot:** the gallery, a match, its result, and a Pixel 7 match.
+- **What looked the same:** the result card, the slots, the meter, the countdown and the dialogs.
+- **What changed:** the shadows differ by a few hundredths of opacity, which can't be seen. The gallery grew by its effects row. The matches differ only by their random pieces.

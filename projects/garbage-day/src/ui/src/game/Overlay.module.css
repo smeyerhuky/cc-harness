@@ -2,7 +2,7 @@
   font: 900 var(--fs-64) / 1 var(--font-display);
   color: var(--well-ink);
   text-align: center;
-  text-shadow: 0 4px 24px rgb(0 0 0 / 0.5);
+  text-shadow: 0 4px 24px var(--shadow-deep);
 }
 .pop {
   animation: pop 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -27,7 +27,7 @@
   padding: 3px 14px;
   border-radius: 999px;
   white-space: nowrap;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 0.4);
+  box-shadow: 0 6px 20px var(--shadow-deep);
   max-width: calc(100% - 16px);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -36,7 +36,7 @@
 }
 .sudden {
   background: var(--bad);
-  color: #fff;
+  color: var(--bad-ink);
   animation: pulse 1s ease-in-out infinite;
 }
 @keyframes pulse {
@@ -48,7 +48,7 @@
   font: 900 var(--fs-28) / 1 var(--font-display);
   text-transform: uppercase;
   color: var(--well-ink);
-  text-shadow: 0 2px 12px rgb(0 0 0 / 0.6);
+  text-shadow: 0 2px 12px var(--shadow-deep);
   pointer-events: none;
   text-align: center;
 }
@@ -86,7 +86,7 @@
   position: absolute;
   inset: 0;
   z-index: 3;
-  background: repeating-linear-gradient(135deg, #1a1f23 0 14px, #15191c 14px 28px);
+  background: repeating-linear-gradient(135deg, var(--well-grid) 0 14px, var(--well) 14px 28px);
   display: grid;
   place-content: end center;
   gap: 6px;
