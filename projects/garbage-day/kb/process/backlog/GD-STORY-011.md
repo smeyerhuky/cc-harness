@@ -57,5 +57,14 @@ Goal: a match between two browsers through the Match DO. Read the architecture's
   - **Its clock:** on every message the DO catches the referee up to the wall-clock tick. It first passes on the heartbeats the auto-response answered without waking it, so silence detection works.
   - **The relay:** positions and locks go to the other player, and the queue never does.
   - **Tests:** 7 Worker tests cover dealing (the same bags for both), the seed, the relay, refusals, a replaced seat, and opening once.
-- **Still to do:** the client. A `MatchSession` source that plays one `PlayerSim` over the socket and draws the opponent from `opp`. Then two browsers, which need a way into a match: the quick match of [`GD-STORY-009`](GD-STORY-009.md) is the first.
+- **The client half is built.**
+  - **Engine:** `ClientMatch` (`src/engine/src/client-match.ts`) is one player's side. Its `PlayerSim` is stepped as `LocalMatch` steps each of its two, and sends positions every fourth tick. An `OpponentView` keeps the other player's board as of their last lock, and their piece, meter, hold and power-up as of their last position.
+    - **Its seat:** it takes its seat and hole seed from `start` (the new `you` and `holes`). Power-ups name players by seat, so a player in seat 1 must simulate as seat 1, or their own Fog falls on them.
+    - **Its clock:** it is set from `start`, not raised to it, so ticks counted while waiting don't put it ahead of the server.
+  - **App:** `OnlineSession` has `MatchSession`'s surface (the new `Session` interface the screen draws). It says `hello` with its token and parses every message with the protocol. It maps the referee's seats to the screen's sides, where 0 is always this player. `net/link.ts` is the socket, pinging every second.
+  - **Tests:**
+    - 7 engine tests: two `ClientMatch`es and a referee play a whole match to the same result on both sides, deal the same queues, keep active ticks with the referee, show each other's last lock, never hear each other's next pieces, and send at most 15 positions a second.
+    - 3 session tests over the real codec: hello and the countdown, the relayed opponent, and one ending seen from each side.
+    - 3 link tests.
+- **Still to do:** two browsers, which need a way into a match. The quick match of [`GD-STORY-009`](GD-STORY-009.md) is the first, so this story closes with it.
 

@@ -58,7 +58,7 @@ export interface PlayerTotals {
   readonly pieces: number;
 }
 
-interface PlayerView {
+export interface PlayerView {
   readonly hold: PieceType | null;
   readonly holdUsed: boolean;
   readonly next: readonly DealtPiece[];
@@ -70,7 +70,7 @@ interface PlayerView {
   readonly alive: boolean;
 }
 
-type MatchPhase = 'countdown' | 'playing' | 'paused' | 'over';
+export type MatchPhase = 'countdown' | 'playing' | 'paused' | 'over';
 
 /** A showdown being announced (`startsIn` seconds away) or under way (`startsIn` null). */
 interface ShowdownView {
@@ -113,6 +113,20 @@ export type MatchEffect =
     }
   | { readonly kind: 'topout'; readonly p: PlayerIndex };
 
+/** What the match screen needs of a match, local or online. */
+export interface Session extends Store<MatchView> {
+  /** The match's rules, as played. */
+  readonly rules: Rules;
+  readonly onEffect: (listener: (e: MatchEffect) => void) => () => void;
+  readonly onWire: (listener: (e: WireEntry) => void) => () => void;
+  /** Advances to `now`, an animation-frame time in ms; the canvases call it before drawing. */
+  frame(now: number): void;
+  /** What board `i` looks like now (0 is this player's). */
+  board(i: PlayerIndex): BoardView;
+  /** The tick and the referee's state as this side knows them, for the developer overlay. */
+  inspect(): { readonly tick: number; readonly referee: string };
+}
+
 export interface MatchView {
   readonly phase: MatchPhase;
   /** Whole seconds left in the countdown (3, 2, 1), and 0 once play runs. */
@@ -140,15 +154,15 @@ export interface MatchSessionOptions {
   readonly onEnd?: (result: RefereeResult) => void;
 }
 
-const TICK_MS = 1000 / TPS;
+export const TICK_MS = 1000 / TPS;
 /** A long gap (a hidden tab, a slow frame) catches up at most this much, never in a burst. */
-const MAX_CATCH_UP_MS = 250;
+export const MAX_CATCH_UP_MS = 250;
 /** Ticks the stack takes to rise when garbage lands, as in the proof of concept. */
-const RISE_TICKS = 9;
+export const RISE_TICKS = 9;
 /** The simulated connection between the players and the local referee, in ms each way. */
 const LOCAL_LATENCY_MS = 10;
 
-export class MatchSession implements Store<MatchView> {
+export class MatchSession implements Session {
   readonly match: LocalMatch;
   private readonly input: InputController;
   private readonly listeners = new Set<() => void>();
@@ -247,6 +261,14 @@ export class MatchSession implements Store<MatchView> {
         this.emit({ kind: 'move' });
     }
     this.refresh();
+  }
+
+  get rules(): Rules {
+    return this.match.rules;
+  }
+
+  inspect(): { readonly tick: number; readonly referee: string } {
+    return { tick: this.match.t, referee: this.match.referee.state };
   }
 
   /** What board `i` looks like now: the canvases call this every frame. */
@@ -380,7 +402,7 @@ export class MatchSession implements Store<MatchView> {
   }
 }
 
-function playerView(P: PlayerSim, t: number): PlayerView {
+export function playerView(P: PlayerSim, t: number): PlayerView {
   return {
     hold: P.hold?.t ?? null,
     holdUsed: P.holdUsed,
@@ -401,7 +423,7 @@ function playerView(P: PlayerSim, t: number): PlayerView {
   };
 }
 
-function showdownView(sd: ShowdownMessage | null, clock: number): ShowdownView | null {
+export function showdownView(sd: ShowdownMessage | null, clock: number): ShowdownView | null {
   if (!sd || sd.phase === 'end') return null;
   if (sd.phase === 'soon') {
     return { kind: sd.kind, startsIn: Math.max(0, (sd.startsAt ?? clock) - clock) };

@@ -84,7 +84,8 @@ describe('the Match DO', () => {
 
   it('never sends the match seed: each player gets only their own garbage-hole seed', async () => {
     const { startA, startB } = await started('GD-SEED');
-    expect(Object.keys(startA.msg).sort()).toEqual(['goAt', 'holes', 'type']);
+    expect(Object.keys(startA.msg).sort()).toEqual(['goAt', 'holes', 'type', 'you']);
+    expect([startA.msg.you, startB.msg.you]).toEqual([0, 1]);
     expect(startA.msg.holes).not.toBe(startB.msg.holes);
   });
 

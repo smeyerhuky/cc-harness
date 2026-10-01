@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { MatchEffect, MatchSession } from '../../state/MatchSession';
+import type { MatchEffect, Session } from '../../state/MatchSession';
 import { BoardFx, labelFor } from './BoardFx';
 
 const RULES = { powerSec: 6, rushLevels: 4, bombRows: 3 };
@@ -54,12 +54,12 @@ describe('labelFor', () => {
 function fakeSession() {
   const listeners = new Set<(e: MatchEffect) => void>();
   const session = {
-    match: { rules: RULES },
+    rules: RULES,
     onEffect: (l: (e: MatchEffect) => void) => {
       listeners.add(l);
       return () => listeners.delete(l);
     },
-  } as unknown as MatchSession;
+  } as unknown as Session;
   const play = (e: MatchEffect) =>
     act(() => {
       listeners.forEach((l) => l(e));

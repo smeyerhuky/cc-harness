@@ -13,7 +13,7 @@ import {
 import type { PlayerIndex } from '@garbage-day/engine';
 import { useRef } from 'react';
 import { keyLabel } from '../../input/bindings';
-import type { MatchSession } from '../../state/MatchSession';
+import type { Session } from '../../state/MatchSession';
 import { MatchSessionContext } from '../../state/matchContexts';
 import { usePrefs } from '../../state/prefs';
 import { BoardFx } from './BoardFx';
@@ -33,7 +33,7 @@ function Board({
   label,
   layout,
 }: {
-  session: MatchSession;
+  session: Session;
   seat: PlayerIndex;
   label: string;
   layout: StageArrangement;
@@ -96,13 +96,7 @@ function LiveStats({ seat }: { seat: PlayerIndex }) {
  * My side: hold, power-up and next pieces, my board with its ghost, and my meter; the live stats
  * under it on a big screen.
  */
-export function PlayerPanel({
-  session,
-  layout,
-}: {
-  session: MatchSession;
-  layout: StageArrangement;
-}) {
+export function PlayerPanel({ session, layout }: { session: Session; layout: StageArrangement }) {
   const hold = useMatch((v) => v.players[0].hold);
   const holdUsed = useMatch((v) => v.players[0].holdUsed);
   const power = useMatch((v) => v.players[0].power);
@@ -133,7 +127,7 @@ export function OpponentPanel({
   name,
   layout,
 }: {
-  session: MatchSession;
+  session: Session;
   name: string;
   layout: StageArrangement;
 }) {

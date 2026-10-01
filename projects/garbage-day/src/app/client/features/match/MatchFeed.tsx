@@ -1,6 +1,6 @@
 import { POWER_NAME } from '@garbage-day/ui';
 import { useRef, useState } from 'react';
-import type { MatchEffect, MatchSession } from '../../state/MatchSession';
+import type { MatchEffect, Session } from '../../state/MatchSession';
 import { mmss } from './format';
 import { useMatchEffect } from './useMatchEffect';
 import styles from './Match.module.css';
@@ -43,7 +43,7 @@ export function feedLine(e: MatchEffect, opponent: string): string | null {
  * showdowns as they happen, newest first, with the match clock. It is not announced to screen
  * readers, which already hear the player's own labels; it is there to read back.
  */
-export function MatchFeed({ session, opponent }: { session: MatchSession; opponent: string }) {
+export function MatchFeed({ session, opponent }: { session: Session; opponent: string }) {
   const [entries, setEntries] = useState<readonly Entry[]>([]);
   const nextId = useRef(0);
   useMatchEffect(session, (e) => {

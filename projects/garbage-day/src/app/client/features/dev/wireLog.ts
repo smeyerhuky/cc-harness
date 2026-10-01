@@ -1,5 +1,4 @@
-import type { MatchState } from '@garbage-day/engine';
-import type { MatchSession, WireEntry } from '../../state/MatchSession';
+import type { Session, WireEntry } from '../../state/MatchSession';
 import type { Store } from '../../state/storeContext';
 
 // The overlay's record of one match's messages (GD-TICKET-024). It listens only while the overlay
@@ -26,7 +25,7 @@ export interface WireLogView {
   /** The same without positions and heartbeats. */
   readonly events: readonly WireEntry[];
   readonly tick: number;
-  readonly referee: MatchState;
+  readonly referee: string;
 }
 
 export class WireLog implements Store<WireLogView> {
@@ -38,7 +37,7 @@ export class WireLog implements Store<WireLogView> {
   private stop: (() => void) | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private readonly session: MatchSession) {
+  constructor(private readonly session: Session) {
     this.view = this.make();
   }
 
@@ -71,19 +70,20 @@ export class WireLog implements Store<WireLogView> {
 
   private refresh(): void {
     const v = this.view;
-    const t = this.session.match;
-    if (v.total === this.total && v.tick === t.t && v.referee === t.referee.state) return;
+    const now = this.session.inspect();
+    if (v.total === this.total && v.tick === now.tick && v.referee === now.referee) return;
     this.view = this.make();
     this.listeners.forEach((l) => l());
   }
 
   private make(): WireLogView {
+    const now = this.session.inspect();
     return {
       total: this.total,
       all: this.all.slice(-WIRE_LOG_SIZE).reverse(),
       events: this.events.slice(-WIRE_LOG_SIZE).reverse(),
-      tick: this.session.match.t,
-      referee: this.session.match.referee.state,
+      tick: now.tick,
+      referee: now.referee,
     };
   }
 }

@@ -1,6 +1,6 @@
 import { HAPTICS, Sfx, useHaptics } from '@garbage-day/ui';
 import { useEffect, useState } from 'react';
-import type { MatchEffect, MatchSession } from '../../state/MatchSession';
+import type { MatchEffect, Session } from '../../state/MatchSession';
 import { usePrefs } from '../../state/prefs';
 import { useMatchEffect } from './useMatchEffect';
 
@@ -42,7 +42,7 @@ function play(sfx: Sfx, e: MatchEffect): void {
  * (US-08, US-17; a hard drop's is the touch controls').
  * Returns the synth, for the result's fanfare.
  */
-export function useMatchSound(session: MatchSession): (name: 'win' | 'lose') => void {
+export function useMatchSound(session: Session): (name: 'win' | 'lose') => void {
   const sound = usePrefs((s) => s.sound);
   const [sfx] = useState(() => new Sfx());
   const vibrate = useHaptics(true);

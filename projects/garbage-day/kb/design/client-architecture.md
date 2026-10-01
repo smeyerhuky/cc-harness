@@ -55,7 +55,8 @@ projects/garbage-day/src/
     ├── client/
     │   ├── main.tsx, App.tsx, routes.tsx, AppShell.tsx (each screen's name)
     │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), MatchSession.ts, dev.ts
-    │   ├── net/           Socket (reconnect + outbox), clockSync.ts, lobbyClient.ts
+    │   ├── net/           link.ts (a socket that pings; reconnect and outbox come with GD-TICKET-013),
+    │   │                  clockSync.ts and lobbyClient.ts (M3)
     │   ├── bot/           bot.worker.ts (engine + Bot as a second client)
     │   └── features/
     │       ├── home/          HomeScreen: Quick match, Create game, Play a bot, handle
@@ -87,7 +88,7 @@ page load ([`GD-STORY-008`](../process/backlog/GD-STORY-008.md)).
 
 | Kind of state | Home | How components read it |
 |---|---|---|
-| **The running match**: my board, opponent view, meter, speed, clock, pause and result info | `MatchSession`, a plain class that owns the engine, the socket and clock sync; it is an external store with `subscribe` and `getSnapshot` | `useMatch(selector)`, built on `useSyncExternalStore`, returning only the slice a component needs; canvases read the session directly each frame |
+| **The running match**: my board, opponent view, meter, speed, clock, pause and result info | A `Session`: `MatchSession` for a match against a local bot (the engine's `LocalMatch`), or `OnlineSession` for one through the Match DO (the engine's `ClientMatch` over a socket). Each is an external store with `subscribe` and `getSnapshot`, and the screen draws either | `MatchSessionContext.useSelector(selector)` on `useSyncExternalStore`, returning only the slice a component needs; canvases read the session directly each frame |
 | **Which screen we are on and why**: home, searching, bot offer, lobby, countdown, playing, paused, result, rematch | `appMachine`, an XState v5 actor, with child actors for quick match and the private lobby | `AppActorContext` from `createActorContext`; `useSelector` for values, `useActorRef().send` for events |
 | **Preferences**: handle, key bindings, DAS/ARR, gesture sensitivity, pad on/off, sound, motion override, bot presets, last match settings | a Zustand store with the `persist` middleware (localStorage, versioned, try/catch) | `usePrefs(selector)`; no provider needed |
 | **Server data**: a private game's info from its code, the quick-match waiting count | React Router loaders and actions for `/g/:code` and create-game; the waiting count arrives on the lobby socket into `appMachine` context | `useLoaderData`, `useFetcher`, `useSelector` |

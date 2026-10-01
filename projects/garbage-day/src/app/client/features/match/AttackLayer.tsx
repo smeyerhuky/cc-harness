@@ -1,6 +1,6 @@
 import { AttackFlight, useReducedMotion, type Point } from '@garbage-day/ui';
 import { useRef, useState, type RefObject } from 'react';
-import type { MatchSession } from '../../state/MatchSession';
+import type { Session } from '../../state/MatchSession';
 import { useMatchEffect } from './useMatchEffect';
 
 interface Flight {
@@ -33,7 +33,7 @@ export function AttackLayer({
   session,
   stage,
 }: {
-  session: MatchSession;
+  session: Session;
   stage: RefObject<HTMLElement | null>;
 }) {
   const [flights, setFlights] = useState<readonly Flight[]>([]);

@@ -162,10 +162,12 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     referee.start(0);
   }
 
-  /** Sends the referee's message to seat `to`, adding its hole seed to `start`. */
+  /** Sends the referee's message to seat `to`, adding its seat and hole seed to `start`. */
   private send(to: PlayerIndex, msg: ServerMessage): void {
     const out: MatchToClient =
-      msg.type === 'start' && this.running ? { ...msg, holes: this.running.holes[to] } : msg;
+      msg.type === 'start' && this.running
+        ? { ...msg, holes: this.running.holes[to], you: to }
+        : msg;
     for (const [seat, ws] of this.sockets()) if (seat === to) ws.send(encodeMatchToClient(out));
   }
 

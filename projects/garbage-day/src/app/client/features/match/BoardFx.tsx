@@ -1,7 +1,7 @@
 import type { PlayerIndex } from '@garbage-day/engine';
 import { POWER_NAME, Popup, useShake, type PopupTone } from '@garbage-day/ui';
 import { useRef, useState, type RefObject } from 'react';
-import type { MatchEffect, MatchSession } from '../../state/MatchSession';
+import type { MatchEffect, Session } from '../../state/MatchSession';
 import { useMatchEffect } from './useMatchEffect';
 import styles from './Match.module.css';
 
@@ -57,7 +57,7 @@ export function BoardFx({
   seat,
   board,
 }: {
-  session: MatchSession;
+  session: Session;
   seat: PlayerIndex;
   board: RefObject<HTMLElement | null>;
 }) {
@@ -71,7 +71,7 @@ export function BoardFx({
     ) {
       shake(board.current);
     }
-    const label = labelFor(e, seat, session.match.rules);
+    const label = labelFor(e, seat, session.rules);
     if (!label) return;
     const id = nextId.current++;
     setLabels((all) => [...all.slice(1 - MAX_LABELS), { id, ...label }]);

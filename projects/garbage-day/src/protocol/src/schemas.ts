@@ -164,11 +164,12 @@ export const matchToClient = z.discriminatedUnion('t', [
     you: player,
   }),
   // `holes` seeds this player's garbage hole columns. It is not the match seed, which deals the
-  // pieces and never leaves the server (PRD US-06).
+  // pieces and never leaves the server (PRD US-06). `you` is this player's seat.
   toClient('start', {
     goAt: tick,
     settings: matchSettings.exactOptional(),
     holes: int(0, 4_294_967_295).exactOptional(),
+    you: player.exactOptional(),
   }),
   toClient('bag', { pieces: z.array(dealtPiece).length(7).readonly() }),
   toClient('garbage', { rows: int(1, 200), id: int(1, 1_000_000) }),

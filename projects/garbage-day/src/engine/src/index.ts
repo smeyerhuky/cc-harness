@@ -9,6 +9,12 @@ export {
 export { Dealer } from './bag';
 export { Bot, botConfig, type BotConfig, type BotStyle } from './bot';
 export {
+  ClientMatch,
+  OpponentView,
+  type ClientMatchOptions,
+  type StartExtras,
+} from './client-match';
+export {
   EMPTY,
   GARBAGE,
   cellAt,

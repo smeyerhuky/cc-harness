@@ -3,7 +3,7 @@ import { Button, Kbd, Toggle } from '@garbage-day/ui';
 import { useState, useSyncExternalStore } from 'react';
 import { AppActorContext } from '../../state/appActor';
 import { useDev } from '../../state/dev';
-import type { MatchSession, WireEntry } from '../../state/MatchSession';
+import type { Session, WireEntry } from '../../state/MatchSession';
 import { detail, WireLog } from './wireLog';
 import styles from './Dev.module.css';
 
@@ -59,7 +59,7 @@ export function DevOverlay() {
   );
 }
 
-function MatchPanel({ session }: { session: MatchSession }) {
+function MatchPanel({ session }: { session: Session }) {
   const [log] = useState(() => new WireLog(session));
   const wire = useSyncExternalStore(log.subscribe, log.getSnapshot);
   const view = useSyncExternalStore(session.subscribe, session.getSnapshot);

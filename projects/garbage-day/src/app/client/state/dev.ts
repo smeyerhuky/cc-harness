@@ -1,7 +1,7 @@
 import { useEffect, useEffectEvent } from 'react';
 import { create } from 'zustand';
 import { keyMap } from '../input/bindings';
-import type { MatchSession } from './MatchSession';
+import type { Session } from './MatchSession';
 import { usePrefs } from './prefs';
 
 // The developer overlay's switch (GD-TICKET-024). It is off by default. `?dev` in the address or
@@ -53,11 +53,11 @@ export function initialDev(search: string, stored: string | null): boolean {
 interface DevState {
   readonly open: boolean;
   /** The match on screen, for the overlay to read. */
-  readonly session: MatchSession | null;
+  readonly session: Session | null;
   readonly setOpen: (open: boolean) => void;
   readonly toggle: () => void;
   /** A match screen shows `s`; returns the function that says it has gone. */
-  readonly attach: (s: MatchSession) => () => void;
+  readonly attach: (s: Session) => () => void;
 }
 
 export const useDev = create<DevState>()((set, get) => {
