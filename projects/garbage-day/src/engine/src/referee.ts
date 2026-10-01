@@ -10,6 +10,7 @@ import type {
   ServerMessage,
 } from './messages';
 import type { Rules } from './rules';
+import type { Seed } from './rng';
 
 /** Ticks from `start` to go, and from a return to the resume: the 3-second countdown. */
 export const COUNTDOWN_TICKS = 3 * TPS;
@@ -101,7 +102,7 @@ interface Pause {
 
 /** Everything the referee knows, as plain JSON: what the Match DO stores in SQLite. */
 export interface RefereeSnapshot {
-  readonly seed: number;
+  readonly seed: Seed;
   readonly rules: Rules;
   readonly state: MatchState;
   readonly seats: readonly [Seat, Seat];
@@ -177,7 +178,7 @@ export class Referee {
   private showdown: { kind: 'double' | 'sudden'; until: number | null } | null = null;
 
   constructor(
-    private readonly seed: number,
+    private readonly seed: Seed,
     readonly rules: Rules,
     private readonly host: RefereeHost,
   ) {
@@ -494,23 +495,44 @@ export class Referee {
   ): void {
     const P = this.seats[i];
     const o = other(i);
-    if (P.presence === 'present' || this.state === 'over') return;
-    const away = Math.max(t - P.awayAt, msg.awayMs ? Math.round((msg.awayMs / 1000) * TPS) : 0);
-    const wasGrace = P.presence === 'grace';
-    P.lastHb = t;
-    this.setPresence(i, 'present');
-    if (msg.type === 'rejoin') {
+    const rejoin = msg.type === 'rejoin';
+    if (rejoin) {
+      // A new connection is a sign of life, whether or not the old one was missed yet.
+      P.lastHb = t;
+      if (this.state === 'over') {
+        // The match ended while they were gone: they hear how.
+        if (this.result) {
+          const { winner, reason, by } = this.result;
+          this.host.send(i, { type: 'result', winner, reason, by });
+        }
+        return;
+      }
+      // Garbage sent while the connection was failing may never have arrived: resend what the
+      // player hasn't acknowledged, even if the referee hadn't noticed them gone (GD-TICKET-013).
       const resend = P.gOut.filter((e) => e.id > P.gAck);
       for (const e of resend) this.host.send(i, { type: 'garbage', rows: e.rows, id: e.id });
       this.host.emit({ type: 'rejoin', p: i, resent: resend.length });
     }
+    if (this.state === 'over') return;
+    if (P.presence === 'present') {
+      if (rejoin) this.tellRejoiner(i, t, 0);
+      return;
+    }
+    const away = Math.max(t - P.awayAt, msg.awayMs ? Math.round((msg.awayMs / 1000) * TPS) : 0);
+    const wasGrace = P.presence === 'grace';
+    P.lastHb = t;
+    this.setPresence(i, 'present');
     if (wasGrace) {
       this.broadcast({ type: 'back', by: i, away, pausesLeft: P.pausesLeft });
       this.host.emit({ type: 'back', by: i, away, resumeAt: null });
+      if (rejoin) this.tellRejoiner(i, t, away);
       return;
     }
     const pause = this.pause;
-    if (this.state !== 'paused' || !pause) return;
+    if (this.state !== 'paused' || !pause) {
+      if (rejoin) this.tellRejoiner(i, t, away);
+      return;
+    }
     if (this.abandonAt >= 0) {
       // One of two absent players is back: the session timer stops and the pause goes on,
       // now waiting for whoever is still away, with a fresh deadline if it was the returner's.
@@ -531,7 +553,10 @@ export class Referee {
       this.host.emit({ type: 'bothAwayCancelled', waitingFor: pause.by });
       return;
     }
-    if (pause.by !== i) return;
+    if (pause.by !== i) {
+      if (rejoin) this.tellRejoiner(i, t, away);
+      return;
+    }
     this.setState('resuming');
     this.resumeAt = t + COUNTDOWN_TICKS;
     this.broadcast({
@@ -546,6 +571,37 @@ export class Referee {
     this.pause = null;
     // Views were not updated while paused; bring both up to date for the countdown.
     for (const j of BOTH) this.relayLock(j);
+  }
+
+  /**
+   * A rejoining player missed whatever was broadcast while their connection was down, and their
+   * client stands frozen until told otherwise: tell them the pause if there is one, else when
+   * play resumes for them (at once, unless a countdown is running).
+   */
+  private tellRejoiner(i: PlayerIndex, t: number, away: number): void {
+    const P = this.seats[i];
+    const pause = this.pause;
+    if (this.state === 'paused' && pause) {
+      this.host.send(i, {
+        type: 'paused',
+        by: pause.by,
+        reason: pause.reason,
+        deadline: pause.deadline,
+        pausesLeft: this.seats[pause.by].pausesLeft,
+        budgeted: pause.budgeted,
+      });
+      return;
+    }
+    const at =
+      this.state === 'countdown' ? this.goAt : this.state === 'resuming' ? this.resumeAt : t;
+    this.host.send(i, {
+      type: 'resume',
+      at,
+      by: i,
+      away,
+      pausesLeft: P.pausesLeft,
+      free: true,
+    });
   }
 
   private end(

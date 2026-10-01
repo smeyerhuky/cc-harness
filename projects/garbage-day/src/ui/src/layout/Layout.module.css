@@ -89,3 +89,32 @@
   min-height: 64px;
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* An explicit arrangement wins over the window's shape. */
+.stage[data-layout='portrait'] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 27%);
+  grid-template-areas: 'left right';
+  gap: 6px;
+  padding: 6px;
+}
+.stage[data-layout='portrait'] .centre,
+.stage[data-layout='portrait'] .feed,
+.stage[data-layout='landscape'] .feed {
+  display: none;
+}
+.stage[data-layout='landscape'] {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: 'left centre right';
+  gap: 8px;
+  padding: 6px;
+}
+.stage[data-layout='desktop'] {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: 'left centre right';
+}
+@media (min-width: 1600px) {
+  .stage[data-layout='desktop'] {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) 260px;
+    grid-template-areas: 'left centre right feed';
+  }
+}

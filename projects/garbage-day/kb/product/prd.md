@@ -205,7 +205,7 @@ us leaves, so that nobody loses because of a phone call.
 **US-15 Result and rematch.** As a player, I want a clear result and a quick way to play again.
 
 - Both players see the same result and reason (topped out, forfeit, no contest, session ended),
-  and a stats table: lines, garbage sent, Tetrises, T-spins, power-ups used, pieces per second.
+  and a stats table: lines, garbage sent, Quads, T-spins, power-ups used, pieces per second.
 - **Rematch** starts a new match with a new seed when both press it within 30 s; otherwise each
   player returns to the start.
 

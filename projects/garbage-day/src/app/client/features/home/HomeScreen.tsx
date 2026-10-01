@@ -3,6 +3,7 @@ import { Suspense, use } from 'react';
 import { useLoaderData, useNavigate } from 'react-router';
 import type { ServerStatus } from '../../health';
 import { keyLabel } from '../../input/bindings';
+import { AppActorContext } from '../../state/appActor';
 import { usePrefs } from '../../state/prefs';
 import type { HomeData } from './loader';
 import styles from './Home.module.css';
@@ -20,6 +21,7 @@ function Status({ status }: { status: Promise<ServerStatus> }) {
 export function HomeScreen() {
   const { status } = useLoaderData<HomeData>();
   const navigate = useNavigate();
+  const app = AppActorContext.useActorRef();
   const handle = usePrefs((s) => s.handle);
   const newHandle = usePrefs((s) => s.newHandle);
   const dropKey = usePrefs((s) => keyLabel(s.bindings.hard[0] ?? ''));
@@ -45,7 +47,13 @@ export function HomeScreen() {
         <Button variant="primary" size="large" onClick={() => void navigate('/bot')}>
           Play a bot
         </Button>
-        <Button size="large" disabled>
+        <Button
+          size="large"
+          onClick={() => {
+            app.send({ type: 'QUICK_MATCH' });
+            void navigate('/play');
+          }}
+        >
           Quick match
         </Button>
         <Button size="large" disabled>
@@ -55,7 +63,7 @@ export function HomeScreen() {
           Settings
         </Button>
       </div>
-      <p className={styles.note}>Quick match and private games arrive with online play.</p>
+      <p className={styles.note}>Private games come next.</p>
       <Suspense
         fallback={
           <p className={styles.status} role="status">

@@ -82,6 +82,31 @@ describe('PlayerSim: spawning and the queue', () => {
   });
 });
 
+describe('PlayerSim: touch drop', () => {
+  it('moves down the rows asked for in one tick, and stops where the piece lands', () => {
+    const h = setup();
+    h.deal(...many('O'));
+    h.place({ t: 'O', r: 0, x: 4, y: 15 });
+    h.step({ drop: 3 });
+    expect(h.sim.cur?.y).toBe(12);
+    h.step({ drop: 40 });
+    expect(h.sim.cur?.y).toBe(1);
+    // Landed, not locked: the lock delay still runs, as after any soft drop.
+    expect(h.locks()).toHaveLength(0);
+  });
+
+  it('gives the lock-delay resets back on a new lowest row, as gravity does', () => {
+    const h = setup();
+    h.deal(...many('T'));
+    h.place({ t: 'T', r: 0, x: 3, y: 10 });
+    h.step({ drop: 1 });
+    h.sim.resets = 5;
+    h.step({ drop: 2 });
+    expect(h.sim.cur?.y).toBe(7);
+    expect(h.sim.resets).toBe(0);
+  });
+});
+
 describe('PlayerSim: lock delay', () => {
   it('locks a grounded piece after 0.5 s', () => {
     const h = setup();

@@ -5,6 +5,7 @@ import { experimental_readRawConfig } from 'wrangler';
 /** The part of the raw config this test reads. */
 interface Bindings {
   readonly durable_objects?: { readonly bindings: readonly unknown[] };
+  readonly ratelimits?: readonly { readonly name: string; readonly namespace_id: string }[];
   readonly vars?: Readonly<Record<string, unknown>>;
 }
 
@@ -27,6 +28,14 @@ describe('wrangler.jsonc', () => {
     expect(rawConfig.previews?.durable_objects?.bindings).toEqual(
       rawConfig.durable_objects?.bindings,
     );
+  });
+
+  it('gives previews the same rate limiters as production, counted apart', () => {
+    const names = (b?: Bindings) => b?.ratelimits?.map((r) => r.name);
+    expect(names(rawConfig)).toContain('UPGRADES');
+    expect(names(rawConfig.previews)).toEqual(names(rawConfig));
+    const ids = (b?: Bindings) => b?.ratelimits?.map((r) => r.namespace_id) ?? [];
+    for (const id of ids(rawConfig.previews)) expect(ids(rawConfig)).not.toContain(id);
   });
 
   it('gives previews a value for every var, with their own ENVIRONMENT', () => {

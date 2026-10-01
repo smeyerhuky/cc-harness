@@ -1,9 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createActor } from 'xstate';
 import { appMachine, botName, type AppEvent, type AppState, type MatchResult } from './appMachine';
 
 const REGULAR = { skill: 5, speed: 5 };
 const WIN: MatchResult = { winner: 0, reason: 'topout' };
+/** A pairing, as the lobby tells it. */
+const paired = (opponent: string): AppEvent => ({
+  type: 'MATCHED',
+  opponent,
+  matchId: 'Q-0123456789',
+  token: 'token-seat-zero-0000',
+});
 
 /** Starts the actor and sends each event in turn. */
 function run(...events: AppEvent[]) {
@@ -107,16 +114,78 @@ describe('appMachine', () => {
         { type: 'PLAY_BOT', bot: REGULAR },
       );
       expect(bot.value).toBe('countdown');
-      const paired = run({ type: 'QUICK_MATCH' }, { type: 'MATCHED', opponent: 'Brisk Heron 42' });
-      expect(paired.value).toBe('countdown');
-      expect(paired.context).toMatchObject({ mode: 'quick', opponent: 'Brisk Heron 42', match: 1 });
-      expect(
-        run({ type: 'QUICK_MATCH' }, { type: 'BOT_OFFER' }, { type: 'MATCHED', opponent: 'X' })
-          .value,
-      ).toBe('countdown');
+      const done = run({ type: 'QUICK_MATCH' }, paired('Brisk Heron 42'));
+      expect(done.value).toBe('countdown');
+      expect(done.context).toMatchObject({
+        mode: 'quick',
+        opponent: 'Brisk Heron 42',
+        match: 1,
+        matchId: 'Q-0123456789',
+        token: 'token-seat-zero-0000',
+        queued: false,
+      });
+      expect(run({ type: 'QUICK_MATCH' }, { type: 'BOT_OFFER' }, paired('X')).value).toBe(
+        'countdown',
+      );
       expect(run({ type: 'QUICK_MATCH' }, { type: 'BOT_OFFER' }, { type: 'CANCEL' }).value).toBe(
         'home',
       );
+    });
+
+    describe('the pool', () => {
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('offers a bot after 20 s of searching, once a search', () => {
+        vi.useFakeTimers();
+        const actor = createActor(appMachine).start();
+        actor.send({ type: 'QUICK_MATCH' });
+        vi.advanceTimersByTime(19_999);
+        expect(actor.getSnapshot().value).toBe('searching');
+        vi.advanceTimersByTime(1);
+        expect(actor.getSnapshot().value).toBe('botOffer');
+        actor.send({ type: 'KEEP_WAITING' });
+        vi.advanceTimersByTime(60_000);
+        expect(actor.getSnapshot().value).toBe('searching');
+      });
+
+      it('counts who is waiting', () => {
+        const s = run({ type: 'QUICK_MATCH' }, { type: 'WAITING', count: 2 });
+        expect(s.context).toMatchObject({ waiting: 2, queued: true });
+      });
+
+      it('keeps a player playing a bot in the pool, and pairs them out of the bot game', () => {
+        const playing = run(
+          { type: 'QUICK_MATCH' },
+          { type: 'BOT_OFFER' },
+          { type: 'PLAY_BOT', bot: REGULAR },
+          { type: 'GO' },
+        );
+        expect(playing.context).toMatchObject({ mode: 'bot', queued: true });
+        const s = run(
+          { type: 'QUICK_MATCH' },
+          { type: 'BOT_OFFER' },
+          { type: 'PLAY_BOT', bot: REGULAR },
+          { type: 'GO' },
+          paired('Quiet Wren 7'),
+        );
+        expect(s.value).toBe('countdown');
+        expect(s.context).toMatchObject({ mode: 'quick', opponent: 'Quiet Wren 7', match: 2 });
+      });
+
+      it('leaves the pool on going home, and a pairing then changes nothing', () => {
+        const s = run(
+          { type: 'QUICK_MATCH' },
+          { type: 'BOT_OFFER' },
+          { type: 'PLAY_BOT', bot: REGULAR },
+          { type: 'ENDED', result: WIN },
+          { type: 'HOME' },
+          paired('Too Late 1'),
+        );
+        expect(s.value).toBe('home');
+        expect(s.context.queued).toBe(false);
+      });
     });
 
     it('private game: create or join a valid code, get ready, or fail', () => {
@@ -143,7 +212,8 @@ describe('appMachine', () => {
       { type: 'BOT_OFFER' },
       { type: 'KEEP_WAITING' },
       { type: 'PLAY_BOT', bot: REGULAR },
-      { type: 'MATCHED', opponent: 'X' },
+      paired('X'),
+      { type: 'WAITING', count: 3 },
       { type: 'CREATE_GAME' },
       { type: 'JOIN', code: 'GD-AAAA' },
       { type: 'LOBBY_ERROR', error: 'expired' },

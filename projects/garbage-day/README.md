@@ -4,9 +4,12 @@ Garbage Day is a two-player, real-time falling-block versus game (a Tetris-style
 
 ## Getting started
 
-M1 (foundations) is complete: the engine, the protocol and an app shell exist, and the shell is
-live at <https://garbage-day.smeyerhuky.workers.dev>. There is no playable game in the browser
-yet; M2 adds local play against a bot. With Node 22.22 or newer, from `projects/garbage-day/`:
+M1 (foundations) and M2 (play solo) are complete, and M3 (play online) is under way. The game is live at
+<https://garbage-day.smeyerhuky.workers.dev>, where you play a bot in the browser. Online
+matches come with M3: quick match against a stranger, which survives a dropped connection, is in
+pull request #14's preview so far. Add `?dev` to the address, or press ` (the key left of 1), for the
+developer overlay: the app's state and every message between the players and the referee.
+With Node 22.22 or newer, from `projects/garbage-day/`:
 
 ```
 corepack enable            # or prefix every command with: npx pnpm@12.8.1
@@ -14,6 +17,7 @@ pnpm install
 pnpm dev                   # the app, the Worker and both Durable Objects, locally in workerd
 pnpm test                  # engine (with golden replays), protocol, ui and client tests
 pnpm test:worker           # the Worker and Durable Object tests, inside workerd
+pnpm test:browser          # golden replays in three browsers, and the accessibility scan
 pnpm lint && pnpm typecheck && pnpm test && pnpm test:worker && pnpm build   # the code gates
 ```
 

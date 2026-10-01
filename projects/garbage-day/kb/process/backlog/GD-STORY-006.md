@@ -5,7 +5,7 @@ description: "Bot setup with the Rookie, Regular and Pro presets or separate ski
 resource: "../../product/prd.md"
 tags: ["backlog", "UI", "react"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -48,3 +48,32 @@ Goal: bot setup. Read the PRD's US-03, the architecture's bot section and `src/e
 on (definition of done, project item 3). Done when the quoted criteria hold, the KB gates pass,
 this item is `done` with a Resolution recording the device check, the backlog index and roadmap
 agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md). **Play a bot** offers the three
+presets, which start at once, and **Your own**: skill and speed sliders from 1 to 10 with their
+own Play button. Whatever is played is remembered on this device and offered again: the sliders
+open at it, and its preset is highlighted.
+
+- **Presets** set skill only, as the PRD's settings table has them: Rookie 2, Regular 5, Pro 8.
+  Speed is independent, and a preset plays at the speed last chosen (5 at first). The screen says
+  so: "Rookie is skill 2, Regular 5, Pro 8, each at speed 5." The skill slider names a preset
+  value ("5 · Regular"); the bot is named the same way in the match ("Bot · Pro",
+  "Bot · skill 9").
+- **Remembered:** the preferences store gains `bot` (skill and speed, default 5 and 5), checked
+  on load like every other field.
+- **Strength:** the engine's own test
+  ([`GD-TICKET-009`](GD-TICKET-009.md)) already shows skill 10 at speed 10 beating skill 1 at
+  speed 1 in at least 9 of 10 seeded matches. The bot plays through the same local referee as
+  the player: garbage, the speed-up, power-ups and showdowns.
+
+Checks: 4 new tests (a preset starting at the remembered speed and being remembered; your own
+skill and speed starting a match; the store's default, range and reload), and the code gates
+pass (549 unit tests, 4 Worker tests, build). In Chromium, on the production build:
+
+- **Desktop, keyboard only:** skill raised to 9 and speed lowered to 2 with the arrow keys, then
+  played: "Bot · skill 9". After a reload the sliders opened at 9 and 2, and the presets note said
+  "each at speed 2".
+- **Phone, Pixel 7 profile, dark, reduced motion:** the screen fits with no sideways scroll; a
+  tap on Rookie started "Bot · Rookie".

@@ -5,6 +5,10 @@ export default defineProject({
     name: 'app',
     environment: 'happy-dom',
     include: ['client/**/*.test.{ts,tsx}', 'test/**/*.test.ts'],
+    // The accessibility scan runs in a real browser: vitest.browser.config.ts.
+    exclude: ['client/**/*.browser.test.tsx'],
     setupFiles: ['./test/setup.ts'],
+    // Whole screens, waited for several times a test (test/setup.ts).
+    testTimeout: 15_000,
   },
 });

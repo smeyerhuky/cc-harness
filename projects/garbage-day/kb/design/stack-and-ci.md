@@ -45,8 +45,9 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | Unit and component tests | Vitest | **4.1.11** (exception) | See exceptions |
 | Durable Object tests | `@cloudflare/vitest-plugin` | 1.3.2 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
 | DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 20.14.5 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
-| End-to-end | Playwright + `@axe-core/playwright` | 1.63.0 (in since `GD-TICKET-019`) · 4.13.0 (M3) | Two browsers play a real match; accessibility scan |
-| Browser tests | `@vitest/browser-playwright` | 4.1.11 (matches Vitest) | Runs the golden replays in Chromium, Firefox and WebKit |
+| End-to-end | Playwright | 1.63.0 (in since `GD-TICKET-019`) | Two browsers play a real match (M3) |
+| Browser tests | `@vitest/browser-playwright` | 4.1.11 (matches Vitest) | Runs the golden replays in Chromium, Firefox and WebKit, and the accessibility scan in Chromium |
+| Accessibility scan | `axe-core` | 4.13.0 | WCAG 2.1 A and AA rules over every screen in both themes, inside the browser tests (`GD-STORY-008`). M3's end-to-end suite can add `@axe-core/playwright` for the screens that need a real server |
 | Lint | ESLint + `typescript-eslint` + `eslint-plugin-react-hooks` | 10.11.0 · 8.71.0 · 7.1.1 | Hooks rules including the React Compiler's; type-aware rules through the project service |
 | Lint support | `@eslint/js` · `globals` | 10.0.1 · 17.12.0 | ESLint's recommended rules; browser and Node globals |
 | Node types | `@types/node` | 24.19.0 | Matches the CI runtime; only the root config and Vitest configs use it |
@@ -133,8 +134,9 @@ copy from the runner ("Cannot read properties of undefined (reading 'config')", 
 | Golden replays | seeded matches (bot vs bot, a classic-rules match, and one with every interruption, as in `spikes/proof-of-concept/live/test-live.js`) replayed twice and compared with `src/engine/test/golden/*.json` by result, tick counts, final board hashes, stats, message counts and messages per minute, and the referee's timeline. `pnpm --filter @garbage-day/engine golden:update` regenerates them, deliberately. `pnpm test:browser` runs the same test, against the same files, in Chromium, Firefox and WebKit | Vitest (`toMatchFileSnapshot`); Vitest browser mode with Playwright |
 | Protocol | every message type round-trips through its schema; invalid messages are rejected | Vitest |
 | UI and client | commons (every primitive, widget, layout and hook; the board renderer against a recording 2D context; every token contrast pair in both themes; `tokens.css` generated from `tokens.ts`), features, `appMachine`, gestures, `MatchSession` against a local referee | Vitest, happy-dom, Testing Library |
-| Worker and Durable Objects | routes and the health check (from `GD-TICKET-011`); then pairing, private lobby and codes, dealing, ledger resend, alarms (pause, grace, both away, expiry), snapshot restore after restart | `@cloudflare/vitest-plugin` (`src/app/vitest.worker.config.ts`) |
-| End to end | two browser contexts: quick match to result; private link join; a tab hidden mid-match, then back; accessibility scan of every screen | Playwright, axe |
+| Worker and Durable Objects | routes and the health check (from `GD-TICKET-011`); the socket routes, the upgrade limit by address, and each DO's message guard (valid, invalid, another version, an inflated attack, a flood), with `MessageGuard`'s own rules (from `GD-TICKET-028`); the Match DO's seats, dealing and relay (`GD-STORY-011`); the Lobby DO's pool, count and pairing (`GD-STORY-009`); then private lobby and codes, dealing, ledger resend, alarms (pause, grace, both away, expiry), snapshot restore after restart | `@cloudflare/vitest-plugin` (`src/app/vitest.worker.config.ts`) |
+| Accessibility | every screen, rendered by the app's own routes with the real token CSS, in both themes: home, Play a bot, settings, create a game, a game code, a bad code, an unknown page, a match and its result, a phone match with the button pad, and the developer overlay over a match; axe's WCAG 2.1 A and AA rules find no violations. A control test shows the scan catches a nameless button and faint text. `src/app/client/a11y.browser.test.tsx`, run by `pnpm test:browser` | Vitest browser mode with Playwright (Chromium), `axe-core` |
+| End to end | two browser contexts: quick match to result; private link join; a tab hidden mid-match, then back | Playwright |
 
 ## Dependency security
 
@@ -143,7 +145,9 @@ copy from the runner ("Cannot read properties of undefined (reading 'config')", 
 - **GitHub dependency review** runs on every pull request that touches the project and blocks
   new vulnerable or wrongly-licensed dependencies ([the pipeline](#the-pipeline)).
 - **CodeQL** (JavaScript/TypeScript, no build needed) runs weekly, on pull requests and on
-  pushes that touch `src/`.
+  pushes that touch `src/`. Its alerts show on the repository's Security tab, and each run also
+  keeps its SARIF file as the `codeql-sarif` artifact for a week, for anyone who can read the
+  run but not the tab, as an agent session can't ([`GD-TICKET-030`](../process/backlog/GD-TICKET-030.md)).
 - `minimumReleaseAge` of one day in `pnpm-workspace.yaml` stops a just-published (possibly
   hijacked) version from being installed. `allowBuilds` allows install scripts only for the
   packages it names (esbuild and workerd, which fetch native binaries); pnpm 12 refuses to finish
@@ -184,7 +188,8 @@ codeql and delete-preview (their own workflows)
   `kb/authority/`). Pushes are already path-filtered, and a manual run checks everything. When
   the project is untouched, every other job is skipped.
 - **`install`** runs once first, so the store is cached before the parallel jobs restore it.
-- **`test-browser`** replays the golden matches in Chromium, Firefox and WebKit. It runs in
+- **`test-browser`** replays the golden matches in Chromium, Firefox and WebKit, then runs the
+  accessibility scan in Chromium. It runs in
   Playwright's own image (`mcr.microsoft.com/playwright`, at the workspace's Playwright version,
   pinned by digest, as user 1001), which already has the browsers and their system libraries.
   Installing them on the runner took a few hundred megabytes from the Ubuntu mirror each run, and

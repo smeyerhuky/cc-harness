@@ -5,7 +5,7 @@ description: "The PRD says the game never uses the Tetris name, yet the game rul
 resource: "../journal/2026-09-30-scaffold.md"
 tags: ["backlog", "UI", "spec"]
 timestamp: "2026-09-30"
-state: "open"
+state: "done"
 milestone: "M2"
 relationships:
   - type: PART_OF
@@ -62,3 +62,22 @@ the default), change the spec first, then the other documents, then write the `u
 clear-label function with tests over the engine's `Clear` data. Done when the criteria hold, the
 code and KB gates pass, this item is `done` with a Resolution, the backlog index and roadmap
 agree, and the journal records it.
+
+## Resolution
+
+Done in [the scaffold session](../journal/2026-09-30-scaffold.md) with the owner's word,
+**Quad** (chosen at the M1 exit).
+
+- **The spec first:** the attack table in [game rules](../../product/game-rules.md) reads
+  "Quad (4 rows)", and back-to-back is "a Quad or T-spin right after another". Then the
+  [UI language](../../design/ui-language.md) (the clear label, the stats row), the
+  [PRD](../../product/prd.md) and [controls and layout](../../product/controls-and-layout.md)
+  (the stats), and [`GD-STORY-002`](GD-STORY-002.md)'s quote of the PRD.
+- **One function for the words:** `clearLabel` in `ui` (`src/game/clearLabel.ts`) turns the
+  engine's `Clear` into a label ("Quad", "T-spin Double", "B2B Quad · Combo ×3", "Perfect
+  clear") and marks the difficult ones strong. `QUAD` gives the stat its plural, "Quads". Six
+  tests score clears with the engine's own `scoreClear` and check that no label uses the avoided
+  name. The match screen uses them from [`GD-STORY-002`](GD-STORY-002.md).
+- **What still says "Tetris", on purpose:** the PRD's out-of-scope line, the UI language's
+  "avoid" list, the overview's description of the genre ("a Tetris-style clone under its own
+  name"), and the proof of concept's code in `spikes/`, kept as it was.

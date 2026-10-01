@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { createMemoryRouter, type RouteObject } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -6,7 +6,11 @@ import { App } from './App';
 import { MatchRouteError, RouteError } from './RouteError';
 import { DEFAULT_BINDINGS } from './input/bindings';
 import { routes } from './routes';
+import { useDev } from './state/dev';
 import { PREFS_KEY, usePrefs } from './state/prefs';
+
+/** The tab's title is set after the screen paints, so it may lag the screen by a moment. */
+const titled = (title: string) => waitFor(() => expect(document.title).toBe(title));
 
 function renderAt(path: string, routeList: RouteObject[] = routes) {
   const router = createMemoryRouter(routeList, { initialEntries: [path] });
@@ -39,6 +43,51 @@ afterEach(() => {
 });
 
 describe('routes', () => {
+  it('names each screen in the tab title, and says the new name when the screen changes', async () => {
+    const announced = () =>
+      document.querySelector('[aria-live="polite"][aria-atomic]')?.textContent;
+    renderAt('/');
+    await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
+    await titled('Garbage Day');
+    expect(announced()).toBe('Garbage Day');
+    fireEvent.click(screen.getByRole('button', { name: 'Play a bot' }));
+    await screen.findByRole('heading', { level: 1, name: 'Play a bot' });
+    await titled('Play a bot · Garbage Day');
+    expect(announced()).toBe('Play a bot');
+    fireEvent.click(screen.getByRole('button', { name: 'Rookie' }));
+    await screen.findByRole('button', { name: 'Leave' });
+    await titled('Match · Garbage Day');
+    fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
+    await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
+    await titled('Garbage Day');
+  });
+
+  it('an unknown page is named as such', async () => {
+    renderAt('/nowhere');
+    await screen.findByRole('heading', { level: 1, name: 'Nothing here' });
+    await titled('Nothing here · Garbage Day');
+  });
+
+  it('the ` key opens the developer overlay over any screen, and it follows the match', async () => {
+    // The overlay is a lazy chunk. Loaded here first, it opens as soon as the key is pressed,
+    // however busy the machine is: on a loaded CI runner its first import outlasted findBy's 1 s.
+    await import('./features/dev');
+    renderAt('/');
+    await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
+    expect(screen.queryByRole('complementary', { name: 'Developer overlay' })).toBeNull();
+    fireEvent.keyDown(window, { code: 'Backquote' });
+    const overlay = await screen.findByRole('complementary', { name: 'Developer overlay' });
+    expect(overlay.textContent).toContain('home');
+    fireEvent.click(screen.getByRole('button', { name: 'Play a bot' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Rookie' }));
+    await screen.findByRole('button', { name: 'Leave' });
+    expect(overlay.textContent).toContain('countdown');
+    expect(useDev.getState().session).not.toBeNull();
+    fireEvent.keyDown(window, { code: 'Backquote' });
+    expect(screen.queryByRole('complementary', { name: 'Developer overlay' })).toBeNull();
+    useDev.setState({ open: false, session: null });
+  });
+
   it('home shows the name, the ways in, and the server status', async () => {
     renderAt('/');
     expect(await screen.findByRole('heading', { level: 1, name: 'Garbage Day' })).toBeDefined();
@@ -46,7 +95,9 @@ describe('routes', () => {
       'Server ready · preview · protocol 1',
     );
     expect(screen.getByRole('button', { name: 'Play a bot' })).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Quick match' }).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Quick match' }).hasAttribute('disabled')).toBe(
+      false,
+    );
   });
 
   it('home says so when the server cannot be reached', async () => {
@@ -68,6 +119,24 @@ describe('routes', () => {
     expect(screen.getByRole('timer').textContent).toBe('3');
     fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
     expect(await screen.findByRole('heading', { name: 'Garbage Day' })).toBeDefined();
+  });
+
+  it('a match keeps the screen awake, and lets it sleep after', async () => {
+    const release = vi.fn(() => Promise.resolve());
+    const request = vi.fn(() => Promise.resolve({ released: false, release }));
+    Object.defineProperty(navigator, 'wakeLock', { value: { request }, configurable: true });
+    try {
+      renderAt('/');
+      fireEvent.click(await screen.findByRole('button', { name: 'Play a bot' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
+      await screen.findByRole('img', { name: 'Your board' });
+      expect(request).toHaveBeenCalledWith('screen');
+      fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
+      await screen.findByRole('heading', { name: 'Garbage Day' });
+      expect(release).toHaveBeenCalled();
+    } finally {
+      Reflect.deleteProperty(navigator, 'wakeLock');
+    }
   });
 
   it('/play with no match under way goes home', async () => {
@@ -175,6 +244,38 @@ describe('preferences', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Done' }));
     expect(await screen.findByRole('heading', { name: 'Garbage Day' })).toBeDefined();
     expect(router.state.location.pathname).toBe('/');
+  });
+});
+
+describe('bot setup', () => {
+  const initial = usePrefs.getState();
+  afterEach(() => {
+    usePrefs.setState(initial, true);
+    localStorage.clear();
+  });
+
+  it('a preset starts at once, at the speed last chosen, and is remembered', async () => {
+    usePrefs.setState({ bot: { skill: 7, speed: 3 } });
+    const router = renderAt('/bot');
+    expect(
+      (await screen.findByRole('slider', { name: 'Skill' })).getAttribute('aria-valuetext'),
+    ).toBe('7');
+    expect(screen.getByText('Rookie is skill 2, Regular 5, Pro 8, each at speed 3.')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Pro' }));
+    expect(await screen.findByRole('region', { name: 'Bot · Pro' })).toBeDefined();
+    expect(router.state.location.pathname).toBe('/play');
+    expect(usePrefs.getState().bot).toEqual({ skill: 8, speed: 3 });
+  });
+
+  it('plays a bot of your own skill and speed', async () => {
+    renderAt('/bot');
+    const skill = await screen.findByRole('slider', { name: 'Skill' });
+    expect(skill.getAttribute('aria-valuetext')).toBe('5 · Regular');
+    fireEvent.change(skill, { target: { value: '9' } });
+    fireEvent.change(screen.getByRole('slider', { name: 'Speed' }), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Play skill 9, speed 2' }));
+    expect(await screen.findByRole('region', { name: 'Bot · skill 9' })).toBeDefined();
+    expect(usePrefs.getState().bot).toEqual({ skill: 9, speed: 2 });
   });
 });
 

@@ -1,6 +1,6 @@
 import { PIECE_TYPES, POWER_KINDS, SALT, type PieceType } from './constants';
 import type { DealtPiece, Gem } from './pieces';
-import { mulberry32, type Rng } from './rng';
+import { seeded, type Rng, type Seed } from './rng';
 
 /**
  * Deals the match's pieces: 7-bags from the seed's piece stream, and a gem decision per piece
@@ -14,11 +14,11 @@ export class Dealer {
   private readonly gems: (Gem | null)[] = [];
 
   constructor(
-    seed: number,
+    seed: Seed,
     private readonly gemChance: number,
   ) {
-    this.pieces = mulberry32(seed);
-    this.gemRng = mulberry32((seed ^ SALT.gems) >>> 0);
+    this.pieces = seeded(seed);
+    this.gemRng = seeded(seed, SALT.gems);
   }
 
   /** Bag `k` (0-based), as a fresh copy. */

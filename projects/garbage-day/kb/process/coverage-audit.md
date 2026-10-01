@@ -13,6 +13,46 @@ The method: [coverage audit](../../../../kb/pdlc/coverage-audit.md). In the firs
 existed yet, so its *In code?* column is "no" throughout; a commitment counted as carried only by
 a work item's acceptance criteria or a roadmap todo that named it.
 
+## Sweep — 2026-09-30 (trigger: M2 exit)
+
+Sources read:
+
+- the M1 and M0 sweeps below;
+- `kb/product/`, with the PRD's match settings and US-03 to US-20 read again;
+- `kb/design/`: client architecture, UI language, stack and CI;
+- the done M2 items' Resolutions;
+- the code under `src/app/client/` and `src/ui/src/`.
+
+**2 gaps found and filed**, as GD-TICKET-026 and 027. At this exit, M3's todos became work items:
+
+- stories GD-STORY-009 to 015;
+- tickets GD-TICKET-028 and 029.
+
+| Commitment | Source | Milestone? | Work item? | In code? | Verdict |
+|---|---|---|---|---|---|
+| Tokens, the piece palette with pattern marks, self-hosted fonts, the contrast test; no literal colours | UI language; definition of done (project item 2) | M2 | GD-TICKET-023, 025 | `src/ui/src/tokens/` (`tokens.ts`, `tokens.test.ts`); `draw.ts`, `marks.tsx` | covered |
+| App flow as an XState actor, lazy routes, an error boundary per route, narrow contexts | client architecture | M2 | GD-TICKET-014 | `state/appMachine.ts`, `routes.tsx`, `RouteError.tsx`, `state/matchContexts.ts` | covered |
+| `MatchSession` as an external store with selectors; canvases outside React renders; own moves in the first frame | client architecture; PRD US-05 | M2 | GD-STORY-001 | `state/MatchSession.ts`; "draws a move in the first frame after the key" in `MatchSession.test.ts` | covered locally; over the network in M3 (GD-STORY-011) |
+| Garbage, power-ups, showdowns, the speed level and the result on screen, with flights, shakes, sound and vibration | PRD US-08 to US-11, US-15; UI language | M2 | GD-STORY-002 | `features/match/` (`AttackLayer`, `BoardFx`, `useMatchSound`, `ResultCard`, `Panels`) | covered locally; the Match DO side in M3 (GD-STORY-012, 013, 014) |
+| A four-row clear named without the Tetris name | PRD out of scope | M2 | GD-TICKET-018 | `ui/src/game/clearLabel.ts` (`QUAD`) | covered |
+| Keyboard defaults, rebinding, DAS and ARR | PRD US-16; controls | M2 | GD-STORY-003 | `input/bindings.ts`, `input/InputController.ts`, `features/settings/ControlsSection.tsx` | covered |
+| The gesture table, sensitivity, the button pad, haptics, touch feedback marks | PRD US-17; controls; UI language | M2 | GD-STORY-004, GD-TICKET-015 | `ui/src/hooks/useGestures.ts`, `features/match/TouchSurface.tsx`, `TouchControls.tsx` | covered |
+| Desktop with the feed from 1600 px; a phone upright and on its side; no scroll or zoom; wake lock | PRD US-18, US-19 | M2 | GD-STORY-005 | `features/match/useMatchLayout.ts`, `MatchFeed.tsx`; `ScreenFrame`'s `locked`; `useWakeLock` | covered |
+| Bot presets, separate skill and speed, the last choice remembered | PRD US-03 | M2 | GD-STORY-006 | `features/bot/BotSetupScreen.tsx`; `prefs.bot` | covered locally; the bot in a Web Worker in M3 (GD-STORY-015) |
+| **A bot game can change the match settings (Mode, the speed-up interval)** | PRD, "Match settings" | no | no | no: bot setup offers skill and speed only | **gap → GD-TICKET-026** (M3, with the private game's settings form) |
+| Generated handles, regenerated not typed, stored only on the device | PRD US-04 | M2 | GD-STORY-007 | `state/handles.ts`, `state/prefs.ts` (localStorage) | covered |
+| Keyboard operability with visible focus, pattern marks, reduced motion, sound off until on, an axe scan of every screen | PRD US-20; stack and CI | M2 | GD-STORY-008 | `client/a11y.browser.test.tsx` (21 scans); `Touch.module.css` focus rings; `AppShell.tsx` | covered |
+| A developer overlay, off by default, the only place naming the Durable Object and the WebSocket | architecture; UI language | M2 | GD-TICKET-024 | `features/dev/`, `state/dev.ts`; the words only in the overlay's chunk | covered |
+| **The React APIs the client architecture names for M2: `useActionState` (the handle), `useTransition` (match routes), `<Activity>` (settings over a match)** | client architecture, "Modern React used on purpose" | no | no | none of the three is in `src/` | **gap → GD-TICKET-027** (the design or the code to change; the folder tree's names too) |
+| End-to-end with two browsers, and axe on the screens that need a server | stack and CI | M3 (named) | GD-TICKET-029 | the axe half for M2's screens is in browser mode | deferred, now carried by an item |
+| 60 fps on a mid-range phone; real devices | PRD NFR | M5 (named) | no | M2 was checked in Chromium's phone profiles only | deferred |
+
+Every deferred row of the M1 and M0 sweeps was checked again:
+
+- Rows for M3 are now carried by M3's minted items (GD-STORY-009 to 015, GD-TICKET-028 and 029) or by its earlier gaps (GD-TICKET-013, 016, 017).
+- Rows for M4 and M5 are still named by their milestones.
+- GD-TICKET-022, the token rotation, is the owner's and stays open with its date.
+
 ## Sweep — 2026-09-30 (trigger: M1 exit)
 
 Sources read: the M0 sweep below; `kb/product/` and `kb/design/` again, including everything

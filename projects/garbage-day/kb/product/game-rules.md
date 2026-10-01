@@ -49,9 +49,9 @@ Rows sent by a clear, before cancelling:
 | Clear | Rows |
 |---|---|
 | Single · Double · Triple | 0 · 1 · 2 |
-| Tetris (4 rows) | 4 |
+| Quad (4 rows) | 4 |
 | T-spin Single · Double · Triple | 2 · 4 · 6 |
-| Back-to-back (a Tetris or T-spin right after another) | +1 |
+| Back-to-back (a Quad or T-spin right after another) | +1 |
 | Combo (clears on consecutive pieces), by count 0–10+ | 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 |
 | Perfect clear (board empty afterwards) | at least 10 |
 

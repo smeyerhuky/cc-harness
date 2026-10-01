@@ -21,8 +21,8 @@ The rules: [pipeline — milestones](../../../../kb/pdlc/pipeline.md#milestones-
 |---|---|---|
 | **M0** — Stand the project up | The spec says what we're building; the plan says how, in which milestones | done |
 | **M1** — Foundations | The workspace, CI and deploy pipeline run green, and the engine is ported with golden replays | done |
-| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | active |
-| **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | planned |
+| **M2** — Play solo | A complete match against a local bot in the React client, on desktop and phone | done |
+| **M3** — Play online | Two people play each other through the Worker, Lobby DO and Match DO | active |
 | **M4** — Pauses and presence | Every pause and presence rule works over the real network, including deploy restarts | planned |
 | **M5** — Launch | Verified on real devices and networks, within budget, deployed to production | planned |
 
@@ -73,48 +73,69 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 
 - [x] The `ui` commons: tokens (UI language palette, pattern marks, self-hosted fonts), primitives,
   game widgets, hooks, and the token-contrast test — [`GD-TICKET-023`](backlog/GD-TICKET-023.md)
-- [ ] `MatchSession` over a local referee, and the match screen: `BoardCanvas`, panels, centre
+- [x] `MatchSession` over a local referee, and the match screen: `BoardCanvas`, panels, centre
   column, meter, speed chip, showdown banner, clear labels, attack flight, results (US-05, US-08,
   US-09, US-10, US-11, US-15 locally) — [`GD-STORY-001`](backlog/GD-STORY-001.md),
   [`GD-STORY-002`](backlog/GD-STORY-002.md)
 - [x] Keyboard controls with rebinding and DAS/ARR settings (US-16) —
   [`GD-STORY-003`](backlog/GD-STORY-003.md)
-- [ ] Touch gestures per the gesture table, the optional button pad, haptics (US-17) —
+- [x] Touch gestures per the gesture table, the optional button pad, haptics (US-17) —
   [`GD-STORY-004`](backlog/GD-STORY-004.md)
-- [ ] Desktop layout including the match feed at ≥ 1600 px, phone portrait and landscape, no
+- [x] Desktop layout including the match feed at ≥ 1600 px, phone portrait and landscape, no
   scrolling during a match, wake lock (US-18, US-19) — [`GD-STORY-005`](backlog/GD-STORY-005.md)
-- [ ] Bot setup with presets and separate skill and speed, the skill test (US-03 locally) —
+- [x] Bot setup with presets and separate skill and speed, the skill test (US-03 locally) —
   [`GD-STORY-006`](backlog/GD-STORY-006.md)
 - [x] Home screen, generated handles, preferences store, settings sheet (US-04) —
   [`GD-STORY-007`](backlog/GD-STORY-007.md)
-- [ ] Reduced motion, sound toggle, keyboard operability, axe scan (US-20); the developer overlay
+- [x] Reduced motion, sound toggle, keyboard operability, axe scan (US-20); the developer overlay
   — [`GD-STORY-008`](backlog/GD-STORY-008.md), [`GD-TICKET-024`](backlog/GD-TICKET-024.md)
 - [x] App flow machine, routes and contexts — [`GD-TICKET-014`](backlog/GD-TICKET-014.md)
-- [ ] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
-- [ ] Name the four-row clear without the Tetris name ("Quad", the owner's choice) —
+- [x] Touch visual feedback — [`GD-TICKET-015`](backlog/GD-TICKET-015.md)
+- [x] Name the four-row clear without the Tetris name ("Quad", the owner's choice) —
   [`GD-TICKET-018`](backlog/GD-TICKET-018.md)
 - [x] The next Cloudflare tooling set, and the `undici` override deleted —
   [`GD-TICKET-021`](backlog/GD-TICKET-021.md)
 - [ ] The Cloudflare API token replaced before it expires on 2026-12-29 —
   [`GD-TICKET-022`](backlog/GD-TICKET-022.md)
+- [x] Shadows, scrims and tints taken from tokens, as the definition of done asks —
+  [`GD-TICKET-025`](backlog/GD-TICKET-025.md)
+- [x] Run the coverage audit ([`coverage-audit.md`](coverage-audit.md), sweep 2026-09-30, M2 exit)
+
+**Exit:** a complete match against a local bot plays in the React client, on desktop and on a
+phone, by keyboard and by touch, with every screen passing the accessibility scan in both themes.
+(The goal in the table above, written out at the exit; M2 began without an exit line.) Real
+devices are M5's. → **Owner check-in** (held 2026-10-01: "Keep going". The four decisions
+weren't answered one by one, so each default holds).
 
 ## M3 — Play online
 
-- [ ] Worker routes, rate limits, static assets with SPA fallback
-- [ ] Lobby DO quick match, waiting count, bot offer after 20 s (US-01)
+- [x] Worker routes, rate limits, static assets with SPA fallback (the assets are done, `GD-TICKET-011`) —
+  [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
+- [x] Lobby DO quick match, waiting count, bot offer after 20 s (US-01) —
+  [`GD-STORY-009`](backlog/GD-STORY-009.md)
 - [ ] Private games: create, code and link, Copy and Share, ready lobby, full and expired states
-  (US-02)
-- [ ] Match DO: dealing bags with gems, relay at 15 Hz and per lock, hidden next pieces, garbage
+  (US-02) — [`GD-STORY-010`](backlog/GD-STORY-010.md)
+- [x] Match DO: dealing bags with gems, relay at 15 Hz and per lock, hidden next pieces, garbage
   routing with the ledger and resend, showdown multiplier, power-up stamping, server-side message
-  validation and attack limits (US-06, US-07, US-08, US-10, US-11)
-- [ ] Clock sync and active-time speed levels across two clients (US-09)
-- [ ] The bot as a second client in a Web Worker (US-03 online)
-- [ ] Results and rematch over the network (US-15)
+  validation and attack limits (US-06, US-07, US-08, US-10, US-11) —
+  [`GD-STORY-011`](backlog/GD-STORY-011.md), [`GD-STORY-012`](backlog/GD-STORY-012.md), and the
+  checks in [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
+- [ ] Clock sync and active-time speed levels across two clients (US-09) —
+  [`GD-STORY-013`](backlog/GD-STORY-013.md)
+- [ ] The bot as a second client in a Web Worker (US-03 online) —
+  [`GD-STORY-015`](backlog/GD-STORY-015.md)
+- [ ] Results and rematch over the network (US-15) — [`GD-STORY-014`](backlog/GD-STORY-014.md)
 - [ ] Durable Object tests in the Workers pool; end-to-end quick match and private link with two
-  browsers
-- [ ] Client outbox and reconnect with backoff — [`GD-TICKET-013`](backlog/GD-TICKET-013.md)
+  browsers — [`GD-TICKET-029`](backlog/GD-TICKET-029.md)
+- [x] Client outbox and reconnect with backoff — [`GD-TICKET-013`](backlog/GD-TICKET-013.md)
+- [x] CodeQL's alert found and fixed: online matches deal from a 128-bit secret seed —
+  [`GD-TICKET-030`](backlog/GD-TICKET-030.md)
+- [x] The app's tests wait long enough for a loaded CI runner —
+  [`GD-TICKET-032`](backlog/GD-TICKET-032.md)
 - [ ] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
 - [ ] Connection quality indicator, visible degradation above 150 ms — [`GD-TICKET-017`](backlog/GD-TICKET-017.md)
+- [ ] Match settings for a bot game — [`GD-TICKET-026`](backlog/GD-TICKET-026.md)
+- [ ] The client architecture matches the code — [`GD-TICKET-027`](backlog/GD-TICKET-027.md)
 
 ## M4 — Pauses and presence
 
@@ -124,6 +145,8 @@ by the owner. → **Owner check-in** (held 2026-09-30: "let's go", every default
 - [ ] Heartbeats by auto-response, free reconnects, the 15 s grace, both-away session end, all as
   DO alarms
 - [ ] Rejoin after closing the tab, SQLite snapshots, restore after a deploy restart
+- [ ] A reconnect loses nothing: client messages numbered and acknowledged, missed broadcasts
+  caught up, bags asked for by number — [`GD-TICKET-031`](backlog/GD-TICKET-031.md)
 - [ ] Return notes with time away and pauses left (US-14)
 - [ ] End-to-end: a tab hidden and shown mid-match, a dropped connection, a closed and reopened tab
 - [ ] Delete a match's stored state when its session ends — [`GD-TICKET-012`](backlog/GD-TICKET-012.md)

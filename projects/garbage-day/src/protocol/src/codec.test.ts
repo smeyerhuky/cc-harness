@@ -43,7 +43,7 @@ const stats: PlayerStats = {
   garbageRows: 4,
 };
 const board = snapshot(emptyBoard()).replace(/^.{30}/, 'XXXX.XXXXXXXXX.XXXXXIIII..T...');
-const tetris = { lines: 4, tspin: false, b2b: true, combo: 1, perfectClear: false, attack: 6 };
+const quad = { lines: 4, tspin: false, b2b: true, combo: 1, perfectClear: false, attack: 6 };
 const cur = { t: 'T', r: 2, x: 3, y: 17 } as const;
 const token = 'tok_0123456789abcdef';
 
@@ -59,14 +59,14 @@ const clientToMatch: ClientToMatch[] = [
     board,
     lines: 4,
     attack: 6,
-    clear: tetris,
+    clear: quad,
     meter: 0,
     gack: 2,
     hold: 'S',
     power: null,
     stats,
   },
-  { type: 'attack', rows: 5, clear: tetris },
+  { type: 'attack', rows: 5, clear: quad },
   { type: 'bagReq' },
   { type: 'use', power: 'shield' },
   { type: 'topout', why: 'buried' },
@@ -90,6 +90,7 @@ const matchToClient: MatchToClient[] = [
   },
   { type: 'start', goAt: 180 },
   { type: 'start', goAt: 180, settings: DEFAULT_SETTINGS },
+  { type: 'start', goAt: 180, holes: 3_141_592_653, you: 1 },
   {
     type: 'bag',
     pieces: [
@@ -259,10 +260,10 @@ describe('rejecting messages', () => {
     ['a fractional number', { t: 'rejoin', gack: 1.5 }],
     ['a handle typed freely', { t: 'hello', token, handle: '<script>' }],
     ['a short token', { t: 'hello', token: 'abc', handle: 'Brisk Heron 42' }],
-    ['more rows than the clear allows', { t: 'attack', rows: 7, clear: tetris }],
+    ['more rows than the clear allows', { t: 'attack', rows: 7, clear: quad }],
     [
       'a clear that claims more than it is worth',
-      { t: 'attack', rows: 9, clear: { ...tetris, attack: 9 } },
+      { t: 'attack', rows: 9, clear: { ...quad, attack: 9 } },
     ],
     [
       'a bad board encoding',

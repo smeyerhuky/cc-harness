@@ -4,7 +4,7 @@
   width: 10px;
   height: 100%;
   border-radius: 3px;
-  background: rgb(255 255 255 / 0.06);
+  background: var(--tint);
 }
 .fill {
   position: absolute;
@@ -49,7 +49,7 @@
   width: 56px;
   height: 3px;
   border-radius: 2px;
-  background: rgb(255 255 255 / 0.12);
+  background: var(--tint-strong);
   overflow: hidden;
 }
 .bar > i {

@@ -8,7 +8,7 @@ import { Meter } from './Meter';
 import { AttackFlight, BoardCover, Countdown, Popup, ShowdownBanner } from './Overlays';
 import { PieceGlyph } from './PieceGlyph';
 import { PowerIcon } from './PowerIcon';
-import { PresenceChip, presenceState } from './PresenceChip';
+import { ConnectionNotice, PresenceChip, presenceState } from './PresenceChip';
 import { HoldSlot, NextQueue, PowerSlot } from './Slots';
 import { SpeedChip } from './SpeedChip';
 
@@ -129,6 +129,13 @@ describe('overlays', () => {
     expect(screen.getByRole('status').textContent).toBe('Sudden death');
   });
 
+  it('ConnectionNotice says the connection is retrying, or lost', () => {
+    const { rerender } = render(<ConnectionNotice state="reconnecting" />);
+    expect(screen.getByRole('status').textContent).toBe('Reconnecting…');
+    rerender(<ConnectionNotice state="lost" />);
+    expect(screen.getByRole('status').textContent).toBe('Connection lost');
+  });
+
   it('Popup finishes after 1.3 s, or 1 s with reduced motion', () => {
     vi.useFakeTimers();
     reducedMotion(false);
@@ -161,11 +168,18 @@ describe('overlays', () => {
 
   it('AttackFlight animates for 700 ms and finishes when the animation does', () => {
     reducedMotion(false);
-    const animation = { onfinish: null as (() => void) | null, cancel: vi.fn() };
+    const animation = {
+      onfinish: null as (() => void) | null,
+      cancel: vi.fn(),
+      // As in browsers: cancelling rejects `finished`.
+      finished: new Promise<never>(() => undefined),
+    };
     const animate = vi.fn(() => animation);
     Object.defineProperty(HTMLElement.prototype, 'animate', { value: animate, configurable: true });
     const done = vi.fn();
-    render(<AttackFlight from={{ x: 0, y: 50 }} to={{ x: 200, y: 50 }} onDone={done} />);
+    const { unmount } = render(
+      <AttackFlight from={{ x: 0, y: 50 }} to={{ x: 200, y: 50 }} onDone={done} />,
+    );
     expect(animate).toHaveBeenCalledWith(
       expect.any(Array),
       expect.objectContaining({ duration: 700 }),
@@ -173,6 +187,8 @@ describe('overlays', () => {
     expect(done).not.toHaveBeenCalled();
     animation.onfinish?.();
     expect(done).toHaveBeenCalledOnce();
+    unmount();
+    expect(animation.cancel).toHaveBeenCalledOnce();
     Reflect.deleteProperty(HTMLElement.prototype, 'animate');
   });
 
@@ -207,6 +223,38 @@ describe('BoardCanvas', () => {
     act(() => frames.shift()?.(16));
     expect(source).toHaveBeenCalledOnce();
     expect(calls.some((c) => c.name === 'fillRect' && c.fill === PIECE_COLOR.Z)).toBe(true);
+  });
+
+  it('fills its container in whole cells, up to maxCell', () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    // The container measures 600 × 1600: 60 px cells would fit, 36 is the cap.
+    const observers: ResizeObserverCallback[] = [];
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(cb: ResizeObserverCallback) {
+          observers.push(cb);
+        }
+        observe() {
+          return undefined;
+        }
+        disconnect() {
+          return undefined;
+        }
+      },
+    );
+    render(<BoardCanvas source={() => null} label="Your board" maxCell={36} />);
+    act(() => {
+      observers.forEach((cb) =>
+        cb(
+          [{ contentRect: { width: 600, height: 1600 } } as ResizeObserverEntry],
+          {} as ResizeObserver,
+        ),
+      );
+    });
+    const canvas = screen.getByRole<HTMLCanvasElement>('img', { name: 'Your board' });
+    expect([canvas.style.width, canvas.style.height]).toEqual(['360px', '720px']);
+    vi.unstubAllGlobals();
   });
 
   it('draws nothing where the canvas has no 2D context', () => {

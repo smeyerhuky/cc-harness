@@ -9,6 +9,12 @@ export {
 export { Dealer } from './bag';
 export { Bot, botConfig, type BotConfig, type BotStyle } from './bot';
 export {
+  ClientMatch,
+  OpponentView,
+  type ClientMatchOptions,
+  type StartExtras,
+} from './client-match';
+export {
   EMPTY,
   GARBAGE,
   cellAt,
@@ -90,6 +96,6 @@ export {
   type RefereeResult,
   type RefereeSnapshot,
 } from './referee';
-export { mulberry32, type Rng } from './rng';
+export { mulberry32, seeded, xoshiro128ss, type Rng, type Seed, type Seed128 } from './rng';
 export { DEFAULT_RULES, type Rules, type Showdown } from './rules';
 export { FIXED_ONE, gravity, levelAt, softGravity } from './speed';

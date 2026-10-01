@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { contrast, luminance } from './contrast';
 import {
   CONTRAST_PAIRS,
+  EFFECTS,
   PIECE_COLOR,
   PIECE_MARK,
   POWER_COLOR,
@@ -40,6 +41,38 @@ describe('the colour tokens', () => {
     const guideline = ['#00FFFF', '#FFFF00', '#800080', '#00FF00', '#FF0000', '#0000FF', '#FFA500'];
     for (const c of Object.values(PIECE_COLOR)) expect(guideline).not.toContain(c.toUpperCase());
   });
+});
+
+describe('the effects', () => {
+  /** A translucent `rgb(r g b / a)` laid over an opaque hex colour, as hex. */
+  const over = (effect: string, base: string): string => {
+    const m = /^rgb\((\d+) (\d+) (\d+) \/ ([\d.]+)\)$/.exec(effect);
+    if (!m) throw new Error(`not an rgb() effect: ${effect}`);
+    const a = Number(m[4]);
+    return `#${[1, 3, 5]
+      .map((i, k) => {
+        const under = parseInt(base.slice(i, i + 2), 16);
+        const v = Math.round(Number(m[k + 1]) * a + under * (1 - a));
+        return v.toString(16).padStart(2, '0');
+      })
+      .join('')}`;
+  };
+
+  it('blends as the browser does', () => {
+    expect(over('rgb(255 255 255 / 0.5)', '#000000')).toBe('#808080');
+  });
+
+  // The slots' captions and the rival's "hidden" sit on the tint over the cabinet. A tint of 0.06
+  // left the light theme's muted caption at 4.51:1 by this sum, and axe, blending in the
+  // browser, found it under 4.5 (GD-TICKET-025): so a margin.
+  for (const theme of THEMES) {
+    it(`${theme}: stage text on a tinted tile keeps 4.6:1`, () => {
+      const tile = over(EFFECTS.tint, resolve('cabinet', theme, 'stage'));
+      for (const fg of ['muted', 'well-ink'] as const) {
+        expect(contrast(resolve(fg, theme, 'stage'), tile)).toBeGreaterThanOrEqual(4.6);
+      }
+    });
+  }
 });
 
 describe('tokens.css', () => {

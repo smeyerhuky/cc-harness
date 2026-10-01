@@ -34,6 +34,10 @@ Defaults, all rebindable (US-16):
 Auto-repeat delay 167 ms and rate 33 ms by default, both adjustable. Game keys never scroll the
 page during a match.
 
+For whoever builds the game, ` (the key left of 1) opens and closes the developer overlay. It
+is not a game key: it does nothing while typing, and nothing if a player binds it to an action.
+`?dev` in the address opens the overlay too ([client architecture](../design/client-architecture.md#the-developer-overlay)).
+
 ## Touch gestures
 
 The whole board area is the touch surface (US-17). A gesture is judged from where the finger
@@ -67,7 +71,7 @@ Designed to use a large screen (US-18):
   the power-up slot, speed level with progress, and the incoming meter along the inner edge.
 - A **centre column** between the boards carries the match clock, showdown announcements and the
   flight of attacks from one board to the other.
-- Under each board, **live stats**: lines, garbage sent, pieces per second, Tetrises and T-spins.
+- Under each board, **live stats**: lines, garbage sent, pieces per second, Quads and T-spins.
 - On windows at least 1600 px wide, a **match feed** beside the centre column lists attacks,
   cancels, power-ups, showdowns and pauses as they happen.
 

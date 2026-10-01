@@ -33,7 +33,7 @@ import { Slider } from '../primitives/Slider';
 import { Stepper } from '../primitives/Stepper';
 import { Toast } from '../primitives/Toast';
 import { Toggle } from '../primitives/Toggle';
-import { COLORS, type ColorToken } from '../tokens/tokens';
+import { COLORS, EFFECTS, type ColorToken } from '../tokens/tokens';
 import styles from './Gallery.module.css';
 
 /** A sample stack: pieces with their marks, a gem, and two garbage rows with a hole. */
@@ -96,6 +96,20 @@ export function Gallery() {
       </span>
     </div>
   );
+  // Effects are translucent, so each is shown over the cabinet, where most of them sit.
+  const effect = (t: keyof typeof EFFECTS) => (
+    <div key={t} className={styles.swatch}>
+      <span
+        className={styles.chipOf}
+        style={{ background: `linear-gradient(var(--${t}), var(--${t})), var(--cabinet)` }}
+      />
+      <span>
+        --{t}
+        <br />
+        {EFFECTS[t]}
+      </span>
+    </div>
+  );
 
   return (
     <div className={styles.page}>
@@ -132,6 +146,9 @@ export function Gallery() {
 
       <Card title="Colours">
         <div className={styles.swatches}>{(Object.keys(COLORS) as ColorToken[]).map(swatch)}</div>
+        <div className={styles.swatches}>
+          {(Object.keys(EFFECTS) as (keyof typeof EFFECTS)[]).map(effect)}
+        </div>
         <div className={styles.row}>
           {PIECE_TYPES.map((t) => (
             <PieceGlyph key={t} type={t} cell={18} />

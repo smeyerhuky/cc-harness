@@ -48,6 +48,11 @@ export interface Input {
   readonly soft?: boolean;
   /** A one-column move this tick: -1 left, 1 right. */
   readonly dx?: -1 | 0 | 1;
+  /**
+   * Rows to move down this tick, stopping where the piece lands: a touch drag soft-drops one row
+   * per cell of travel, following the finger (controls and layout, "Touch gestures").
+   */
+  readonly drop?: number;
 }
 
 export const NO_INPUT: Input = Object.freeze({});
@@ -140,9 +145,24 @@ export class PlayerSim {
     });
   }
 
+  /** One row down; a new lowest row gives the lock-delay resets back. */
+  private fall(p: ActivePiece): void {
+    p.y--;
+    this.lastRot = false;
+    if (p.y < this.lowY) {
+      this.lowY = p.y;
+      this.resets = 0;
+    }
+  }
+
   grounded(): boolean {
     const p = this.cur;
     return !!p && !fits(this.board, p.t, p.r, p.x, p.y - 1);
+  }
+
+  /** A bag has been asked for and hasn't come yet. */
+  get awaitingBag(): boolean {
+    return this.bagPending;
   }
 
   /** Unfreezes once the referee's start or resume tick arrives. */
@@ -192,19 +212,14 @@ export class PlayerSim {
       this.lock(t);
       return;
     }
+    for (let n = 0; n < (input.drop ?? 0) && fits(b, p.t, p.r, p.x, p.y - 1); n++) this.fall(p);
     let g = gravity(this.level(t, activeTicks));
     if (input.soft) g = softGravity(g, this.rules.softFactor);
     this.g += g;
     while (this.g >= FIXED_ONE) {
       this.g -= FIXED_ONE;
-      if (fits(b, p.t, p.r, p.x, p.y - 1)) {
-        p.y--;
-        this.lastRot = false;
-        if (p.y < this.lowY) {
-          this.lowY = p.y;
-          this.resets = 0;
-        }
-      } else {
+      if (fits(b, p.t, p.r, p.x, p.y - 1)) this.fall(p);
+      else {
         this.g = 0;
         break;
       }
@@ -240,6 +255,8 @@ export class PlayerSim {
         this.resumeAt = -1;
         break;
       case 'resume':
+        // Play resumes at `at` and not before, also for a player who missed the pause.
+        this.frozen = true;
         this.resumeAt = msg.at;
         break;
       case 'showdown':

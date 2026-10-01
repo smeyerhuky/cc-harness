@@ -24,10 +24,30 @@
 }
 .panel {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   gap: 6px;
   height: 100%;
   min-height: 0;
+}
+/* The side panel, the board and the meter hug each other, centred in the panel: the board's box
+   takes the board's own shape, so nothing sits a gap away from it. */
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+.row > .side,
+.row > .meter {
+  flex: none;
+}
+/* On a big screen the cells stop at 36 px, so the row stops at the board's height (20 × 36 px)
+   and sits centred, with the stats right under it. */
+.panel[data-layout='desktop'] {
+  grid-template-rows: minmax(0, 720px) auto;
+  align-content: center;
 }
 .side {
   display: grid;
@@ -37,8 +57,11 @@
 }
 .board {
   position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
   min-height: 0;
   height: 100%;
+  aspect-ratio: 1 / 2;
 }
 .lane {
   display: grid;
@@ -51,18 +74,13 @@
   font: 600 var(--fs-20) / 1 var(--font-data);
   font-variant-numeric: tabular-nums;
 }
-.stats {
-  font: 500 12px / 1.4 var(--font-data);
-  color: var(--muted);
-  text-align: center;
-}
 .overlay {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   z-index: 6;
-  background: rgb(10 13 15 / 0.55);
+  background: var(--scrim);
 }
 .result {
   display: grid;
@@ -73,7 +91,7 @@
   border-radius: 14px;
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 18px 48px rgb(0 0 0 / 0.4);
+  box-shadow: 0 18px 48px var(--shadow-deep);
 }
 .result h2 {
   margin: 0;
@@ -91,4 +109,147 @@
   position: relative;
   height: 100%;
   min-height: 0;
+}
+/* Labels over a board: clear names and notes rise from its middle (UI language, "Motion"). */
+.fx {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-bottom: 20%;
+  pointer-events: none;
+  z-index: 2;
+}
+.meter {
+  display: flex;
+  min-height: 0;
+}
+/* A side's running stats under its board. */
+.live {
+  margin: 0;
+  font: 500 12px / 1.4 var(--font-data);
+  color: var(--muted);
+  text-align: center;
+}
+/* The referee attacks pass through; it pulses as each one does. */
+.referee {
+  font: 600 11px / 1 var(--font-data);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.statsTable {
+  border-collapse: collapse;
+  font: 500 var(--fs-14) / 1.3 var(--font-body);
+}
+.statsTable th,
+.statsTable td {
+  padding: 3px 10px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.statsTable th[scope='row'] {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+}
+.statsTable thead th {
+  font: 800 var(--fs-14) / 1.2 var(--font-display);
+  text-transform: uppercase;
+}
+/* The card takes focus so keys pressed from play land on it; it is not a control. */
+.result:focus {
+  outline: none;
+}
+/* The countdown over my board, upright on a phone. */
+.boardCountdown {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 4;
+  pointer-events: none;
+}
+/* Upright on a phone: a slim column for hold, power-up and next; the rival just board and meter. */
+.panel[data-layout='portrait'] .side {
+  width: 44px;
+  gap: 4px;
+}
+.panel[data-layout='portrait'],
+.panel[data-layout='landscape'] {
+  grid-template-rows: minmax(0, 1fr);
+}
+.panel[data-layout='portrait'] .row,
+.panel[data-layout='landscape'] .row {
+  gap: 4px;
+}
+.panel[data-layout='portrait'] .meter > div {
+  width: 6px;
+}
+.compact .fx > div {
+  font-size: 11px;
+  line-height: 1.1;
+}
+/* Upright on a phone the header also carries the clock and speed: smaller, on one line, and the
+   names give way first. */
+.header[data-layout='portrait'] {
+  gap: 8px;
+  font-size: var(--fs-16);
+}
+.header[data-layout='portrait'] .names {
+  overflow: hidden;
+  gap: 6px;
+}
+.header[data-layout='portrait'] .rival {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.headerClock {
+  flex: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--cabinet);
+}
+/* The match feed beside the stage at 1600 px and wider. */
+.feed {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  color: var(--well-ink);
+}
+.feedTitle {
+  margin: 0;
+  font: 800 var(--fs-14) / 1 var(--font-display);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.feedList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  font: 500 13px / 1.35 var(--font-body);
+}
+.feedList time {
+  font: 600 12px / 1 var(--font-data);
+  color: var(--muted);
+  margin-right: 6px;
 }

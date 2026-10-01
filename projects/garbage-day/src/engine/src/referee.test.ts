@@ -471,4 +471,70 @@ describe('Referee: snapshots', () => {
     expect(b.ref.snapshot()).toEqual(a.ref.snapshot());
     expect(b.ref.state).toBe('playing');
   });
+
+  it('keeps a 128-bit dealing seed through a snapshot', () => {
+    const sent: [ServerMessage[], ServerMessage[]] = [[], []];
+    const host = (k: 0 | 1): RefereeHost => ({
+      send: (_to, m) => sent[k].push(m),
+      emit: () => undefined,
+    });
+    const a = new Referee([1, 2, 3, 0xffffffff], DEFAULT_RULES, host(0));
+    a.start(0);
+    const snap = JSON.parse(JSON.stringify(a.snapshot())) as ReturnType<Referee['snapshot']>;
+    expect(snap.seed).toEqual([1, 2, 3, 0xffffffff]);
+    const b = Referee.restore(snap, host(1));
+    a.onMessage(0, { type: 'bagReq' }, 1);
+    b.onMessage(0, { type: 'bagReq' }, 1);
+    expect(sent[1]).toEqual([sent[0].at(-1)]);
+    expect(sent[1][0]).toMatchObject({ type: 'bag' });
+  });
+});
+
+describe('Referee: rejoining (GD-TICKET-013)', () => {
+  it('tells a rejoiner it never missed when play resumes: at go, or at once', () => {
+    const h = setup({}, { start: false });
+    h.ref.start(0);
+    h.wait(30);
+    h.msg(0, { type: 'rejoin', gack: 0 });
+    expect(h.last(0, 'resume')).toMatchObject({ at: GO, by: 0, free: true });
+    h.untilActive(5);
+    h.msg(0, { type: 'rejoin', gack: 0 });
+    expect(h.last(0, 'resume')).toMatchObject({ at: h.t, by: 0, away: 0, free: true });
+    // The other player was never told anything had happened.
+    expect(h.to(1).filter((m) => m.type === 'resume')).toEqual([]);
+  });
+
+  it('tells a rejoiner about a pause the other player started while it was gone', () => {
+    const h = setup();
+    h.untilActive(5);
+    h.msg(1, { type: 'away', reason: 'tab' });
+    h.msg(0, { type: 'rejoin', gack: 0 });
+    expect(h.last(0, 'paused')).toMatchObject({ by: 1, reason: 'tab', budgeted: true });
+  });
+
+  it('resends unacknowledged garbage even before it noticed the player gone', () => {
+    const h = setup();
+    h.untilActive(5);
+    const clear = { lines: 3, tspin: false, b2b: false, combo: 0, perfectClear: false, attack: 2 };
+    h.msg(1, { type: 'attack', rows: 2, clear });
+    h.msg(1, { type: 'attack', rows: 2, clear });
+    h.msg(0, posMsg(1));
+    const before = h.to(0).filter((m) => m.type === 'garbage').length;
+    h.msg(0, { type: 'rejoin', gack: 1 });
+    const resent = h
+      .to(0)
+      .filter((m) => m.type === 'garbage')
+      .slice(before);
+    expect(resent).toEqual([{ type: 'garbage', rows: 2, id: 2 }]);
+  });
+
+  it('tells a player who comes back after the end how it ended', () => {
+    const h = setup();
+    h.untilActive(5);
+    h.msg(1, { type: 'leave' });
+    h.msg(0, { type: 'rejoin', gack: 0 });
+    const results = h.to(0).filter((m) => m.type === 'result');
+    expect(results).toHaveLength(2);
+    expect(results[1]).toEqual({ type: 'result', winner: 0, reason: 'left', by: 1 });
+  });
 });

@@ -4,6 +4,6 @@
   background: var(--surface);
   color: var(--ink);
   padding: 12px 14px;
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.25);
+  box-shadow: 0 12px 32px var(--shadow);
   max-width: min(320px, calc(100vw - 32px));
 }

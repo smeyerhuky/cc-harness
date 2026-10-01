@@ -1,4 +1,5 @@
 export { decodeBoard, encodeBoard, MAX_ENCODED_BOARD } from './board-codec';
+export { CLOSE, isFinalClose } from './close-codes';
 export {
   encodeClientToLobby,
   encodeClientToMatch,

@@ -4,3 +4,5 @@ coverage/
 .wrangler/
 .vite/
 *.tsbuildinfo
+__screenshots__/
+.vitest-attachments/

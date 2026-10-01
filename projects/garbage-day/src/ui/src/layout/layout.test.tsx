@@ -34,4 +34,20 @@ describe('layout', () => {
     expect(screen.getByRole('main').textContent).toBe('body');
     expect(screen.getByRole('contentinfo').textContent).toBe('power');
   });
+
+  it('StageLayout takes an explicit arrangement', () => {
+    const { container } = render(
+      <StageLayout layout="portrait" left="mine" centre={null} right="theirs" />,
+    );
+    expect(container.querySelector('[data-stage]')?.getAttribute('data-layout')).toBe('portrait');
+  });
+
+  it('a locked ScreenFrame holds the page root still, and lets it go on unmount', () => {
+    const { unmount } = render(<ScreenFrame locked>match</ScreenFrame>);
+    expect(document.documentElement.hasAttribute('data-locked')).toBe(true);
+    unmount();
+    expect(document.documentElement.hasAttribute('data-locked')).toBe(false);
+    render(<ScreenFrame>home</ScreenFrame>);
+    expect(document.documentElement.hasAttribute('data-locked')).toBe(false);
+  });
 });

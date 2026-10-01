@@ -10,9 +10,9 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | Kind | Next number |
 |---|---|
 | `GD-EPIC` | 002 |
-| `GD-STORY` | 009 |
+| `GD-STORY` | 016 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 025 |
+| `GD-TICKET` | 033 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -50,19 +50,37 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-STORY-001](GD-STORY-001.md) — Play a local match at my own pace · done
 - [GD-STORY-007](GD-STORY-007.md) — Start from home with a handle and my settings · done
 - [GD-STORY-003](GD-STORY-003.md) — Play with the keyboard, my way · done
-- [GD-STORY-002](GD-STORY-002.md) — See the fight: garbage, power-ups, showdowns and the result · open
-- [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · open
-- [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · open
-- [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · open
-- [GD-STORY-008](GD-STORY-008.md) — Accessible by default · open
-- [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · open
-- [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · open
-- [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · open (owner chose "Quad")
+- [GD-STORY-002](GD-STORY-002.md) — See the fight: garbage, power-ups, showdowns and the result · done
+- [GD-STORY-004](GD-STORY-004.md) — Play with swipes and taps on a phone · done
+- [GD-STORY-005](GD-STORY-005.md) — Screens that fit: desktop space and phone boards · done
+- [GD-STORY-006](GD-STORY-006.md) — Set up a bot: presets or skill and speed · done
+- [GD-STORY-008](GD-STORY-008.md) — Accessible by default · done
+- [GD-TICKET-024](GD-TICKET-024.md) — Add the developer overlay, off by default · done
+- [GD-TICKET-015](GD-TICKET-015.md) — Touch visual feedback · done
+- [GD-TICKET-018](GD-TICKET-018.md) — Name the four-row clear without the Tetris name · done ("Quad")
 - [GD-TICKET-022](GD-TICKET-022.md) — Replace the Cloudflare API token before it expires on 2026-12-29 · open
+- [GD-TICKET-025](GD-TICKET-025.md) — Take shadows, scrims and tints from tokens · done (found while building `GD-TICKET-024`)
+
+*M3 — Play online (part of GD-EPIC-001; minted at the M2 exit, in the order proposed for building it):*
+
+- [GD-TICKET-028](GD-TICKET-028.md) — Route the sockets, and limit and check every message · done
+- [GD-STORY-011](GD-STORY-011.md) — Same pieces, hidden next, and the opponent live · done
+- [GD-TICKET-030](GD-TICKET-030.md) — Find and fix CodeQL's high alert from quick match · done (found while starting `013`)
+- [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · done (from the M0 audit)
+- [GD-TICKET-032](GD-TICKET-032.md) — Wait long enough in the app's tests for a loaded CI runner · done (found while building `012`)
+- [GD-STORY-012](GD-STORY-012.md) — Garbage, power-ups and showdowns over the network · done
+- [GD-STORY-013](GD-STORY-013.md) — The speed-up on the Match DO's clock · open
+- [GD-STORY-009](GD-STORY-009.md) — Quick match with a stranger · done (built before `013` and `012`, to give `011` a way in)
+- [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (from the M0 audit)
+- [GD-STORY-015](GD-STORY-015.md) — The bot as a second client in a Web Worker · open
+- [GD-STORY-010](GD-STORY-010.md) — Create a game and share a link · open
+- [GD-TICKET-026](GD-TICKET-026.md) — Let a bot game change the match settings · open (from the M2 audit)
+- [GD-STORY-014](GD-STORY-014.md) — Result and rematch over the network · open
+- [GD-TICKET-017](GD-TICKET-017.md) — Show connection quality and degrade visibly above 150 ms · open (from the M0 audit)
+- [GD-TICKET-029](GD-TICKET-029.md) — Test the Durable Objects, and two browsers end to end · open
+- [GD-TICKET-027](GD-TICKET-027.md) — Bring the client architecture in line with what M2 built · open (from the M2 audit)
 
 *Later milestones (gaps from the [coverage audit](../coverage-audit.md), part of GD-EPIC-001):*
 
-- [GD-TICKET-013](GD-TICKET-013.md) — Client outbox and reconnect with backoff · open (M3)
-- [GD-TICKET-016](GD-TICKET-016.md) — Label bots as bots everywhere · open (M3)
-- [GD-TICKET-017](GD-TICKET-017.md) — Show connection quality and degrade visibly above 150 ms · open (M3)
 - [GD-TICKET-012](GD-TICKET-012.md) — Delete a match's stored state when its session ends · open (M4)
+- [GD-TICKET-031](GD-TICKET-031.md) — Lose nothing across a reconnect · open (M4; found while building `013`)
