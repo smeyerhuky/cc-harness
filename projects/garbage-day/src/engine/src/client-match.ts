@@ -1,10 +1,11 @@
-import { emptyBoard, parse, type Board } from './board';
-import type { PieceType, PlayerIndex, PowerKind } from './constants';
+import { dropBottomRows, emptyBoard, parse, type Board } from './board';
+import { TPS, type PieceType, type PlayerIndex, type PowerKind } from './constants';
 import type { Controller } from './local-match';
 import type {
   ClientMessage,
   PlayerEvent,
   PlayerStats,
+  PowerMessage,
   ResultMessage,
   ServerMessage,
 } from './messages';
@@ -23,6 +24,8 @@ type OppMessage = Extract<ServerMessage, { type: 'opp' }>;
 /**
  * What a player knows of their opponent: the board as of the opponent's last lock, and where the
  * falling piece, meter, hold and power-up were at their last position. Never their next pieces.
+ * The power-ups that land on them land here too, on the referee's tick, as they do on the
+ * opponent's own screen (GD-STORY-012).
  */
 export class OpponentView {
   board: Board = emptyBoard();
@@ -32,6 +35,35 @@ export class OpponentView {
   hold: PieceType | null = null;
   power: PowerKind | null = null;
   stats: PlayerStats | null = null;
+  /** Their effects, as their own simulation keeps them. */
+  readonly fx = { fogUntil: -1, rushUntil: -1, shieldUntil: -1 };
+  /** Power-ups stamped to land on them, until their tick. */
+  private pending: PowerMessage[] = [];
+
+  /**
+   * A power-up the referee stamped: kept if it lands on the opponent, at seat `them`. Shield and
+   * Bomb land on whoever used them; Fog and Rush on the other player.
+   */
+  stamp(msg: PowerMessage, them: PlayerIndex): void {
+    const own = msg.kind === 'shield' || msg.kind === 'bomb';
+    if ((msg.by === them) === own) this.pending.push(msg);
+  }
+
+  /** Lands the power-ups due by tick `t`, as `PlayerSim` does; returns them. */
+  land(t: number, rules: Rules): PowerMessage[] {
+    const due = this.pending.filter((f) => f.at <= t);
+    if (!due.length) return due;
+    this.pending = this.pending.filter((f) => f.at > t);
+    for (const f of due) {
+      if (f.kind === 'shield') {
+        this.meter = 0;
+        this.fx.shieldUntil = f.at + rules.shieldSec * TPS;
+      } else if (f.kind === 'bomb') this.board = dropBottomRows(this.board, rules.bombRows);
+      else if (f.kind === 'fog') this.fx.fogUntil = f.at + rules.powerSec * TPS;
+      else this.fx.rushUntil = f.at + rules.powerSec * TPS;
+    }
+    return due;
+  }
 
   apply(msg: OppMessage): void {
     this.meter = msg.meter;
@@ -59,6 +91,7 @@ export interface ClientMatchOptions {
   readonly rules?: Partial<Rules>;
   /** Sends a message to the referee. */
   readonly send: (msg: ClientMessage) => void;
+  /** Events from this player's simulation, and the opponent's power-ups as they are used and land. */
   readonly onPlayerEvent?: (ev: PlayerEvent) => void;
 }
 
@@ -130,6 +163,11 @@ export class ClientMatch {
       this.opponent.apply(msg);
       return;
     }
+    if (msg.type === 'power') {
+      const them: PlayerIndex = this.seat === 0 ? 1 : 0;
+      this.opponent.stamp(msg, them);
+      if (msg.by === them) this.o.onPlayerEvent?.({ type: 'powerUse', p: them, kind: msg.kind });
+    }
     if (msg.type === 'result') this.result = msg;
     if (!this.me) {
       if (msg.type !== 'start') {
@@ -153,6 +191,10 @@ export class ClientMatch {
     const t = ++this.t;
     const P = this.me;
     if (!P) return;
+    const them: PlayerIndex = P.idx === 0 ? 1 : 0;
+    for (const f of this.opponent.land(t, this.rules)) {
+      this.o.onPlayerEvent?.({ type: 'powerApply', p: them, kind: f.kind, by: f.by });
+    }
     P.checkResume(t);
     if (P.frozen || this.offline || !P.alive || this.result) return;
     this.activeTicks++;

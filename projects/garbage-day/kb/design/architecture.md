@@ -200,7 +200,10 @@ The Match DO owns the clock. `start` gives the go time in server milliseconds; e
 measures its offset and round trip with a few `ping`s and converts server time to match ticks.
 **Active time** excludes pauses and drives the speed level and showdowns, so both players speed
 up together. Power-ups and resumes are stamped with a future tick (0.2 s and 3 s ahead) so both
-clients apply them on the same tick.
+clients apply them on the same tick. A client simulates only its own player, so it lands a
+stamped power-up twice over: on its own simulation, and on its view of the rival when the
+power-up lands on them, Bomb rows and all, so both boards show it on both screens
+([`GD-STORY-012`](../process/backlog/GD-STORY-012.md)).
 
 ## Garbage ledger and reconnects
 

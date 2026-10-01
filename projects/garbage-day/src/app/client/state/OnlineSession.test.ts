@@ -187,6 +187,22 @@ describe('OnlineSession', () => {
   });
 });
 
+describe('OnlineSession: the other player’s power-ups (GD-STORY-012)', () => {
+  it('shows them used and landing, from each player’s own side', async () => {
+    const c = court();
+    await c.ticks(200);
+    // Seat 1 fires a Shield; the referee stamps it for both screens.
+    c.referee.onMessage(1, { type: 'use', power: 'shield' }, c.now());
+    await c.ticks(40);
+    expect(c.effects[0]).toContainEqual({ kind: 'powerUse', p: 1, power: 'shield' });
+    expect(c.effects[0]).toContainEqual({ kind: 'powerApply', p: 1, power: 'shield', by: 1 });
+    expect(c.sessions[0].getSnapshot().players[1].shielded).toBe(true);
+    // On seat 1's own screen it is theirs: side 0.
+    expect(c.effects[1]).toContainEqual({ kind: 'powerApply', p: 0, power: 'shield', by: 0 });
+    expect(c.sessions[1].getSnapshot().players[0].shielded).toBe(true);
+  });
+});
+
 describe('OnlineSession: losing the connection (GD-TICKET-013)', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });

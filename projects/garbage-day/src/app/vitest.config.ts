@@ -8,5 +8,7 @@ export default defineProject({
     // The accessibility scan runs in a real browser: vitest.browser.config.ts.
     exclude: ['client/**/*.browser.test.tsx'],
     setupFiles: ['./test/setup.ts'],
+    // Whole screens, waited for several times a test (test/setup.ts).
+    testTimeout: 15_000,
   },
 });

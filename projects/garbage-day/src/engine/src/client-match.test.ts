@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { snapshot } from './board';
+import { dropBottomRows, emptyBoard, GARBAGE, setCell, snapshot } from './board';
 import { Bot, botConfig } from './bot';
 import { ClientMatch } from './client-match';
 import type { PlayerIndex } from './constants';
-import type { ClientMessage, ServerMessage } from './messages';
+import type { ClientMessage, PlayerEvent, ServerMessage } from './messages';
 import { Referee } from './referee';
 
 /**
@@ -251,5 +251,43 @@ describe('ClientMatch: dropping and rejoining (GD-TICKET-013)', () => {
     a.rejoin(1000);
     m.run(3);
     expect(a.result).toMatchObject({ type: 'result', winner: 0, reason: 'left' });
+  });
+});
+
+describe('ClientMatch: the opponent’s power-ups (GD-STORY-012)', () => {
+  it('lands what falls on the opponent on the referee’s tick, and says when they use one', () => {
+    const events: PlayerEvent[] = [];
+    const c = new ClientMatch({ send: () => undefined, onPlayerEvent: (ev) => events.push(ev) });
+    c.receive({ type: 'start', goAt: 180 }, { you: 0, holes: 1 });
+    while (c.t < 185) c.step();
+    // The opponent's stack: three rows of garbage at the bottom.
+    const rows = emptyBoard();
+    for (let y = 0; y < 3; y++) for (let x = 1; x < 10; x++) setCell(rows, x, y, GARBAGE);
+    c.opponent.board = rows;
+    const at = c.t + 10;
+    c.receive({ type: 'power', kind: 'bomb', by: 1, at });
+    c.receive({ type: 'power', kind: 'shield', by: 1, at });
+    c.receive({ type: 'power', kind: 'fog', by: 0, at });
+    // Lands on me, not on them.
+    c.receive({ type: 'power', kind: 'rush', by: 1, at });
+    expect(events.filter((e) => e.type === 'powerUse')).toEqual([
+      { type: 'powerUse', p: 1, kind: 'bomb' },
+      { type: 'powerUse', p: 1, kind: 'shield' },
+      { type: 'powerUse', p: 1, kind: 'rush' },
+    ]);
+    while (c.t < at - 1) c.step();
+    expect(events.some((e) => e.type === 'powerApply' && e.p === 1)).toBe(false);
+    c.step();
+    expect(
+      events
+        .filter((e) => e.type === 'powerApply' && e.p === 1)
+        .map((e) => e.type === 'powerApply' && e.kind),
+    ).toEqual(['bomb', 'shield', 'fog']);
+    expect(snapshot(c.opponent.board)).toBe(snapshot(dropBottomRows(rows, c.rules.bombRows)));
+    expect(c.opponent.fx.shieldUntil).toBe(at + c.rules.shieldSec * 60);
+    expect(c.opponent.fx.fogUntil).toBe(at + c.rules.powerSec * 60);
+    expect(c.opponent.fx.rushUntil).toBe(-1);
+    // My own simulation took the rush the opponent sent.
+    expect(c.me?.fx.rushUntil).toBe(at + c.rules.powerSec * 60);
   });
 });

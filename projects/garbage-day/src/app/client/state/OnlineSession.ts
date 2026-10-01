@@ -183,6 +183,7 @@ export class OnlineSession implements Session {
         board: them.board,
         piece: them.cur,
         ghost: false,
+        fog: t < them.fx.fogUntil,
         dead: result?.reason === 'topout' && result.by === 1,
       };
     }
@@ -252,9 +253,14 @@ export class OnlineSession implements Session {
     if (msg.type === 'garbage' && msg.id > (this.match.me?.gotGarbage ?? 0)) {
       this.emit({ kind: 'attack', from: 1, to: 0, rows: msg.rows, doubled: this.doubled() });
     } else if (msg.type === 'opp' && msg.kind === 'lock') {
+      // A resume re-sends the last lock so the view is current; it isn't a new one.
+      if (msg.stats.pieces === this.match.opponent.stats?.pieces) return;
       this.emit({ kind: 'lock', p: 1 });
       const label = msg.clear ? clearLabel(msg.clear) : null;
       if (msg.clear && label) this.emit({ kind: 'clear', p: 1, lines: msg.clear.lines, label });
+      // Garbage that landed on them with this lock, as their stats count it.
+      const landed = msg.stats.garbageRows - (this.match.opponent.stats?.garbageRows ?? 0);
+      if (landed > 0) this.emit({ kind: 'land', p: 1, rows: landed });
     }
   }
 
@@ -286,10 +292,10 @@ export class OnlineSession implements Session {
         break;
       }
       case 'powerUse':
-        this.emit({ kind: 'powerUse', p: 0, power: ev.kind });
+        this.emit({ kind: 'powerUse', p: this.side(ev.p), power: ev.kind });
         break;
       case 'powerApply':
-        this.emit({ kind: 'powerApply', p: 0, power: ev.kind, by: this.side(ev.by) });
+        this.emit({ kind: 'powerApply', p: this.side(ev.p), power: ev.kind, by: this.side(ev.by) });
         break;
       case 'topout':
         this.emit({ kind: 'topout', p: 0 });
@@ -360,7 +366,7 @@ export class OnlineSession implements Session {
       power: them.power,
       meterTotal: them.meter,
       meterReady: 0,
-      shielded: false,
+      shielded: t < them.fx.shieldUntil,
       totals: them.stats
         ? {
             lines: them.stats.lines,

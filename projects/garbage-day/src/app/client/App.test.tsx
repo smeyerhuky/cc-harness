@@ -69,6 +69,9 @@ describe('routes', () => {
   });
 
   it('the ` key opens the developer overlay over any screen, and it follows the match', async () => {
+    // The overlay is a lazy chunk. Loaded here first, it opens as soon as the key is pressed,
+    // however busy the machine is: on a loaded CI runner its first import outlasted findBy's 1 s.
+    await import('./features/dev');
     renderAt('/');
     await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
     expect(screen.queryByRole('complementary', { name: 'Developer overlay' })).toBeNull();

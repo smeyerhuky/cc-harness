@@ -21,7 +21,8 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-011`](backlog/GD-STORY-011.md): the Match DO hosts the referee, deals and relays, and the client plays its side;
   - [`GD-STORY-009`](backlog/GD-STORY-009.md): quick match, with the bot offer;
   - [`GD-TICKET-030`](backlog/GD-TICKET-030.md): CodeQL's alert found (the SARIF is now a run artifact) and fixed; online matches deal from a 128-bit secret seed;
-  - [`GD-TICKET-013`](backlog/GD-TICKET-013.md): a dropped connection freezes the player, reconnects with backoff and rejoins without losing garbage.
+  - [`GD-TICKET-013`](backlog/GD-TICKET-013.md): a dropped connection freezes the player, reconnects with backoff and rejoins without losing garbage;
+  - [`GD-STORY-012`](backlog/GD-STORY-012.md): garbage, power-ups and showdowns between two clients, each seen on both screens.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
   What a reconnect can still lose is [`GD-TICKET-031`](backlog/GD-TICKET-031.md), in M4.
@@ -52,9 +53,9 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-STORY-012`](backlog/GD-STORY-012.md): garbage, power-ups and showdowns between two
-browsers. The referee already routes and stamps them; the story is to see each one arrive on
-both screens, with the effects M2 drew locally. Then the rest of M3 in the
+[`GD-STORY-013`](backlog/GD-STORY-013.md): the speed-up on the Match DO's clock. Each client
+counts its own active ticks today, so after a pause or a reconnect the two can be a level apart;
+the levels should follow the DO's active time. Then the rest of M3 in the
 [backlog index](backlog/index.md)'s order. Work pushed before pull request #14 merges joins it.
 
 ## Standing rules
@@ -75,6 +76,13 @@ both screens, with the effects M2 drew locally. Then the rest of M3 in the
   that item's criteria must find nothing outside `tokens.css`.
 - **CodeQL's findings are in the run's `codeql-sarif` artifact** (`GD-TICKET-030`). The Security
   tab is out of an agent's reach; download the artifact through the Actions tools.
+- **To check online play with a real opponent** until `GD-STORY-015` builds one in: write a Node
+  script that queues on `/ws/lobby` with Node's `WebSocket`, says hello on the match socket,
+  drives a `ClientMatch` with the engine's `Bot` as its controller at 60 steps a second, and pings
+  every second. Import the engine and protocol by their `src/index.ts` paths and bundle it with
+  the workspace's esbuild (`node_modules/.pnpm/esbuild@*/node_modules/esbuild/bin/esbuild
+  --bundle --platform=node --format=esm`). Space scripted key presses a frame apart: taps inside
+  one frame count as one.
 
 ## Verify the baseline
 
