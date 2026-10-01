@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { createMemoryRouter, type RouteObject } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -8,6 +8,9 @@ import { DEFAULT_BINDINGS } from './input/bindings';
 import { routes } from './routes';
 import { useDev } from './state/dev';
 import { PREFS_KEY, usePrefs } from './state/prefs';
+
+/** The tab's title is set after the screen paints, so it may lag the screen by a moment. */
+const titled = (title: string) => waitFor(() => expect(document.title).toBe(title));
 
 function renderAt(path: string, routeList: RouteObject[] = routes) {
   const router = createMemoryRouter(routeList, { initialEntries: [path] });
@@ -45,24 +48,24 @@ describe('routes', () => {
       document.querySelector('[aria-live="polite"][aria-atomic]')?.textContent;
     renderAt('/');
     await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
-    expect(document.title).toBe('Garbage Day');
+    await titled('Garbage Day');
     expect(announced()).toBe('Garbage Day');
     fireEvent.click(screen.getByRole('button', { name: 'Play a bot' }));
     await screen.findByRole('heading', { level: 1, name: 'Play a bot' });
-    expect(document.title).toBe('Play a bot · Garbage Day');
+    await titled('Play a bot · Garbage Day');
     expect(announced()).toBe('Play a bot');
     fireEvent.click(screen.getByRole('button', { name: 'Rookie' }));
     await screen.findByRole('button', { name: 'Leave' });
-    expect(document.title).toBe('Match · Garbage Day');
+    await titled('Match · Garbage Day');
     fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
     await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
-    expect(document.title).toBe('Garbage Day');
+    await titled('Garbage Day');
   });
 
   it('an unknown page is named as such', async () => {
     renderAt('/nowhere');
     await screen.findByRole('heading', { level: 1, name: 'Nothing here' });
-    expect(document.title).toBe('Nothing here · Garbage Day');
+    await titled('Nothing here · Garbage Day');
   });
 
   it('the ` key opens the developer overlay over any screen, and it follows the match', async () => {
