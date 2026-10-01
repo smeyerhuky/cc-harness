@@ -33,20 +33,13 @@ history lives in the [running journal](journal/index.md).
   - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
   - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
-- **In production** (`https://garbage-day.smeyerhuky.workers.dev`), from pull request #13:
-  - [`GD-TICKET-021`](backlog/GD-TICKET-021.md), [`GD-TICKET-023`](backlog/GD-TICKET-023.md) (the `ui` commons, with a gallery at `/gallery`) and [`GD-TICKET-014`](backlog/GD-TICKET-014.md);
-  - [`GD-STORY-001`](backlog/GD-STORY-001.md), [`GD-STORY-007`](backlog/GD-STORY-007.md) and [`GD-STORY-003`](backlog/GD-STORY-003.md): a local match by keyboard, home and settings, and rebinding.
-- **In pull request #14** (open; its Worker Preview is `https://pr-14-garbage-day.smeyerhuky.workers.dev`):
-  - [`GD-TICKET-018`](backlog/GD-TICKET-018.md) (Quad) and [`GD-STORY-002`](backlog/GD-STORY-002.md) (the fight on screen);
-  - [`GD-STORY-004`](backlog/GD-STORY-004.md) with [`GD-TICKET-015`](backlog/GD-TICKET-015.md) (touch play);
-  - [`GD-STORY-005`](backlog/GD-STORY-005.md) (the layouts) and [`GD-STORY-006`](backlog/GD-STORY-006.md) (bot setup);
-  - [`GD-STORY-008`](backlog/GD-STORY-008.md) (accessibility) and [`GD-TICKET-024`](backlog/GD-TICKET-024.md) (the developer overlay: `?dev` or `);
-  - [`GD-TICKET-025`](backlog/GD-TICKET-025.md) (no literal colours).
-
-  CI is green on its head. The history is in the [journal entry](journal/2026-09-30-scaffold.md).
-- **Waiting on the owner:**
-  - playing pull request #14's preview on a real phone, then merging it;
-  - replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
+- **In production** (`https://garbage-day.smeyerhuky.workers.dev`): everything above. The owner
+  merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13; its production deploy was running
+  when this was written. With it, production has all of M2 and M3 so far: quick match against a
+  stranger, with reconnects and the fight on both screens.
+  There is no open pull request. Work goes on the designated branch, restarted from `main` after
+  the merge, and a new pull request is opened only when the owner asks.
+- **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
 
   Settled earlier: the Cloudflare secrets, the Renovate app, and the `main-protect` ruleset requiring `garbage-day-ok` ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the [code gates](../design/stack-and-ci.md#code-gates) and `pnpm test:browser`. All pass, locally and in CI.
@@ -56,7 +49,7 @@ history lives in the [running journal](journal/index.md).
 [`GD-STORY-013`](backlog/GD-STORY-013.md): the speed-up on the Match DO's clock. Each client
 counts its own active ticks today, so after a pause or a reconnect the two can be a level apart;
 the levels should follow the DO's active time. Then the rest of M3 in the
-[backlog index](backlog/index.md)'s order. Work pushed before pull request #14 merges joins it.
+[backlog index](backlog/index.md)'s order.
 
 ## Standing rules
 
