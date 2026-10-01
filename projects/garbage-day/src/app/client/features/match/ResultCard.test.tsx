@@ -148,8 +148,11 @@ describe('AttackLayer', () => {
 });
 
 describe('MatchBanner', () => {
-  const show = (showdown: MatchView['showdown']) => {
-    const view = { ...viewWith(null as unknown as RefereeResult, TOTALS), showdown };
+  const show = (
+    showdown: MatchView['showdown'],
+    connection: MatchView['connection'] = 'online',
+  ) => {
+    const view = { ...viewWith(null as unknown as RefereeResult, TOTALS), showdown, connection };
     const store = { subscribe: () => () => undefined, getSnapshot: () => view };
     return render(
       <MatchSessionContext.Provider store={store}>
@@ -172,5 +175,13 @@ describe('MatchBanner', () => {
     unmount();
     show({ kind: 'sudden', startsIn: null });
     expect(screen.getByRole('status').textContent).toBe('Sudden death');
+  });
+
+  it('says the connection is down before anything else (GD-TICKET-013)', () => {
+    show({ kind: 'sudden', startsIn: null }, 'reconnecting');
+    expect(screen.getByRole('status').textContent).toBe('Reconnecting…');
+    cleanup();
+    show(null, 'lost');
+    expect(screen.getByRole('status').textContent).toBe('Connection lost');
   });
 });

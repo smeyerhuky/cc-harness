@@ -209,6 +209,25 @@ DO's ledger until the receiver acknowledges it (`pos` and `lock` carry the last 
 On `rejoin` the DO resends every unacknowledged attack; the client ignores ids it has seen. The
 client keeps an outbox while offline and flushes it on reconnect.
 
+How a reconnect goes ([`GD-TICKET-013`](../process/backlog/GD-TICKET-013.md)):
+
+1. **The client notices.** Its socket pings every second. It gives up on a connection silent
+   for 3 s, or when the browser goes offline, under the referee's 5 s. The player freezes at
+   once and the screen says "Reconnecting…".
+2. **It comes back.** A new socket follows after 0.5 s, then 1, 2, 4 and 8 s at most, each
+   wait jittered by half either way. The protocol's close codes say which closes are final:
+   done, refused, replaced, bad token, and gone.
+3. **It rejoins.** The new socket says `hello` with the same token (the DO closes the old one
+   as replaced), sends the outbox, then `rejoin`.
+4. **The referee answers every rejoin.** It resends unacknowledged garbage, whether or not it
+   had noticed the player gone. It tells them what they missed: the pause, or when play resumes
+   (at go, or at once), or the result. A `resume` freezes until its tick, so a returning player
+   who never heard `paused` doesn't play through the other's countdown.
+
+The Match DO runs a 1-second clock while the match does, so silence is noticed with no one
+sending. The clock also keeps the referee in memory through a pause, which hibernation would
+otherwise lose. What a reconnect can still lose is [`GD-TICKET-031`](../process/backlog/GD-TICKET-031.md)'s (M4).
+
 ## Presence and pauses
 
 Implemented in the referee exactly as specified in

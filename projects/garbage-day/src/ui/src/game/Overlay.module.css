@@ -34,6 +34,13 @@
   background: var(--hazard);
   color: var(--hazard-ink);
 }
+.notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
 .sudden {
   background: var(--bad);
   color: var(--bad-ink);

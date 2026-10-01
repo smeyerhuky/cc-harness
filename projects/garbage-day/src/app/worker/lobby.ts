@@ -1,4 +1,5 @@
 import {
+  CLOSE,
   DEFAULT_SETTINGS,
   encodeLobbyToClient,
   parseClientToLobby,
@@ -15,9 +16,6 @@ import { SocketDO, type RefusalCode } from './sockets';
 
 /** The lobby hears a `queue` and a `cancel` (pings are answered without it). */
 const LOBBY_LIMITS: GuardLimits = { rate: 2, burst: 5, strikes: 10 };
-
-/** Close code for a lobby socket whose player has been paired or has left the queue. */
-export const CLOSE_DONE = 1000;
 
 /** A waiting player: their handle and when they joined, kept on their socket. */
 interface Waiting {
@@ -74,7 +72,7 @@ export class LobbyDO extends SocketDO<ClientToLobby> {
       await this.pair();
     } else if (msg.type === 'cancel') {
       ws.serializeAttachment(null);
-      ws.close(CLOSE_DONE, 'Left the queue');
+      ws.close(CLOSE.done, 'Left the queue');
     }
     this.announce();
   }
@@ -109,8 +107,8 @@ export class LobbyDO extends SocketDO<ClientToLobby> {
         matchId = newMatchId();
       this.tell(a, { type: 'matched', matchId, token: tokens[0], opponent: wb.handle });
       this.tell(b, { type: 'matched', matchId, token: tokens[1], opponent: wa.handle });
-      a.close(CLOSE_DONE, 'Paired');
-      b.close(CLOSE_DONE, 'Paired');
+      a.close(CLOSE.done, 'Paired');
+      b.close(CLOSE.done, 'Paired');
     }
   }
 

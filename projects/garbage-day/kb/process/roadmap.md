@@ -127,7 +127,9 @@ weren't answered one by one, so each default holds).
 - [ ] Results and rematch over the network (US-15) — [`GD-STORY-014`](backlog/GD-STORY-014.md)
 - [ ] Durable Object tests in the Workers pool; end-to-end quick match and private link with two
   browsers — [`GD-TICKET-029`](backlog/GD-TICKET-029.md)
-- [ ] Client outbox and reconnect with backoff — [`GD-TICKET-013`](backlog/GD-TICKET-013.md)
+- [x] Client outbox and reconnect with backoff — [`GD-TICKET-013`](backlog/GD-TICKET-013.md)
+- [x] CodeQL's alert found and fixed: online matches deal from a 128-bit secret seed —
+  [`GD-TICKET-030`](backlog/GD-TICKET-030.md)
 - [ ] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
 - [ ] Connection quality indicator, visible degradation above 150 ms — [`GD-TICKET-017`](backlog/GD-TICKET-017.md)
 - [ ] Match settings for a bot game — [`GD-TICKET-026`](backlog/GD-TICKET-026.md)
@@ -141,6 +143,8 @@ weren't answered one by one, so each default holds).
 - [ ] Heartbeats by auto-response, free reconnects, the 15 s grace, both-away session end, all as
   DO alarms
 - [ ] Rejoin after closing the tab, SQLite snapshots, restore after a deploy restart
+- [ ] A reconnect loses nothing: client messages numbered and acknowledged, missed broadcasts
+  caught up, bags asked for by number — [`GD-TICKET-031`](backlog/GD-TICKET-031.md)
 - [ ] Return notes with time away and pauses left (US-14)
 - [ ] End-to-end: a tab hidden and shown mid-match, a dropped connection, a closed and reopened tab
 - [ ] Delete a match's stored state when its session ends — [`GD-TICKET-012`](backlog/GD-TICKET-012.md)

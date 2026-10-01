@@ -50,7 +50,13 @@ export {
 } from './game/Overlays';
 export { PieceGlyph } from './game/PieceGlyph';
 export { POWER_NAME, PowerIcon } from './game/PowerIcon';
-export { PresenceChip, presenceState, type PresenceState } from './game/PresenceChip';
+export {
+  ConnectionNotice,
+  PresenceChip,
+  presenceState,
+  type ConnectionState,
+  type PresenceState,
+} from './game/PresenceChip';
 export { HoldSlot, NextQueue, PowerSlot } from './game/Slots';
 export { SpeedChip } from './game/SpeedChip';
 

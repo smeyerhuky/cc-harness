@@ -1,13 +1,15 @@
 import { emptyBoard, snapshot, type PlayerStats } from '@garbage-day/engine';
 import {
+  CLOSE,
   DEFAULT_SETTINGS,
   encodeClientToMatch,
   parseMatchToClient,
   type MatchToClient,
 } from '@garbage-day/protocol';
+import { runInDurableObject } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
 import { describe, expect, it } from 'vitest';
-import { CLOSE_BAD_TOKEN, CLOSE_REPLACED } from './match';
+import type { MatchDO } from './match';
 import { connect, openMatch, seat, TOKENS } from './testkit';
 
 type Socket = Awaited<ReturnType<typeof seat>>;
@@ -143,12 +145,12 @@ describe('the Match DO', () => {
       }),
     );
     expect(await read(stranger)).toMatchObject({ type: 'error', code: 'bad-token' });
-    expect((await stranger.closed).code).toBe(CLOSE_BAD_TOKEN);
+    expect((await stranger.closed).code).toBe(CLOSE.badToken);
 
     const rude = await connect('/ws/match/GD-NOPE');
     rude.ws.send(encodeClientToMatch({ type: 'bagReq' }));
     expect(await read(rude)).toMatchObject({ type: 'error', code: 'bad-token' });
-    expect((await rude.closed).code).toBe(CLOSE_BAD_TOKEN);
+    expect((await rude.closed).code).toBe(CLOSE.badToken);
 
     // A match nobody opened seats nobody either.
     const lost = await connect('/ws/match/GD-NEVER');
@@ -165,8 +167,34 @@ describe('the Match DO', () => {
     first.ws.send('{"v":1,"t":"ping"}');
     await first.next();
     const second = await seat('GD-AGAIN', 0);
-    expect((await first.closed).code).toBe(CLOSE_REPLACED);
+    expect((await first.closed).code).toBe(CLOSE.replaced);
     second.ws.close(1000);
+  });
+
+  it('takes a player back mid-match: the new socket rejoins, and nothing starts again', async () => {
+    const { a, b } = await started('GD-BACK');
+    const again = await seat('GD-BACK', 0, '203.0.113.9');
+    expect((await a.closed).code).toBe(CLOSE.replaced);
+    again.ws.send(encodeClientToMatch({ type: 'rejoin', gack: 0 }));
+    const { msg, before } = await until(again, 'resume');
+    expect(msg).toMatchObject({ type: 'resume', by: 0, free: true });
+    expect(before.map((m) => m.type)).not.toContain('start');
+    expect((await env.MATCH.getByName('GD-BACK').state()).seated).toHaveLength(2);
+    again.ws.close(1000);
+    b.ws.close(1000);
+  });
+
+  it('says a match it lost is gone, rather than dealing it again', async () => {
+    const { a, b } = await started('GD-GONE');
+    // What a restart leaves behind: the stored setup and the mark that it started, no referee.
+    await runInDurableObject(env.MATCH.getByName('GD-GONE'), (instance: MatchDO) => {
+      (instance as unknown as { running: unknown }).running = null;
+    });
+    const back = await seat('GD-GONE', 0, '203.0.113.10');
+    expect(await read(back)).toMatchObject({ type: 'error', code: 'expired' });
+    expect((await back.closed).code).toBe(CLOSE.gone);
+    a.ws.close(1000);
+    b.ws.close(1000);
   });
 
   it('opens a match once', async () => {

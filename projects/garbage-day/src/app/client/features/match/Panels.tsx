@@ -4,6 +4,7 @@ import {
   NextQueue,
   PowerSlot,
   BoardCanvas,
+  ConnectionNotice,
   SpeedChip,
   Countdown,
   QUAD,
@@ -177,6 +178,11 @@ export function HeaderClock() {
 /** The showdown across the top of the stage: announced 5 s ahead, then under way (US-11). */
 export function MatchBanner() {
   const showdown = useMatch((v) => v.showdown);
+  const connection = useMatch((v) => v.connection);
+  // The player's own connection comes first: while it is down, nothing else on the stage moves.
+  if (connection === 'reconnecting' || connection === 'lost') {
+    return <ConnectionNotice state={connection} />;
+  }
   if (!showdown) return null;
   return showdown.startsIn === null ? (
     <ShowdownBanner kind={showdown.kind} />

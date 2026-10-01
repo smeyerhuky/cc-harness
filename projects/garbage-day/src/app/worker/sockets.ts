@@ -1,4 +1,4 @@
-import { PING, PONG, type ParseResult } from '@garbage-day/protocol';
+import { CLOSE, PING, PONG, type ParseResult } from '@garbage-day/protocol';
 import { DurableObject } from 'cloudflare:workers';
 import { MessageGuard, type GuardLimits, type RefusalReason } from './guard';
 
@@ -12,9 +12,6 @@ export type RefusalCode = 'invalid' | 'version' | 'rate';
 
 const codeFor = (r: RefusalReason): RefusalCode =>
   r === 'version' ? 'version' : r === 'rate' || r === 'locks' ? 'rate' : 'invalid';
-
-/** Close code for a socket that kept sending what its guard refuses (RFC 6455: policy violation). */
-export const CLOSE_REFUSED = 1008;
 
 /** What a DO has counted of its sockets' messages since it last woke. */
 export type WireCounts = Readonly<Record<'accepted' | 'closed' | RefusalReason, number>>;
@@ -82,7 +79,7 @@ export abstract class SocketDO<T extends { readonly type: string }> extends Dura
     if (v.close) {
       this.counts.closed++;
       this.closing.add(ws);
-      ws.close(CLOSE_REFUSED, 'Too many refused messages');
+      ws.close(CLOSE.refused, 'Too many refused messages');
     }
   }
 

@@ -1,4 +1,5 @@
 import {
+  CLOSE,
   encodeClientToMatch,
   parseLobbyToClient,
   parseMatchToClient,
@@ -9,7 +10,6 @@ import { env, exports } from 'cloudflare:workers';
 import { describe, expect, it } from 'vitest';
 import type { Health } from './index';
 import { MATCH_LIMITS } from './match';
-import { CLOSE_REFUSED } from './sockets';
 import { connect as open, openMatch, ORIGIN, seat } from './testkit';
 
 const ready = encodeClientToMatch({ type: 'ready' });
@@ -113,7 +113,7 @@ describe('sockets', () => {
     expect(parseMatchToClient(await s.next())).toMatchObject({
       msg: { type: 'error', code: 'rate' },
     });
-    expect((await s.closed).code).toBe(CLOSE_REFUSED);
+    expect((await s.closed).code).toBe(CLOSE.refused);
     const counts = await env.MATCH.getByName('GD-FLOOD').wireCounts();
     expect(counts.accepted).toBeGreaterThanOrEqual(MATCH_LIMITS.burst);
     expect(counts.accepted).toBeLessThan(MATCH_LIMITS.burst + MATCH_LIMITS.strikes);
@@ -130,7 +130,7 @@ describe('sockets', () => {
     let msg = parseLobbyToClient(await s.next());
     while (msg.ok && msg.msg.type === 'waiting') msg = parseLobbyToClient(await s.next());
     expect(msg).toMatchObject({ msg: { type: 'error', code: 'rate' } });
-    expect((await s.closed).code).toBe(CLOSE_REFUSED);
+    expect((await s.closed).code).toBe(CLOSE.refused);
   });
 
   it('limit socket upgrades from one address, and not from another', async () => {

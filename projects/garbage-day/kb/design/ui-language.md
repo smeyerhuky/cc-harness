@@ -129,6 +129,7 @@ From the demo's canvas renderer, kept:
 | Slots | hold, power-up and next pieces in small dark tiles with a mono caption; the opponent's next tile shows a padlock and "hidden" |
 | Speed chip | `SPEED 7` with a thin progress bar to the next level; red while Rush or sudden death is on |
 | Presence chip | a dot and a word: online (green), away (yellow), reconnecting (blinking yellow), gone (red) |
+| Connection notice | the player's own connection, in the showdown banner's place and before it: a surface-coloured pill with the presence chip's dot, "Reconnecting…" (blinking yellow) or "Connection lost" (red) |
 | Showdown banner | a pill across the top of the stage: yellow for Double garbage, red and pulsing for Sudden death |
 | Popover | surface card with the hazard stripe band on top, title in display type, a countdown ring, primary action filled in accent |
 | Board cover | a dark diagonal pattern with "Hidden while paused" and the reason and time left in hazard yellow |

@@ -1,5 +1,6 @@
 import type { Presence } from '@garbage-day/engine';
 import styles from './Hud.module.css';
+import overlay from './Overlay.module.css';
 
 export type PresenceState = 'online' | 'away' | 'reconnecting' | 'gone';
 
@@ -20,5 +21,22 @@ export function PresenceChip({ state }: { state: PresenceState }) {
       <span className={`${styles.dot} ${styles[state]}`} aria-hidden="true" />
       {state}
     </span>
+  );
+}
+
+export type ConnectionState = 'reconnecting' | 'lost';
+
+/**
+ * The player's own connection, across the top of the stage (GD-TICKET-013): "Reconnecting" with
+ * the presence chip's blinking dot while the socket retries, and "Connection lost" once it gives
+ * up. Nothing shows while connected.
+ */
+export function ConnectionNotice({ state }: { state: ConnectionState }) {
+  const dot = state === 'lost' ? 'gone' : 'reconnecting';
+  return (
+    <div className={`${overlay.banner} ${overlay.notice}`} role="status">
+      <span className={`${styles.dot} ${styles[dot]}`} aria-hidden="true" />
+      {state === 'lost' ? 'Connection lost' : 'Reconnecting…'}
+    </div>
   );
 }

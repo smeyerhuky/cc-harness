@@ -1,4 +1,5 @@
 import {
+  CLOSE,
   encodeClientToLobby,
   encodeClientToMatch,
   parseLobbyToClient,
@@ -7,7 +8,6 @@ import {
 } from '@garbage-day/protocol';
 import { env } from 'cloudflare:workers';
 import { describe, expect, it } from 'vitest';
-import { CLOSE_DONE } from './lobby';
 import { connect } from './testkit';
 
 type Socket = Awaited<ReturnType<typeof connect>>;
@@ -36,8 +36,8 @@ describe('the Lobby DO', () => {
     expect(ma.matchId).toMatch(/^Q-[0-9A-Z]{10}$/);
     expect(ma.token).not.toBe(mb.token);
     expect([ma.opponent, mb.opponent]).toEqual(['Quiet Wren 7', 'Brisk Heron 42']);
-    expect((await a.closed).code).toBe(CLOSE_DONE);
-    expect((await b.closed).code).toBe(CLOSE_DONE);
+    expect((await a.closed).code).toBe(CLOSE.done);
+    expect((await b.closed).code).toBe(CLOSE.done);
 
     // The match is open for exactly those tokens: both seated, it starts.
     const seats = await Promise.all(
@@ -62,7 +62,7 @@ describe('the Lobby DO', () => {
     const a = await queue('Brisk Heron 1', 21);
     expect(await read(a)).toEqual({ type: 'waiting', count: 1 });
     a.ws.send(encodeClientToLobby({ type: 'cancel' }));
-    expect((await a.closed).code).toBe(CLOSE_DONE);
+    expect((await a.closed).code).toBe(CLOSE.done);
     expect(await env.LOBBY.getByName('quick').waiting()).toBe(0);
 
     const b = await queue('Brisk Heron 2', 22);

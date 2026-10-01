@@ -141,7 +141,14 @@ export interface MatchView {
   readonly showdown: ShowdownView | null;
   readonly players: readonly [PlayerView, PlayerView];
   readonly result: RefereeResult | null;
+  /**
+   * The connection to the Match DO: `local` for a match played here, else online, reconnecting
+   * (the player stands frozen meanwhile) or lost for good (GD-TICKET-013).
+   */
+  readonly connection: Connection;
 }
+
+export type Connection = 'local' | 'online' | 'reconnecting' | 'lost';
 
 export interface MatchSessionOptions {
   readonly seed: number;
@@ -398,6 +405,7 @@ export class MatchSession implements Session {
       showdown: showdownView(sd, clock),
       players: [playerView(m.players[0], t), playerView(m.players[1], t)],
       result: r.result,
+      connection: 'local',
     };
   }
 }

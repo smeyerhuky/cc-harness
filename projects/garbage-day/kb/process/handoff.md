@@ -4,7 +4,7 @@ title: "Garbage Day Handoff"
 description: "Where Garbage Day stands right now and exactly what to do next — the cold-start brief a fresh session reads first."
 resource: "roadmap.md"
 tags: ["handoff", "roadmap", "backlog"]
-timestamp: "2026-09-30"
+timestamp: "2026-10-01"
 ---
 
 # Garbage Day Handoff
@@ -19,9 +19,12 @@ history lives in the [running journal](journal/index.md).
 - **Milestone:** M3 — Play online — **active**. Done so far:
   - [`GD-TICKET-028`](backlog/GD-TICKET-028.md): the socket routes, the upgrade limit and the message guard;
   - [`GD-STORY-011`](backlog/GD-STORY-011.md): the Match DO hosts the referee, deals and relays, and the client plays its side;
-  - [`GD-STORY-009`](backlog/GD-STORY-009.md): quick match, with the bot offer.
+  - [`GD-STORY-009`](backlog/GD-STORY-009.md): quick match, with the bot offer;
+  - [`GD-TICKET-030`](backlog/GD-TICKET-030.md): CodeQL's alert found (the SARIF is now a run artifact) and fixed; online matches deal from a 128-bit secret seed;
+  - [`GD-TICKET-013`](backlog/GD-TICKET-013.md): a dropped connection freezes the player, reconnects with backoff and rejoins without losing garbage.
 
-  Two strangers can now play each other through Cloudflare.
+  Two strangers can now play each other through Cloudflare, and survive a dropped connection.
+  What a reconnect can still lose is [`GD-TICKET-031`](backlog/GD-TICKET-031.md), in M4.
   - **M2 closed at its owner check-in on 2026-10-01:** "Keep going". The four decisions weren't answered one by one, so each default holds ([the check-in](journal/2026-09-30-scaffold.md#next)). The defaults: bot-game settings come in M3 after private games; the design is rewritten to match the code for the three unused React APIs; M3 is built in the index's order.
   - **Every M2 item was done** except the owner's token rotation, [`GD-TICKET-022`](backlog/GD-TICKET-022.md), due by 2026-12-29 ([roadmap](roadmap.md)).
   - **M2's exit criterion is met:** a complete match against a local bot, on desktop and on a phone, by keyboard and by touch, with every screen passing the accessibility scan in both themes.
@@ -49,11 +52,10 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-TICKET-013`](backlog/GD-TICKET-013.md): the client socket's outbox, reconnecting with
-backoff, and freezing the board while disconnected. Today a dropped socket ends the player's
-part in the match. Then [`GD-STORY-012`](backlog/GD-STORY-012.md) (garbage, power-ups and
-showdowns between two browsers), and the rest of M3 in the [backlog index](backlog/index.md)'s
-order. Work pushed before pull request #14 merges joins it.
+[`GD-STORY-012`](backlog/GD-STORY-012.md): garbage, power-ups and showdowns between two
+browsers. The referee already routes and stamps them; the story is to see each one arrive on
+both screens, with the effects M2 drew locally. Then the rest of M3 in the
+[backlog index](backlog/index.md)'s order. Work pushed before pull request #14 merges joins it.
 
 ## Standing rules
 
@@ -71,6 +73,8 @@ order. Work pushed before pull request #14 merges joins it.
   the server in another: `pgrep -f` matches the shell that runs it.
 - **The CSS takes every colour, shadow and tint from a token** (`GD-TICKET-025`). The search in
   that item's criteria must find nothing outside `tokens.css`.
+- **CodeQL's findings are in the run's `codeql-sarif` artifact** (`GD-TICKET-030`). The Security
+  tab is out of an agent's reach; download the artifact through the Actions tools.
 
 ## Verify the baseline
 

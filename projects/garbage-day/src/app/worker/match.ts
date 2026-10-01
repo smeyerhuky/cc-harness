@@ -7,6 +7,7 @@ import {
   type ServerMessage,
 } from '@garbage-day/engine';
 import {
+  CLOSE,
   encodeMatchToClient,
   parseClientToMatch,
   settingsToRules,
@@ -37,11 +38,6 @@ interface MatchSetup {
   readonly settings: MatchSettings;
 }
 
-/** Close code when a seat's newer socket replaces its older one. */
-export const CLOSE_REPLACED = 4000;
-/** Close code for a socket whose token seats nobody. */
-export const CLOSE_BAD_TOKEN = 4001;
-
 interface Seat {
   readonly seat: PlayerIndex;
 }
@@ -57,6 +53,13 @@ const randomSeed128 = (): Seed128 => {
   return [a, b, c, d];
 };
 
+/**
+ * How often a running match's clock ticks the referee when no message wakes this object: it
+ * notices a player gone silent while nobody sends anything, as during a pause, and it keeps this
+ * object, and the referee in its memory, from hibernating meanwhile (GD-TICKET-013).
+ */
+const CLOCK_MS = 1000;
+
 /** A running referee and the clock it runs on. */
 interface Running {
   readonly referee: Referee;
@@ -68,6 +71,8 @@ interface Running {
   readonly holes: readonly [number, number];
   /** The newest auto-response each seat has had, in ms, already passed on as a heartbeat. */
   readonly heard: [number, number];
+  /** The clock between messages, until the match is over. */
+  clock: ReturnType<typeof setInterval> | null;
 }
 
 export class MatchDO extends SocketDO<ClientToMatch> {
@@ -79,7 +84,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     return parseClientToMatch(text);
   }
 
-  protected encodeError(code: RefusalCode | 'bad-token', message: string): string {
+  protected encodeError(code: RefusalCode | 'bad-token' | 'expired', message: string): string {
     return encodeMatchToClient({ type: 'error', code, message });
   }
 
@@ -121,6 +126,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     const t = this.catchUp(run);
     if (msg.type === 'ready' || msg.type === 'settings') return; // the private lobby (GD-STORY-010)
     run.referee.onMessage(seat.seat, msg, t);
+    this.settle(run);
   }
 
   private async hello(ws: WebSocket, token: string): Promise<void> {
@@ -131,7 +137,15 @@ export class MatchDO extends SocketDO<ClientToMatch> {
       return;
     }
     for (const [s, other] of this.sockets()) {
-      if (s === seat && other !== ws) other.close(CLOSE_REPLACED, 'Replaced by a newer connection');
+      if (s === seat && other !== ws) other.close(CLOSE.replaced, 'Replaced by a newer connection');
+    }
+    // Started once, but the referee isn't here: this object restarted (a deploy, an eviction)
+    // and lost it. Starting again would deal a second match over the first, so the player hears
+    // it is gone. Restoring it from a snapshot comes with M4.
+    if (!this.running && (await this.ctx.storage.get<boolean>('started'))) {
+      ws.send(this.encodeError('expired', 'This match is no longer running'));
+      ws.close(CLOSE.gone, 'Match gone');
+      return;
     }
     ws.serializeAttachment({ seat } satisfies Seat);
     if (!this.running && this.sockets().length === 2) this.start();
@@ -139,7 +153,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
 
   private refuse(ws: WebSocket, message: string): void {
     ws.send(this.encodeError('bad-token', message));
-    ws.close(CLOSE_BAD_TOKEN, 'Bad token');
+    ws.close(CLOSE.badToken, 'Bad token');
   }
 
   /** The seated sockets, by seat. */
@@ -165,8 +179,22 @@ export class MatchDO extends SocketDO<ClientToMatch> {
       },
     );
     const t0 = Date.now();
-    this.running = { referee, t0, tick: 0, holes, heard: [t0, t0] };
+    const run: Running = { referee, t0, tick: 0, holes, heard: [t0, t0], clock: null };
+    this.running = run;
+    void this.ctx.storage.put('started', true);
     referee.start(0);
+    run.clock = setInterval(() => {
+      this.catchUp(run);
+      this.settle(run);
+    }, CLOCK_MS);
+  }
+
+  /** Stops the clock once the match is over: nothing is left to time. */
+  private settle(run: Running): void {
+    if (run.referee.state === 'over' && run.clock !== null) {
+      clearInterval(run.clock);
+      run.clock = null;
+    }
   }
 
   /** Sends the referee's message to seat `to`, adding its seat and hole seed to `start`. */

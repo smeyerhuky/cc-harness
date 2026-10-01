@@ -10,16 +10,18 @@ import {
   type ServerMessage,
   type ShowdownMessage,
 } from '@garbage-day/engine';
-import { encodeClientToMatch, parseMatchToClient } from '@garbage-day/protocol';
+import { encodeClientToMatch, isFinalClose, parseMatchToClient } from '@garbage-day/protocol';
 import { clearLabel, type BoardView } from '@garbage-day/ui';
 import type { InputController } from '../input/InputController';
-import type { Connect, Link } from '../net/link';
+import type { Connect } from '../net/link';
+import { Socket } from '../net/Socket';
 import {
   MAX_CATCH_UP_MS,
   playerView,
   RISE_TICKS,
   showdownView,
   TICK_MS,
+  type Connection,
   type MatchEffect,
   type MatchPhase,
   type MatchView,
@@ -31,7 +33,9 @@ import {
 // A match against another person, through the Match DO (GD-STORY-011): the engine's
 // `ClientMatch` for this player, fed by the socket, and the other player as the referee relays
 // them. It has the surface the local `MatchSession` has, so the match screen draws either. The
-// screen's side 0 is always this player, whichever seat the referee gave them.
+// screen's side 0 is always this player, whichever seat the referee gave them. When the
+// connection drops, the player freezes and the socket comes back on its own; on the new socket
+// the session says hello again and rejoins (GD-TICKET-013).
 
 export interface OnlineSessionOptions {
   /** Opens the socket to this match's DO. */
@@ -46,12 +50,18 @@ export interface OnlineSessionOptions {
   readonly onEnd?: (result: RefereeResult) => void;
 }
 
+/** The longest absence a `rejoin` can report (the protocol's bound on `awayMs`). */
+const MAX_AWAY_MS = 1_000_000;
+
 /** An empty view of the other player before they have played. */
 const NO_TOTALS = { lines: 0, sent: 0, quads: 0, tspins: 0, powersUsed: 0, pieces: 0 };
 
 export class OnlineSession implements Session {
   readonly match: ClientMatch;
-  private link: Link | null = null;
+  private socket: Socket | null = null;
+  private connection: Connection = 'online';
+  /** When the connection dropped, in ms, for the rejoin's `awayMs`. */
+  private droppedAt: number | null = null;
   private readonly listeners = new Set<() => void>();
   private readonly effectListeners = new Set<(e: MatchEffect) => void>();
   private readonly wireListeners = new Set<(e: WireEntry) => void>();
@@ -62,11 +72,10 @@ export class OnlineSession implements Session {
   private acc = 0;
   private announced = { go: false, end: false };
   private rise: { n: number; t: number } | null = null;
-  private closed = false;
 
   constructor(private readonly o: OnlineSessionOptions) {
     this.match = new ClientMatch({
-      send: (msg) => this.send(msg),
+      send: (msg) => this.wire(msg),
       onPlayerEvent: (ev) => this.onPlayerEvent(ev),
     });
     this.match.controller = o.input;
@@ -79,18 +88,28 @@ export class OnlineSession implements Session {
    * render may run twice, so only one socket ever takes the seat.
    */
   start(): void {
-    this.closed = false;
-    const link = this.o.connect({
-      open: () =>
-        link.send(
-          encodeClientToMatch({ type: 'hello', token: this.o.token, handle: this.o.handle }),
-        ),
-      message: (text) => this.onText(text),
-      close: () => {
-        if (this.link === link) this.closed = true;
+    if (this.socket) return;
+    const socket = new Socket(
+      this.o.connect,
+      {
+        open: (again) => {
+          socket.send(
+            encodeClientToMatch({ type: 'hello', token: this.o.token, handle: this.o.handle }),
+          );
+          if (again) {
+            const away = this.droppedAt === null ? 0 : Date.now() - this.droppedAt;
+            this.match.rejoin(Math.min(Math.max(0, away), MAX_AWAY_MS));
+          }
+          this.droppedAt = null;
+        },
+        message: (text) => this.onText(text),
+        status: (status) => this.onStatus(status),
       },
-    });
-    this.link = link;
+      // A close the server meant is final, and so is any once the match has a result.
+      { final: (code) => isFinalClose(code) || this.match.result !== null },
+    );
+    this.socket = socket;
+    socket.start();
   }
 
   readonly subscribe = (onChange: () => void): (() => void) => {
@@ -115,19 +134,21 @@ export class OnlineSession implements Session {
   }
 
   inspect(): { readonly tick: number; readonly referee: string } {
-    return { tick: this.match.t, referee: this.closed ? 'disconnected' : this.view.phase };
+    const c = this.connection;
+    return { tick: this.match.t, referee: c === 'online' ? this.view.phase : c };
   }
 
   /** Leaves the match: tells the referee, then closes the socket. */
   leave(): void {
-    if (!this.match.result) this.send({ type: 'leave' });
+    if (!this.match.result) this.match.send({ type: 'leave' });
     this.close();
   }
 
-  /** Closes the socket, as the screen goes. */
+  /** Closes the socket for good, as the screen goes. */
   close(): void {
-    this.link?.close();
-    this.link = null;
+    const socket = this.socket;
+    this.socket = null;
+    socket?.close();
   }
 
   frame(now: number): void {
@@ -184,12 +205,31 @@ export class OnlineSession implements Session {
     return seat === this.match.seat ? 0 : 1;
   }
 
-  private send(msg: ClientMessage): void {
+  /** What the match sends, onto the socket. */
+  private wire(msg: ClientMessage): void {
     if (msg.type === 'attack') {
       this.emit({ kind: 'attack', from: 0, to: 1, rows: msg.rows, doubled: this.doubled() });
     }
     if (this.wireListeners.size) this.tap({ tick: this.match.t, dir: 'up', seat: 0, msg });
-    this.link?.send(encodeClientToMatch(msg));
+    this.socket?.send(encodeClientToMatch(msg));
+  }
+
+  /** The socket dropped, came back, or gave up. */
+  private onStatus(status: Socket['status']): void {
+    if (status === 'reconnecting') {
+      this.droppedAt ??= Date.now();
+      this.match.drop();
+      // What is pressed while frozen isn't played on the return.
+      this.o.input.reset();
+      this.connection = 'reconnecting';
+    } else if (status === 'closed') {
+      // Closed by the screen, or by the match ending, is not a lost connection.
+      this.connection = this.socket && !this.match.result ? 'lost' : 'online';
+      if (this.connection === 'lost') this.match.drop();
+    } else if (status === 'open') {
+      this.connection = 'online';
+    }
+    this.refresh();
   }
 
   private onText(text: string): void {
@@ -346,6 +386,7 @@ export class OnlineSession implements Session {
       showdown: showdownView(sd, clock),
       players: [mine, theirs],
       result,
+      connection: this.connection,
     };
   }
 }

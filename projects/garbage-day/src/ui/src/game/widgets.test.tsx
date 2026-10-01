@@ -8,7 +8,7 @@ import { Meter } from './Meter';
 import { AttackFlight, BoardCover, Countdown, Popup, ShowdownBanner } from './Overlays';
 import { PieceGlyph } from './PieceGlyph';
 import { PowerIcon } from './PowerIcon';
-import { PresenceChip, presenceState } from './PresenceChip';
+import { ConnectionNotice, PresenceChip, presenceState } from './PresenceChip';
 import { HoldSlot, NextQueue, PowerSlot } from './Slots';
 import { SpeedChip } from './SpeedChip';
 
@@ -127,6 +127,13 @@ describe('overlays', () => {
     expect(screen.getByRole('status').textContent).toBe('Double garbage in 5');
     rerender(<ShowdownBanner kind="sudden" />);
     expect(screen.getByRole('status').textContent).toBe('Sudden death');
+  });
+
+  it('ConnectionNotice says the connection is retrying, or lost', () => {
+    const { rerender } = render(<ConnectionNotice state="reconnecting" />);
+    expect(screen.getByRole('status').textContent).toBe('Reconnecting…');
+    rerender(<ConnectionNotice state="lost" />);
+    expect(screen.getByRole('status').textContent).toBe('Connection lost');
   });
 
   it('Popup finishes after 1.3 s, or 1 s with reduced motion', () => {
