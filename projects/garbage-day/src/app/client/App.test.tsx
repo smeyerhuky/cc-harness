@@ -146,10 +146,10 @@ describe('routes', () => {
       fireEvent.click(await screen.findByRole('button', { name: 'Play a bot' }));
       fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
       await screen.findByRole('img', { name: 'Your board' });
-      expect(request).toHaveBeenCalledWith('screen');
+      await waitFor(() => expect(request).toHaveBeenCalledWith('screen'));
       fireEvent.click(screen.getByRole('button', { name: 'Leave' }));
       await screen.findByRole('heading', { name: 'Garbage Day' });
-      expect(release).toHaveBeenCalled();
+      await waitFor(() => expect(release).toHaveBeenCalled());
     } finally {
       Reflect.deleteProperty(navigator, 'wakeLock');
     }

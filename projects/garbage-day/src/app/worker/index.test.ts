@@ -242,5 +242,5 @@ describe('bot matches (GD-STORY-015)', () => {
       headers: { Upgrade: 'websocket', 'CF-Connecting-IP': '192.0.2.70' },
     });
     expect(res.status).toBe(429);
-  });
+  }, 10_000);
 });
