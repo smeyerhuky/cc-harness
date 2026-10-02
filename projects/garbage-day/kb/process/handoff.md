@@ -52,7 +52,7 @@ history lives in the [running journal](journal/index.md).
   merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
   has all of M2 and M3 so far through #15: quick match, private games, bots through the Match DO,
   reconnects and the fight on both screens. Its deploy ran green on the merge of #15.
-  **The rematch fixes are in a pull request from `gd-story-014-rematch-fixes`**; the owner merges.
+  **The rematch fixes are in pull request #16** (`gd-story-014-rematch-fixes`); the owner merges.
 - **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
 
   Settled earlier: the Cloudflare secrets, the Renovate app, and the `main-protect` ruleset requiring `garbage-day-ok` ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
@@ -60,7 +60,7 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-Merge the rematch-fixes pull request. Then the rest of M3 in the
+Merge pull request #16, the rematch fixes. Then the rest of M3 in the
 [backlog index](backlog/index.md)'s order: [`GD-TICKET-017`](backlog/GD-TICKET-017.md), the
 connection indicator; [`GD-TICKET-029`](backlog/GD-TICKET-029.md), the Durable Object tests and
 two browsers end to end (start from the throwaway check in `GD-STORY-014`'s Resolution); and
