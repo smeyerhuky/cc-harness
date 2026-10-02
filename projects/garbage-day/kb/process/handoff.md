@@ -4,7 +4,7 @@ title: "Garbage Day Handoff"
 description: "Where Garbage Day stands right now and exactly what to do next — the cold-start brief a fresh session reads first."
 resource: "roadmap.md"
 tags: ["handoff", "roadmap", "backlog"]
-timestamp: "2026-10-01"
+timestamp: "2026-10-02"
 ---
 
 # Garbage Day Handoff
@@ -27,10 +27,15 @@ history lives in the [running journal](journal/index.md).
   - [`GD-TICKET-016`](backlog/GD-TICKET-016.md): a bot reads as a bot on every screen, and the protocol marks a bot client;
   - [`GD-STORY-015`](backlog/GD-STORY-015.md): every bot match plays through the Match DO, with the bot as a second client in a Web Worker;
   - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games;
-  - [`GD-TICKET-026`](backlog/GD-TICKET-026.md): a bot game on the player's Mode and Speed-up every.
+  - [`GD-TICKET-026`](backlog/GD-TICKET-026.md): a bot game on the player's Mode and Speed-up every;
+  - [`GD-STORY-014`](backlog/GD-STORY-014.md): the result and rematch between two clients, or against a bot: both ask within 30 s, or both return to the start.
 
-  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` are in
-  pull request #15, not yet in production. CI is green to `37fac64`.
+  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` were merged
+  in pull request #15 on 2026-10-02 (`d277aa0`) and are in production, with the first part of
+  `GD-STORY-014`. That part had four faults: the unpressed player never returned to the start, a
+  bot never answered a rematch, the agreed rematch unmounted its own screen, and the second match
+  never announced its start or end. They are fixed in the branch below, so **production has a
+  rematch that doesn't work until that pull request is merged.**
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
   A bot plays under the same server rules, from its own worker, and two friends can meet by a
@@ -42,15 +47,12 @@ history lives in the [running journal](journal/index.md).
   - **The coverage audit** ([sweep of the M2 exit](coverage-audit.md)) filed 2 gaps, [`GD-TICKET-026`](backlog/GD-TICKET-026.md) and [`027`](backlog/GD-TICKET-027.md).
   - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
   - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
-- **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
+- **Branch:** `gd-story-014-rematch-fixes`, off `main` at `d277aa0` (the old session branch was merged with #15).
 - **In production** (`https://garbage-day.smeyerhuky.workers.dev`): everything above. The owner
   merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
-  has all of M2 and M3 so far: quick match against a stranger, with reconnects and the fight on
-  both screens.
-  **Pull request #15 is open** (the owner asked on 2026-10-01): `GD-STORY-013`, `GD-TICKET-016`,
-  `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026`. The session watches it for CI and reviews,
-  with an hourly check-in, and drives it to green; the owner merges. Work goes on in the same
-  branch, so later items join the pull request.
+  has all of M2 and M3 so far through #15: quick match, private games, bots through the Match DO,
+  reconnects and the fight on both screens. Its deploy ran green on the merge of #15.
+  **The rematch fixes are in a pull request from `gd-story-014-rematch-fixes`**; the owner merges.
 - **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
 
   Settled earlier: the Cloudflare secrets, the Renovate app, and the `main-protect` ruleset requiring `garbage-day-ok` ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
@@ -58,9 +60,11 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-[`GD-STORY-014`](backlog/GD-STORY-014.md): the result and rematch over the network. Between
-people the result card offers only Home today (`ResultCard`); a bot rematch already asks for a
-new match. Then the rest of M3 in the [backlog index](backlog/index.md)'s order.
+Merge the rematch-fixes pull request. Then the rest of M3 in the
+[backlog index](backlog/index.md)'s order: [`GD-TICKET-017`](backlog/GD-TICKET-017.md), the
+connection indicator; [`GD-TICKET-029`](backlog/GD-TICKET-029.md), the Durable Object tests and
+two browsers end to end (start from the throwaway check in `GD-STORY-014`'s Resolution); and
+[`GD-TICKET-027`](backlog/GD-TICKET-027.md), the client design. M3's exit follows them.
 
 ## Standing rules
 
@@ -80,6 +84,11 @@ new match. Then the rest of M3 in the [backlog index](backlog/index.md)'s order.
   that item's criteria must find nothing outside `tokens.css`.
 - **CodeQL's findings are in the run's `codeql-sarif` artifact** (`GD-TICKET-030`). The Security
   tab is out of an agent's reach; download the artifact through the Actions tools.
+- **A feature that spans the screen, the session and the server is checked through all three.**
+  `GD-STORY-014`'s first part passed every test and still failed in a browser four ways. Play it
+  in two Playwright contexts against `pnpm dev` (`http://localhost:5173`): spaced Space presses
+  top a player out in seconds. Install the browsers with the repo's own Playwright
+  (`pnpm exec playwright install`), not a global one: the versions must match.
 - **To check online play with a real opponent,** play a bot: it plays through the Match DO from
   its own worker (`GD-STORY-015`). Two browser contexts that both choose Quick match are paired
   with each other. Space scripted key presses a frame apart: taps inside one frame count as one.

@@ -96,6 +96,7 @@ reject unknown keys; messages to clients tolerate them, so the server can add op
 | `rejoin` | after a close or a reconnect, once `hello` has authenticated the socket | last garbage id; time away in ms |
 | `extend` / `leave` | waiting player's popover | — |
 | `topout` | own board topped out | why |
+| `rematch` | result card, player presses Rematch (only once the match is over) | — |
 | `ping` | every second | the exact string `{"v":1,"t":"ping"}`, answered by the WebSocket auto-response (`pong`) without waking the DO; the engine calls it `hb` |
 
 **Match DO → client**
@@ -112,6 +113,7 @@ reject unknown keys; messages to clients tolerate them, so the server can add op
 | `showdown` | kind, `soon` / `start` / `end`, when it starts or ends |
 | `paused` · `deadline` · `grace` · `bothAway` · `resume` · `back` | pause and presence state, deadlines, time away, pauses left |
 | `result` | winner or none, a reason code (`topout`, `timeout`, `grace`, `left`, `left-while-paused`, `abandoned`) and who it is about; each side's stats come in their last `lock` |
+| `rematch` · `agreed` · `lapsed` | a rematch: the other player asked; both asked, so a new match (a new seed, then `start`) begins on the same seats; or 30 s after the first ask the other has not answered, so both return to the start ([`GD-STORY-014`](../process/backlog/GD-STORY-014.md)) |
 | `error` | code (`full`, `expired`, `bad-token`, `version`, `invalid`, `rate`) and message |
 
 Lobby DO messages: `queue` (join, with the handle), `cancel`, `ping`, and back `waiting`
@@ -306,8 +308,9 @@ A bot is a **second client**, not special server code ([`GD-STORY-015`](../proce
 - **What that buys.** The bot plays under exactly the rules a person does (US-03), and none of
   its thinking runs on the page's thread.
 - **Its end.** Leaving, or the screen going, sends `leave`, so the referee ends the match and
-  the DO's clock stops; the worker is stopped too, and also stops itself at the result. A rematch
-  asks for a new match.
+  the DO's clock stops; the worker is stopped too. At a result the worker asks for a rematch, as
+  a person who presses Rematch does, and plays the next match if the player agrees; if nobody
+  answers in 30 s it stops itself.
 - **While waiting.** The player stays in the quick-match pool through a bot played while
   waiting. When someone is paired with them, the screen leaves the bot match and goes to the
   quick match.

@@ -124,7 +124,7 @@ weren't answered one by one, so each default holds).
   [`GD-STORY-013`](backlog/GD-STORY-013.md)
 - [x] The bot as a second client in a Web Worker (US-03 online) —
   [`GD-STORY-015`](backlog/GD-STORY-015.md)
-- [ ] Results and rematch over the network (US-15) — [`GD-STORY-014`](backlog/GD-STORY-014.md)
+- [x] Results and rematch over the network (US-15) — [`GD-STORY-014`](backlog/GD-STORY-014.md)
 - [ ] Durable Object tests in the Workers pool; end-to-end quick match and private link with two
   browsers — [`GD-TICKET-029`](backlog/GD-TICKET-029.md)
 - [x] Client outbox and reconnect with backoff — [`GD-TICKET-013`](backlog/GD-TICKET-013.md)
