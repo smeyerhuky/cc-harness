@@ -31,11 +31,11 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-014`](backlog/GD-STORY-014.md): the result and rematch between two clients, or against a bot: both ask within 30 s, or both return to the start.
 
   `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` were merged
-  in pull request #15 on 2026-10-02 (`d277aa0`) and are in production, with the first part of
-  `GD-STORY-014`. That part had four faults: the unpressed player never returned to the start, a
-  bot never answered a rematch, the agreed rematch unmounted its own screen, and the second match
-  never announced its start or end. They are fixed in the branch below, so **production has a
-  rematch that doesn't work until that pull request is merged.**
+  in pull request #15 on 2026-10-02 (`d277aa0`), with the first part of `GD-STORY-014`. That part
+  had four faults: the unpressed player never returned to the start, a bot never answered a
+  rematch, the agreed rematch unmounted its own screen, and the second match never announced its
+  start or end. Pull request #16 fixed them and closed the story (`ecfc5f7`, merged 2026-10-02).
+  Both are in production.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
   A bot plays under the same server rules, from its own worker, and two friends can meet by a
@@ -47,12 +47,13 @@ history lives in the [running journal](journal/index.md).
   - **The coverage audit** ([sweep of the M2 exit](coverage-audit.md)) filed 2 gaps, [`GD-TICKET-026`](backlog/GD-TICKET-026.md) and [`027`](backlog/GD-TICKET-027.md).
   - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
   - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
-- **Branch:** `gd-story-014-rematch-fixes`, off `main` at `d277aa0` (the old session branch was merged with #15).
+- **Branch:** none open. The next session branches off `main` (at `ecfc5f7` or later); the earlier session branches were merged with #15 and #16.
 - **In production** (`https://garbage-day.smeyerhuky.workers.dev`): everything above. The owner
   merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
-  has all of M2 and M3 so far through #15: quick match, private games, bots through the Match DO,
-  reconnects and the fight on both screens. Its deploy ran green on the merge of #15.
-  **The rematch fixes are in pull request #16** (`gd-story-014-rematch-fixes`); the owner merges.
+  has all of M2 and M3 so far through #16: quick match, private games, bots through the Match DO,
+  reconnects, the fight on both screens, and a rematch that works. Its deploy ran green on the
+  merge of #16 and `/api/health` reports production ok. The rematch has not been played on the
+  live site; its checks ran against a local dev server.
 - **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
 
   Settled earlier: the Cloudflare secrets, the Renovate app, and the `main-protect` ruleset requiring `garbage-day-ok` ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
@@ -60,8 +61,7 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-Merge pull request #16, the rematch fixes. Then the rest of M3 in the
-[backlog index](backlog/index.md)'s order: [`GD-TICKET-017`](backlog/GD-TICKET-017.md), the
+The rest of M3, in the [backlog index](backlog/index.md)'s order: [`GD-TICKET-017`](backlog/GD-TICKET-017.md), the
 connection indicator; [`GD-TICKET-029`](backlog/GD-TICKET-029.md), the Durable Object tests and
 two browsers end to end (start from the throwaway check in `GD-STORY-014`'s Resolution); and
 [`GD-TICKET-027`](backlog/GD-TICKET-027.md), the client design. M3's exit follows them.
