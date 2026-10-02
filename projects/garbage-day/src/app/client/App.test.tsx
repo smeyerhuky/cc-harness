@@ -344,6 +344,33 @@ describe('a bot match, through the match server (GD-STORY-015)', () => {
     expect(server.workers[0]?.terminated).toBe(true);
   });
 
+  it('a rematch against the bot starts another match, the bot asking for it too (GD-STORY-014)', async () => {
+    renderAt('/bot');
+    fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
+    await screen.findByRole('img', { name: 'Your board' });
+    await waitFor(() => expect(server.last().referee).not.toBeNull());
+    const match = server.last();
+    const first = match.referee;
+    const session = useDev.getState().session as OnlineSession | null;
+    if (!session) throw new Error('no match session');
+    // The player's seat leaves, so the referee ends the match; the bot stays and asks for a rematch.
+    match.leave(0);
+    await waitFor(() => expect(session.match.result).not.toBeNull());
+    // happy-dom draws no canvas, so nothing steps the match: two seconds of frames, by hand.
+    let now = 0;
+    act(() => {
+      for (let i = 0; i < 120; i++) session.frame((now += 1000 / 60));
+    });
+    // The bot asked at once, and the button says so.
+    fireEvent.click(await screen.findByRole('button', { name: 'Rival wants a rematch' }));
+    // The bot stayed, so both have asked: the referee deals a new match on the same seats.
+    await waitFor(() => expect(match.referee).not.toBe(first));
+    await waitFor(() => expect(match.referee?.state).not.toBe('over'));
+    await screen.findByRole('img', { name: 'Your board' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(server.workers[0]?.terminated).toBe(false);
+  });
+
   it('says the connection is lost when no match can be made', async () => {
     vi.stubGlobal(
       'fetch',

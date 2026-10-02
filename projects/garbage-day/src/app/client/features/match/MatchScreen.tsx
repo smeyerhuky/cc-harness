@@ -12,7 +12,7 @@ import { MatchStage } from './MatchStage';
  * A quick or bot match (GD-STORY-001): its session and the player's input, seated, then the
  * stage. Every match plays through the Match DO (GD-STORY-011): against a person found by quick
  * match, or against a bot playing from its own Web Worker on a match made for the two
- * (GD-STORY-015). One screen per match; a rematch mounts a new one, on a new match.
+ * (GD-STORY-015). One screen per seat; a rematch renews its session in place.
  */
 export function MatchScreen() {
   const app = AppActorContext.useActorRef();
@@ -33,6 +33,7 @@ export function MatchScreen() {
           app.send({ type: 'ENDED', result: { winner: r.winner, reason: r.reason } }),
         onRivalBot: (rival) => app.send({ type: 'RIVAL_BOT', bot: rival }),
         onRematch: () => app.send({ type: 'REMATCH_ACCEPTED' }),
+        onRematchLapsed: () => app.send({ type: 'REMATCH_TIMEOUT' }),
       }),
   );
   // How this screen's session takes its seat, and lets go of it when the screen goes: a bot

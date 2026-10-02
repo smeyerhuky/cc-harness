@@ -46,6 +46,7 @@ function PrivateGame({ code, token }: { code: string; token: string }) {
           app.send({ type: 'BOTH_READY', opponent: rival ?? 'Rival' });
         },
         onRematch: () => app.send({ type: 'REMATCH_ACCEPTED' }),
+        onRematchLapsed: () => app.send({ type: 'REMATCH_TIMEOUT' }),
       }),
   );
   useEffect(() => {

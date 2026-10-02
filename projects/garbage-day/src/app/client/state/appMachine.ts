@@ -235,6 +235,8 @@ export const appMachine = setup({
     result: {
       on: {
         REMATCH: { guard: 'hasResult', target: 'rematch' },
+        // The rival asked and this player did not answer in time (US-15).
+        REMATCH_TIMEOUT: { target: 'home', actions: 'reset' },
         HOME: { target: 'home', actions: 'reset' },
       },
     },

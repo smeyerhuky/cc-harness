@@ -58,6 +58,8 @@ export interface OnlineSessionOptions {
   readonly onStart?: (lobby: LobbyMessage | null) => void;
   /** Both players agreed to a rematch. */
   readonly onRematch?: () => void;
+  /** A rematch asked for was not answered in time: back to the start. */
+  readonly onRematchLapsed?: () => void;
 }
 
 /** An empty view of the other player before they have played. */
@@ -101,10 +103,19 @@ export class OnlineSession implements Session {
         else this.rematchWanted.theirs = true;
         this.refresh();
       },
+      onRematchLapsed: () => {
+        this.rematchWanted = null;
+        this.refresh();
+        this.o.onRematchLapsed?.();
+      },
       onRenew: (match) => {
         this.match = match;
         this.match.controller = this.o.input;
         this.rematchWanted = null;
+        // The new match starts, plays and ends as the first did, and says so.
+        this.announced = { go: false, end: false };
+        this.lastShowdown = null;
+        this.rise = null;
         this.view = this.computeView();
         this.o.onRematch?.();
         this.refresh();

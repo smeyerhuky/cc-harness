@@ -250,7 +250,7 @@ describe('appMachine', () => {
       countdown: ['GO', 'ENDED'],
       playing: ['PAUSED', 'ENDED'],
       paused: ['RESUMED', 'ENDED'],
-      result: ['REMATCH', 'HOME'],
+      result: ['REMATCH', 'REMATCH_TIMEOUT', 'HOME'],
       rematch: ['REMATCH_ACCEPTED', 'REMATCH_TIMEOUT', 'HOME'],
     };
     for (const [state, path] of Object.entries(reach) as [AppState, AppEvent[]][]) {

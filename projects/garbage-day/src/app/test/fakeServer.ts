@@ -153,6 +153,8 @@ class FakeMatch {
       this.rematchTimer = setTimeout(() => {
         this.rematchTimer = null;
         this.rematchWanted = [false, false];
+        for (const s of [0, 1] as const)
+          this.seats[s]?.deliver(encodeMatchToClient({ type: 'lapsed' }));
       }, 30000);
     }
   }
@@ -203,6 +205,9 @@ class FakeMatch {
       emit: () => undefined,
     });
     this.referee = referee;
+    // A rematch deals a new match on a clock from zero, as the Match DO's new `Running` does.
+    this.end();
+    this.tick = 0;
     this.t0 = Date.now();
     referee.start(0);
     let lastClock = 0;
