@@ -68,16 +68,18 @@ export function ResultCard({
   opponent,
   stage,
   onSound,
+  onRematch,
 }: {
   opponent: string;
   stage: RefObject<HTMLElement | null>;
   onSound: (name: 'win' | 'lose') => void;
+  onRematch?: () => void;
 }) {
   const app = AppActorContext.useActorRef();
   // Against a person, a rematch needs both to agree (GD-STORY-014); until then, only Home.
-  const online = AppActorContext.useSelector(
-    (s) => s.context.mode === 'quick' || s.context.mode === 'private',
-  );
+  const rematch = useMatch((v) => v.rematch);
+  const myRematch = rematch?.mine;
+  const theirRematch = rematch?.theirs;
   const navigate = useNavigate();
   const result = useMatch((v) => v.result);
   const [confettiDone, setConfettiDone] = useState(false);
@@ -88,6 +90,13 @@ export function ResultCard({
     if (winner !== undefined) announce(winner === 0);
     card.current?.focus();
   }, [winner]);
+
+  useEffect(() => {
+    if (myRematch && !theirRematch) {
+      const t = setTimeout(() => app.send({ type: 'REMATCH_TIMEOUT' }), 30000);
+      return () => clearTimeout(t);
+    }
+  }, [myRematch, theirRematch, app]);
   if (!result) return null;
   const { title, why } = resultCopy(result, opponent);
   return (
@@ -97,18 +106,17 @@ export function ResultCard({
         <p>{why}</p>
         <StatsTable opponent={opponent} seconds={result.activeTicks / TPS} />
         <div className={styles.actions}>
-          {!online && (
-            <Button
-              variant="primary"
-              onClick={() => {
-                app.send({ type: 'REMATCH' });
-                // A bot always accepts at once; between people this waits for both (M3).
-                app.send({ type: 'REMATCH_ACCEPTED' });
-              }}
-            >
-              Rematch
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            disabled={myRematch}
+            onClick={() => {
+              app.send({ type: 'REMATCH' });
+              if (onRematch) onRematch();
+              else app.send({ type: 'REMATCH_ACCEPTED' });
+            }}
+          >
+            {myRematch ? 'Waiting for RIVAL…' : theirRematch ? 'Rival wants a rematch' : 'Rematch'}
+          </Button>
           <Button
             onClick={() => {
               app.send({ type: 'HOME' });

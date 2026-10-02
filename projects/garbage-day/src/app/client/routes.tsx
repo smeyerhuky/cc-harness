@@ -35,9 +35,10 @@ export const routes: RouteObject[] = [
       {
         path: 'new',
         handle: screen('Create a game'),
-        lazy: async () => ({
-          Component: (await import('./features/private-game')).PrivateGameScreen,
-        }),
+        lazy: async () => {
+          const m = await import('./features/private-game');
+          return { Component: m.CreateGameScreen, action: m.createGameAction };
+        },
         ErrorBoundary: RouteError,
       },
       {
@@ -45,9 +46,9 @@ export const routes: RouteObject[] = [
         handle: screen('Private game'),
         lazy: async () => {
           const m = await import('./features/private-game');
-          return { Component: m.PrivateGameScreen, loader: m.gameCodeLoader };
+          return { Component: m.PrivateGameRoute, loader: m.gameLoader };
         },
-        ErrorBoundary: RouteError,
+        ErrorBoundary: MatchRouteError,
       },
       {
         path: 'settings',

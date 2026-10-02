@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { dropBottomRows, emptyBoard, GARBAGE, setCell, snapshot } from './board';
 import { Bot, botConfig } from './bot';
 import { ClientMatch } from './client-match';
-import type { PlayerIndex } from './constants';
+import { TPS, type PlayerIndex } from './constants';
 import type { ClientMessage, PlayerEvent, ServerMessage } from './messages';
 import { Referee } from './referee';
 
@@ -15,6 +15,9 @@ function online(seed: number) {
   const toClient: { to: PlayerIndex; msg: ServerMessage }[] = [];
   /** Seats whose connection is dead: what either end sends them, or they send, is lost. */
   const cut = new Set<PlayerIndex>();
+  /** Seats whose browser has stalled: they don't step, and what they are sent waits for them. */
+  const stalled = new Set<PlayerIndex>();
+  const held: { to: PlayerIndex; msg: ServerMessage }[] = [];
   const sentBy: [ClientMessage[], ClientMessage[]] = [[], []];
   const heard: [ServerMessage[], ServerMessage[]] = [[], []];
   const holes = [0x1111, 0x2222] as const;
@@ -41,14 +44,26 @@ function online(seed: number) {
     T++;
     for (const { from, msg } of toReferee.splice(0)) referee.onMessage(from, msg, T);
     referee.tick(T);
-    for (const { to, msg } of toClient.splice(0)) {
+    // The Match DO's clock, every second (GD-STORY-013).
+    if (T % 60 === 0) {
+      for (const to of [0, 1] as const) {
+        toClient.push({ to, msg: { type: 'clock', tick: T, active: referee.activeTicks } });
+      }
+    }
+    const due = [...held.filter((x) => !stalled.has(x.to)), ...toClient.splice(0)];
+    held.splice(0, held.length, ...held.filter((x) => stalled.has(x.to)));
+    for (const { to, msg } of due) {
       if (cut.has(to)) continue;
+      if (stalled.has(to)) {
+        held.push({ to, msg });
+        continue;
+      }
       heard[to].push(msg);
       clients[to].receive(msg, { holes: holes[to], you: to });
     }
     for (const c of clients) {
       if (c.me && !c.controller) c.controller = new Bot(c.me, seed, botConfig(6, 10));
-      c.step();
+      if (!stalled.has(c.seat)) c.step();
       // A heartbeat each second, as the socket's ping does.
       if (T % 60 === 0 && !cut.has(c.seat)) toReferee.push({ from: c.seat, msg: { type: 'hb' } });
     }
@@ -56,7 +71,7 @@ function online(seed: number) {
   const run = (ticks: number) => {
     for (let i = 0; i < ticks; i++) step();
   };
-  return { clients, referee, sentBy, sentTo, heard, cut, step, run, now: () => T };
+  return { clients, referee, sentBy, sentTo, heard, cut, stalled, step, run, now: () => T };
 }
 
 describe('ClientMatch', () => {
@@ -289,5 +304,74 @@ describe('ClientMatch: the opponent’s power-ups (GD-STORY-012)', () => {
     expect(c.opponent.fx.rushUntil).toBe(-1);
     // My own simulation took the rush the opponent sent.
     expect(c.me?.fx.rushUntil).toBe(at + c.rules.powerSec * 60);
+  });
+});
+
+describe('ClientMatch: the referee’s clock (GD-STORY-013)', () => {
+  /** How far a client's active time is from the referee's. */
+  const apart = (m: ReturnType<typeof online>, seat: PlayerIndex) =>
+    Math.abs(m.clients[seat].activeTicks - m.referee.activeTicks);
+
+  for (const [what, cutFor] of [
+    ['a drop the referee never notices', 60 * 3],
+    ['a drop long enough to pause both', 60 * 8],
+  ] as const) {
+    it(`counts active time with the referee after ${what}`, () => {
+      const m = online(0x5eed21);
+      m.run(60 * 20);
+      const [c] = m.clients;
+      m.cut.add(0);
+      c.drop();
+      m.run(cutFor);
+      m.cut.delete(0);
+      c.rejoin((cutFor * 1000) / 60);
+      m.run(60 * 6);
+      // Paused time counted for nobody, and the dropped player's frozen time is made up.
+      expect(apart(m, 0)).toBeLessThanOrEqual(4);
+      expect(apart(m, 1)).toBeLessThanOrEqual(4);
+      const levels = m.clients.map((x) => x.me?.level(x.t, x.activeTicks));
+      expect(levels[0]).toBe(levels[1]);
+    });
+  }
+
+  it('jumps a stalled client to the referee’s tick, without simulating the gap', () => {
+    const m = online(0x5eed22);
+    m.run(60 * 20);
+    const [c] = m.clients;
+    const pieces = c.me?.stats.pieces;
+    m.stalled.add(0);
+    m.run(60 * 2);
+    m.stalled.delete(0);
+    expect(m.now() - c.t).toBeGreaterThanOrEqual(110);
+    // The next clock catches it up.
+    m.run(60);
+    expect(Math.abs(m.now() - c.t)).toBeLessThanOrEqual(2);
+    expect(apart(m, 0)).toBeLessThanOrEqual(4);
+    // The stall placed no pieces: the time passed without the player.
+    expect((c.me?.stats.pieces ?? 0) - (pieces ?? 0)).toBeLessThan(5);
+  });
+
+  it('leaves a client that keeps time alone', () => {
+    const m = online(0x5eed23);
+    m.run(60 * 30);
+    const before = m.clients.map((x) => x.activeTicks - m.referee.activeTicks);
+    m.run(60 * 10);
+    const after = m.clients.map((x) => x.activeTicks - m.referee.activeTicks);
+    expect(after).toEqual(before);
+    for (const seat of [0, 1] as const) expect(apart(m, seat)).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('ClientMatch: the match’s settings (GD-STORY-010)', () => {
+  it('plays on the rules `start` brings, not its defaults', () => {
+    const slow = new ClientMatch({ send: () => undefined });
+    expect(slow.rules.rampSec).toBe(15);
+    slow.receive({ type: 'start', goAt: 180 }, { you: 1, holes: 3, rules: { rampSec: 30 } });
+    expect(slow.rules.rampSec).toBe(30);
+    const plain = new ClientMatch({ send: () => undefined });
+    plain.receive({ type: 'start', goAt: 180 }, { you: 1, holes: 3 });
+    // 20 s of play: a level up every 15 s by default, every 30 s on these settings.
+    expect(plain.me?.level(plain.t, 20 * TPS)).toBe(2);
+    expect(slow.me?.level(slow.t, 20 * TPS)).toBe(1);
   });
 });

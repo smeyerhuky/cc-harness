@@ -5,9 +5,9 @@ Garbage Day is a two-player, real-time falling-block versus game (a Tetris-style
 ## Getting started
 
 M1 (foundations) and M2 (play solo) are complete, and M3 (play online) is under way. The game is live at
-<https://garbage-day.smeyerhuky.workers.dev>, where you play a bot in the browser. Online
-matches come with M3: quick match against a stranger, which survives a dropped connection, is in
-pull request #14's preview so far. Add `?dev` to the address, or press ` (the key left of 1), for the
+<https://garbage-day.smeyerhuky.workers.dev>, where you play a bot in the browser, or a stranger
+by Quick match: garbage, power-ups and showdowns on both screens, and a dropped connection comes
+back on its own. Private games and the rest of M3 come next. Add `?dev` to the address, or press ` (the key left of 1), for the
 developer overlay: the app's state and every message between the players and the referee.
 With Node 22.22 or newer, from `projects/garbage-day/`:
 

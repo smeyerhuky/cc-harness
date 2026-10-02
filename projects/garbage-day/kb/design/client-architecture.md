@@ -54,17 +54,26 @@ projects/garbage-day/src/
 └── app/           @garbage-day/app       one Vite project: the client and the Worker
     ├── client/
     │   ├── main.tsx, App.tsx, routes.tsx, AppShell.tsx (each screen's name)
-    │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), MatchSession.ts, dev.ts
+    │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), OnlineSession.ts,
+    │   │                  MatchSession.ts, dev.ts
     │   ├── net/           link.ts (a socket that pings and gives up on silence), Socket.ts (reconnects
-    │   │                  with backoff, GD-TICKET-013); clockSync.ts and lobbyClient.ts (M3)
-    │   ├── bot/           bot.worker.ts (engine + Bot as a second client)
+    │   │                  with backoff, GD-TICKET-013); the clock is the engine ClientMatch's,
+    │   │                  from the DO's `clock` (GD-STORY-013); MatchClient.ts (one seat over a
+    │   │                  socket: hello, rejoin; the player's session and the bot each run one)
+    │   ├── bot/           botMatch.ts (asks the Worker for a bot match, starts the bot's worker);
+    │   │                  bot.worker.ts and botClient.ts (the engine's Bot on a MatchClient,
+    │   │                  the second client, GD-STORY-015)
     │   └── features/
     │       ├── home/          HomeScreen: Quick match, Create game, Play a bot, handle
     │       ├── quick-match/   SearchingScreen (the count, the bot offer, Cancel), QuickMatchLink
     │       │                  (the lobby socket while queued, loaded only then)
-    │       ├── private-game/  CreateGameForm, LobbyScreen (code, Copy, Share, Ready)
+    │       ├── private-game/  CreateGameScreen (`/new` and its action), PrivateGameRoute (`/g/:code`:
+    │       │                  the lobby, then MatchStage on the same session), LobbyScreen (link,
+    │       │                  Copy, Share, players, settings, Ready), GameRefused (full, expired,
+    │       │                  unknown), routeData (the create action, the seat loader), seats
+    │       ├── match-settings/ MatchSettingsForm and SettingsSummary, for private and bot games
     │       ├── bot/           BotSetup (presets, skill and speed sliders)
-    │       ├── match/         MatchScreen, PlayerPanel, OpponentPanel, CentreColumn, MatchFeed,
+    │       ├── match/         MatchScreen (seats a quick or bot match), MatchStage, PlayerPanel, OpponentPanel, CentreColumn, MatchFeed,
     │       │                  PausePopover, WaitBar, ReturnNote, TouchSurface, ButtonPad
     │       ├── results/       ResultCard, StatsTable, RematchButton
     │       ├── settings/      SettingsSheet: controls, gestures, sound, motion
@@ -89,7 +98,7 @@ page load ([`GD-STORY-008`](../process/backlog/GD-STORY-008.md)).
 
 | Kind of state | Home | How components read it |
 |---|---|---|
-| **The running match**: my board, opponent view, meter, speed, clock, pause and result info | A `Session`: `MatchSession` for a match against a local bot (the engine's `LocalMatch`), or `OnlineSession` for one through the Match DO (the engine's `ClientMatch` over a socket). Each is an external store with `subscribe` and `getSnapshot`, and the screen draws either | `MatchSessionContext.useSelector(selector)` on `useSyncExternalStore`, returning only the slice a component needs; canvases read the session directly each frame |
+| **The running match**: my board, opponent view, meter, speed, clock, pause and result info | A `Session`. The app plays every match through the Match DO with an `OnlineSession` (the engine's `ClientMatch` on a `MatchClient`), against a person or a bot's worker (`GD-STORY-015`). `MatchSession` runs a whole match on the page (the engine's `LocalMatch`, its bot included); the component tests drive screens through it. Each is an external store with `subscribe` and `getSnapshot`, and the screen draws either | `MatchSessionContext.useSelector(selector)` on `useSyncExternalStore`, returning only the slice a component needs; canvases read the session directly each frame |
 | **Which screen we are on and why**: home, searching, bot offer, lobby, countdown, playing, paused, result, rematch | `appMachine`, an XState v5 actor, with child actors for quick match and the private lobby | `AppActorContext` from `createActorContext`; `useSelector` for values, `useActorRef().send` for events |
 | **Preferences**: handle, key bindings, DAS/ARR, gesture sensitivity, pad on/off, sound, motion override, bot presets, last match settings | a Zustand store with the `persist` middleware (localStorage, versioned, try/catch) | `usePrefs(selector)`; no provider needed |
 | **Server data**: a private game's info from its code, the quick-match waiting count | React Router loaders and actions for `/g/:code` and create-game; the waiting count arrives on the lobby socket into `appMachine` context | `useLoaderData`, `useFetcher`, `useSelector` |
@@ -194,6 +203,12 @@ Theme is a `data-theme` attribute on the root plus CSS tokens, not a context.
 - `useGestures`: synthetic pointer sequences for every row of the gesture table, including the
   axis lock and the flick threshold.
 - `MatchSession`: runs against a local referee from the engine, no network, with scripted inputs.
+- `OnlineSession`: two of them and the engine's referee, joined by text through the protocol's
+  codec, a tick at a time, with connections that drop on cue.
+- Whole bot matches: the app's tests and the accessibility scan play them against
+  `test/fakeServer.ts`. It stands in for the Worker's `POST /api/bot-matches` and for a Match
+  DO (the engine's referee on the wall clock), and runs the bot's worker beside the page with
+  the same `runBot`. The Worker tests cover the real DOs.
 
 ## The developer overlay
 
@@ -206,7 +221,9 @@ it and `?dev=0` closes it. The choice lasts for the tab's session.
   - `appMachine`'s state and context: mode, bot, and the match counter.
   - The match session: phase, tick, clock, level, the referee's state, a showdown, and the result.
   - The wire log: each message between a player and the referee, with its tick, route, type and fields. Positions and heartbeats are hidden unless asked for.
-- **Where the messages come from:** the engine's `LocalMatch` passes every message through its `wire` hook. The hook is told which player's connection the message is on. `MatchSession.onWire` hands them to listeners.
+- **Where the messages come from:**
+  - Online, `OnlineSession.onWire` hands over each message this player's socket sends or hears. A bot's messages are its worker's, and aren't shown.
+  - In a `MatchSession`, the engine's `LocalMatch` passes every message through its `wire` hook. The hook is told which player's connection the message is on. `MatchSession.onWire` hands them to listeners.
 - **Why it can't change a match:**
   - The hook returns each message unchanged.
   - With no listener, the hook does nothing more than check that there is none.

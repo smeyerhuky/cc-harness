@@ -1,4 +1,9 @@
-import { DEFAULT_SETTINGS, encodeClientToMatch } from '@garbage-day/protocol';
+import {
+  DEFAULT_SETTINGS,
+  encodeClientToMatch,
+  parseMatchToClient,
+  type MatchToClient,
+} from '@garbage-day/protocol';
 import { env, exports } from 'cloudflare:workers';
 import { expect } from 'vitest';
 
@@ -48,4 +53,23 @@ export async function seat(id: string, seat: 0 | 1, address?: string) {
   const s = await connect(`/ws/match/${id}`, address);
   s.ws.send(encodeClientToMatch({ type: 'hello', token: TOKENS[seat], handle: 'Brisk Heron 42' }));
   return s;
+}
+
+export type Socket = Awaited<ReturnType<typeof connect>>;
+
+/** The next message, parsed; fails the test if it doesn't parse. */
+export async function read(s: Socket): Promise<MatchToClient> {
+  const r = parseMatchToClient(await s.next());
+  if (!r.ok) throw r.error;
+  return r.msg;
+}
+
+/** Reads until a message of `type` arrives; returns it and what came before. */
+export async function until<T extends MatchToClient['type']>(s: Socket, type: T) {
+  const before: MatchToClient[] = [];
+  for (;;) {
+    const m = await read(s);
+    if (m.type === type) return { msg: m as Extract<MatchToClient, { type: T }>, before };
+    before.push(m);
+  }
 }

@@ -20,6 +20,15 @@ import { DEFAULT_RULES, type Rules } from './rules';
 // engine, so the client wraps it with a socket and the tests wrap it with a referee.
 
 type OppMessage = Extract<ServerMessage, { type: 'opp' }>;
+type ClockMessage = Extract<ServerMessage, { type: 'clock' }>;
+
+/**
+ * A client this many ticks or more behind the referee's clock jumps to it: its browser stalled (a
+ * busy main thread, a throttled tab), and the time passed without it. Half a second.
+ */
+const MAX_LAG = 30;
+/** Active time this close to the referee's is left alone, so the level can't flicker at a boundary. */
+const ACTIVE_SLACK = 3;
 
 /**
  * What a player knows of their opponent: the board as of the opponent's last lock, and where the
@@ -79,10 +88,14 @@ export class OpponentView {
   }
 }
 
-/** What comes with `start` besides the engine's message: this player's seat and hole seed. */
+/**
+ * What comes with `start` besides the engine's message: this player's seat and hole seed, and
+ * the rules the match's settings change (GD-STORY-010).
+ */
 export interface StartExtras {
   readonly you?: PlayerIndex;
   readonly holes?: number;
+  readonly rules?: Partial<Rules>;
 }
 
 export interface ClientMatchOptions {
@@ -96,7 +109,8 @@ export interface ClientMatchOptions {
 }
 
 export class ClientMatch {
-  readonly rules: Rules;
+  /** The match's rules: the options' until `start` brings the match's own. */
+  rules: Rules;
   /** This player's tick: set from `start`, then one a step. */
   t = 0;
   /** Ticks of play, as the referee counts them: from the go tick, while not frozen. */
@@ -163,6 +177,10 @@ export class ClientMatch {
       this.opponent.apply(msg);
       return;
     }
+    if (msg.type === 'clock') {
+      this.sync(msg);
+      return;
+    }
     if (msg.type === 'power') {
       const them: PlayerIndex = this.seat === 0 ? 1 : 0;
       this.opponent.stamp(msg, them);
@@ -174,6 +192,7 @@ export class ClientMatch {
         this.early.push(msg);
         return;
       }
+      if (extras.rules) this.rules = { ...DEFAULT_RULES, ...this.o.rules, ...extras.rules };
       this.me = new PlayerSim(extras.you ?? this.seat, extras.holes ?? 0, this.rules, {
         send: (m) => this.send(m),
         emit: (ev) => this.o.onPlayerEvent?.(ev),
@@ -203,6 +222,22 @@ export class ClientMatch {
       const pos = P.posMessage();
       if (pos) this.send(pos);
     }
+  }
+
+  /**
+   * The referee's clock (GD-STORY-013). This client runs its ticks about one trip behind the
+   * referee's, as it does for every tick the referee stamps, so the clock's tick is about now.
+   * A client far behind it jumps there. Active time, which sets the speed level and the match
+   * clock, is the referee's, counted on to this tick while this player plays: a player frozen by a
+   * drop the referee never noticed, or by a stall, catches up rather than levelling up late.
+   */
+  private sync(msg: ClockMessage): void {
+    const P = this.me;
+    if (!P) return;
+    if (msg.tick - this.t >= MAX_LAG) this.t = msg.tick;
+    const playing = !P.frozen && !this.offline && P.alive && !this.result;
+    const active = msg.active + (playing ? Math.max(0, this.t - msg.tick) : 0);
+    if (Math.abs(active - this.activeTicks) > ACTIVE_SLACK) this.activeTicks = active;
   }
 
   /** Sends a message to the referee, or, while offline, keeps it for the rejoin. */

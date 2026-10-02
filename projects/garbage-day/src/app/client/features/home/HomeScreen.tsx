@@ -1,9 +1,10 @@
 import { Button, Kbd } from '@garbage-day/ui';
-import { Suspense, use } from 'react';
+import { Suspense, use, useId, useState } from 'react';
 import { useLoaderData, useNavigate } from 'react-router';
 import type { ServerStatus } from '../../health';
 import { keyLabel } from '../../input/bindings';
 import { AppActorContext } from '../../state/appActor';
+import { GAME_CODE } from '../../state/appMachine';
 import { usePrefs } from '../../state/prefs';
 import type { HomeData } from './loader';
 import styles from './Home.module.css';
@@ -14,6 +15,55 @@ function Status({ status }: { status: Promise<ServerStatus> }) {
     <p className={styles.status} role="status">
       {s.ok ? `Server ready · ${s.environment} · protocol ${s.protocol}` : 'Server unreachable'}
     </p>
+  );
+}
+
+/** A code as typed: any case, with or without its `GD-` (PRD US-02). */
+const asCode = (text: string): string => {
+  const t = text.trim().toUpperCase();
+  return /^[A-Z0-9]{4}$/.test(t) ? `GD-${t}` : t;
+};
+
+/** A friend's game by its code, for whoever was sent the code rather than the link. */
+function JoinByCode() {
+  const navigate = useNavigate();
+  const id = useId();
+  const [text, setText] = useState('');
+  const [wrong, setWrong] = useState(false);
+  return (
+    <form
+      className={styles.join}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const code = asCode(text);
+        if (GAME_CODE.test(code)) void navigate(`/g/${code}`);
+        else setWrong(true);
+      }}
+    >
+      <label htmlFor={id}>Have a game code?</label>
+      <input
+        id={id}
+        className={styles.code}
+        value={text}
+        placeholder="GD-7KQ4"
+        maxLength={7}
+        autoCapitalize="characters"
+        autoComplete="off"
+        spellCheck={false}
+        aria-invalid={wrong}
+        aria-describedby={wrong ? `${id}-wrong` : undefined}
+        onChange={(e) => {
+          setText(e.target.value);
+          setWrong(false);
+        }}
+      />
+      <Button type="submit">Join</Button>
+      {wrong && (
+        <p id={`${id}-wrong`} className={styles.note} role="alert">
+          A game code is GD- and four letters or digits.
+        </p>
+      )}
+    </form>
   );
 }
 
@@ -56,14 +106,14 @@ export function HomeScreen() {
         >
           Quick match
         </Button>
-        <Button size="large" disabled>
+        <Button size="large" onClick={() => void navigate('/new')}>
           Create game
         </Button>
         <Button variant="ghost" size="large" onClick={() => void navigate('/settings')}>
           Settings
         </Button>
       </div>
-      <p className={styles.note}>Private games come next.</p>
+      <JoinByCode />
       <Suspense
         fallback={
           <p className={styles.status} role="status">

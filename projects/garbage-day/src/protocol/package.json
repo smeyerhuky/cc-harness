@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./handle": "./src/handle.ts"
+    "./handle": "./src/handle.ts",
+    "./settings": "./src/settings.ts"
   },
   "sideEffects": false,
   "dependencies": {

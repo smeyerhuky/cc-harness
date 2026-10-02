@@ -2,6 +2,7 @@ import { PIECE_TYPES, POWER_KINDS, scoreClear } from '@garbage-day/engine';
 import { z } from 'zod';
 import { MAX_ENCODED_BOARD } from './board-codec';
 import { HANDLE_MAX_LENGTH, HANDLE_PATTERN } from './handle';
+import { SETTING_CHOICES } from './settings';
 
 /** Bumped when a message changes shape; each side rejects other versions. */
 export const PROTOCOL_VERSION = 1;
@@ -60,16 +61,18 @@ const awayReason = z.enum(['tab', 'step', 'closed', 'lost']);
 export const handle = z.string().max(HANDLE_MAX_LENGTH).regex(HANDLE_PATTERN);
 /** A join token: opaque, URL-safe. */
 export const token = z.string().regex(/^[A-Za-z0-9_-]{16,128}$/);
-/** A match id: a private game's code (`GD-7KQ4`) or a quick match's generated id. */
+/** A match id: a private game's code (`GD-7KQ4`) or a quick or bot match's generated id. */
 export const matchId = z.string().regex(/^[A-Za-z0-9-]{4,64}$/);
+/** A private game's code: `GD-` and four letters or digits (PRD US-02). */
+export const gameCode = z.string().regex(/^GD-[A-Z0-9]{4}$/);
 
 /** The settings a player may change for a private or bot game (PRD, "Match settings"). */
 export const matchSettings = z.strictObject({
-  mode: z.enum(['standard', 'classic']),
-  rampSec: z.union([z.literal(10), z.literal(15), z.literal(20), z.literal(30)]),
-  pauseBudget: int(0, 3),
-  pauseSec: z.union([z.literal(60), z.literal(120), z.literal(180)]),
-  leaveResult: z.enum(['nocontest', 'win']),
+  mode: z.enum(SETTING_CHOICES.mode),
+  rampSec: z.literal(SETTING_CHOICES.rampSec),
+  pauseBudget: z.literal(SETTING_CHOICES.pauseBudget),
+  pauseSec: z.literal(SETTING_CHOICES.pauseSec),
+  leaveResult: z.enum(SETTING_CHOICES.leaveResult),
 });
 export type MatchSettings = z.infer<typeof matchSettings>;
 
@@ -97,9 +100,17 @@ const attack = toServer('attack', { rows: int(1, 100), clear }).refine(
   { message: 'The attack is more than the declared clear allows' },
 );
 
+/**
+ * A bot's settings. A bot client says so in its `hello`, and the Match DO tells the other player
+ * in `start`, so a bot always reads as a bot (PRD, open question 5; GD-TICKET-016). No handle can
+ * pass for one: a handle is two words and a number.
+ */
+export const botMark = z.strictObject({ skill: int(1, 10), speed: int(1, 10) });
+export type BotMark = z.infer<typeof botMark>;
+
 /** Messages the Match DO accepts; `ping` is answered without waking it. */
 export const clientToMatch = z.discriminatedUnion('t', [
-  toServer('hello', { token, handle }),
+  toServer('hello', { token, handle, bot: botMark.exactOptional() }),
   toServer('ready', {}),
   toServer('settings', { settings: matchSettings }),
   toServer('ping', {}),
@@ -130,6 +141,7 @@ export const clientToMatch = z.discriminatedUnion('t', [
   toServer('rejoin', { gack: count, awayMs: count.exactOptional() }),
   toServer('extend', {}),
   toServer('leave', {}),
+  toServer('rematch', {}),
 ]);
 
 // ---- Match DO → client ----
@@ -157,19 +169,23 @@ export const errorCodes = ['full', 'expired', 'bad-token', 'version', 'invalid',
 /** Messages a client accepts from the Match DO. */
 export const matchToClient = z.discriminatedUnion('t', [
   toClient('pong', {}),
+  // A private game's lobby (GD-STORY-010): each seat's handle once it has said hello, the host's
+  // settings, who is ready, and which seat is the listener's. Seat 0 is the host.
   toClient('lobby', {
-    handles: z.tuple([handle, handle.nullable()]),
+    handles: z.tuple([handle.nullable(), handle.nullable()]),
     settings: matchSettings,
     ready: z.tuple([z.boolean(), z.boolean()]),
     you: player,
   }),
   // `holes` seeds this player's garbage hole columns. It is not the match seed, which deals the
-  // pieces and never leaves the server (PRD US-06). `you` is this player's seat.
+  // pieces and never leaves the server (PRD US-06). `you` is this player's seat. `rivalBot` is
+  // there when the other player is a bot: its settings, as its `hello` said.
   toClient('start', {
     goAt: tick,
     settings: matchSettings.exactOptional(),
     holes: int(0, 4_294_967_295).exactOptional(),
     you: player.exactOptional(),
+    rivalBot: botMark.exactOptional(),
   }),
   toClient('bag', { pieces: z.array(dealtPiece).length(7).readonly() }),
   toClient('garbage', { rows: int(1, 200), id: int(1, 1_000_000) }),
@@ -196,6 +212,7 @@ export const matchToClient = z.discriminatedUnion('t', [
     free: z.boolean(),
   }),
   toClient('deadline', { deadline: tick }),
+  toClient('clock', { tick, active: tick }),
   toClient('bothAway', { endsAt: tick }),
   toClient('grace', { by: player, until: tick }),
   toClient('back', { by: player, away: tick, pausesLeft: int(0, 3) }),
@@ -205,6 +222,8 @@ export const matchToClient = z.discriminatedUnion('t', [
     by: player.nullable(),
   }),
   toClient('error', { code: z.enum(errorCodes), message: z.string().max(200) }),
+  toClient('rematch', {}),
+  toClient('agreed', {}),
 ]);
 
 // ---- The Lobby DO ----
@@ -223,6 +242,34 @@ export const lobbyToClient = z.discriminatedUnion('t', [
   toClient('matched', { matchId, token, opponent: handle }),
   toClient('error', { code: z.enum(errorCodes), message: z.string().max(200) }),
 ]);
+
+// ---- The Worker's HTTP API ----
+
+/**
+ * What `POST /api/bot-matches` answers (GD-STORY-015): a match opened for two seats, the
+ * player's token and the bot's. The browser hands the bot's to the worker that plays it.
+ */
+export const botMatch = z.object({ matchId, token, botToken: token });
+export type BotMatch = z.infer<typeof botMatch>;
+
+/**
+ * A new match's settings: `POST /api/games` takes the host's (GD-STORY-010), and
+ * `POST /api/bot-matches` the player's for a bot game (GD-TICKET-026).
+ */
+export const newGame = z.strictObject({ settings: matchSettings });
+/** It answers the game's code and the host's join token. */
+export const createdGame = z.object({ code: gameCode, token });
+export type CreatedGame = z.infer<typeof createdGame>;
+
+/** Why a game can't be joined: two players have it, it expired, or no game has the code. */
+export const gameRefusals = ['full', 'expired', 'none'] as const;
+export type GameRefusal = (typeof gameRefusals)[number];
+/**
+ * `POST /api/games/:code/join` answers the guest's join token, or why there is none. A game has
+ * one guest token, handed out once; the guest's browser keeps it to come back.
+ */
+export const joinedGame = z.union([z.object({ token }), z.object({ error: z.enum(gameRefusals) })]);
+export type JoinedGame = z.infer<typeof joinedGame>;
 
 export type ClientToMatchWire = z.infer<typeof clientToMatch>;
 export type MatchToClientWire = z.infer<typeof matchToClient>;

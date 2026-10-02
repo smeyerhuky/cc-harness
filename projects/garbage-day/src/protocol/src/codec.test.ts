@@ -25,7 +25,7 @@ import {
   parseLobbyToClient,
   parseMatchToClient,
 } from './codec';
-import { PING, PONG, PROTOCOL_VERSION } from './schemas';
+import { botMatch, PING, PONG, PROTOCOL_VERSION } from './schemas';
 import { DEFAULT_SETTINGS } from './settings';
 
 const stats: PlayerStats = {
@@ -49,6 +49,7 @@ const token = 'tok_0123456789abcdef';
 
 const clientToMatch: ClientToMatch[] = [
   { type: 'hello', token, handle: 'Brisk Heron 42' },
+  { type: 'hello', token, handle: 'Steady Bot 1', bot: { skill: 5, speed: 5 } },
   { type: 'ready' },
   { type: 'settings', settings: { ...DEFAULT_SETTINGS, mode: 'classic' } },
   { type: 'hb' },
@@ -77,6 +78,7 @@ const clientToMatch: ClientToMatch[] = [
   { type: 'rejoin', gack: 9, awayMs: 1200 },
   { type: 'extend' },
   { type: 'leave' },
+  { type: 'rematch' },
 ];
 
 const matchToClient: MatchToClient[] = [
@@ -91,6 +93,8 @@ const matchToClient: MatchToClient[] = [
   { type: 'start', goAt: 180 },
   { type: 'start', goAt: 180, settings: DEFAULT_SETTINGS },
   { type: 'start', goAt: 180, holes: 3_141_592_653, you: 1 },
+  { type: 'start', goAt: 180, holes: 7, you: 0, rivalBot: { skill: 8, speed: 3 } },
+  { type: 'clock', tick: 1260, active: 1080 },
   {
     type: 'bag',
     pieces: [
@@ -129,6 +133,8 @@ const matchToClient: MatchToClient[] = [
   { type: 'back', by: 0, away: 360, pausesLeft: 0 },
   { type: 'result', winner: null, reason: 'left-while-paused', by: 0 },
   { type: 'error', code: 'full', message: 'This game is full.' },
+  { type: 'rematch' },
+  { type: 'agreed' },
 ];
 
 const clientToLobby: ClientToLobby[] = [
@@ -198,11 +204,11 @@ describe('agreement with the engine', () => {
   it('covers the engine’s messages in both directions', () => {
     expectTypeOf<ClientMessage>().toExtend<ClientToMatch>();
     expectTypeOf<
-      Exclude<ClientToMatch, { type: 'hello' | 'ready' | 'settings' }>
+      Exclude<ClientToMatch, { type: 'hello' | 'ready' | 'settings' | 'rematch' }>
     >().toExtend<ClientMessage>();
     expectTypeOf<ServerMessage>().toExtend<MatchToClient>();
     expectTypeOf<
-      Exclude<MatchToClient, { type: 'lobby' | 'error' | 'pong' }>
+      Exclude<MatchToClient, { type: 'lobby' | 'error' | 'pong' | 'rematch' | 'agreed' }>
     >().toExtend<ServerMessage>();
   });
 });
@@ -215,7 +221,9 @@ describe('the wire form', () => {
   });
 
   it('sends a lock’s board encoded, not as 240 characters', () => {
-    const wire = JSON.parse(encodeClientToMatch(clientToMatch[6] as ClientToMatch)) as {
+    const lock = clientToMatch.find((m) => m.type === 'lock');
+    if (!lock) throw new Error('no lock sample');
+    const wire = JSON.parse(encodeClientToMatch(lock)) as {
       board: string;
     };
     expect(wire.board).toBe('rX4.X9.X5I4.2T');
@@ -315,4 +323,31 @@ describe('a whole match over the wire', () => {
     expect(direct.result).not.toBeNull();
     expect(play(true)).toEqual(direct);
   }, 60_000);
+});
+
+describe('the bot mark', () => {
+  it('takes a bot’s settings in range, and nothing a person could pass off as one', () => {
+    const hello = (extra: Record<string, unknown>) =>
+      parseClientToMatch(
+        JSON.stringify({ v: 1, t: 'hello', token: 'token-seat-zero-0000', ...extra }),
+      ).ok;
+    expect(hello({ handle: 'Steady Bot 1', bot: { skill: 10, speed: 1 } })).toBe(true);
+    expect(hello({ handle: 'Steady Bot 1', bot: { skill: 11, speed: 1 } })).toBe(false);
+    expect(hello({ handle: 'Steady Bot 1', bot: { skill: 5 } })).toBe(false);
+    // A bot's name is never a handle, so a person can't take one.
+    expect(hello({ handle: 'Bot · Pro' })).toBe(false);
+  });
+});
+
+describe('a bot match', () => {
+  it('is a match id and two tokens, the player’s and the bot’s', () => {
+    const ok = {
+      matchId: 'B-0123456789',
+      token: 'token-seat-zero-0000',
+      botToken: 'token-seat-one-11111',
+    };
+    expect(botMatch.safeParse(ok).success).toBe(true);
+    expect(botMatch.safeParse({ ...ok, botToken: 'short' }).success).toBe(false);
+    expect(botMatch.safeParse({ ...ok, matchId: '../lobby' }).success).toBe(false);
+  });
 });

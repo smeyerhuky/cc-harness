@@ -6,8 +6,10 @@ import {
   type ServerMessage,
 } from '@garbage-day/engine';
 import {
+  DEFAULT_SETTINGS,
   encodeMatchToClient,
   parseClientToMatch,
+  type BotMark,
   type ClientToMatch,
   type MatchToClient,
 } from '@garbage-day/protocol';
@@ -44,6 +46,7 @@ function court(seed = 0x0dd) {
   });
   let T = 0;
   let started = false;
+  let rematchWanted: [boolean, boolean] = [false, false];
   const connectFor =
     (i: PlayerIndex): Connect =>
     (h) => {
@@ -65,14 +68,9 @@ function court(seed = 0x0dd) {
   const inputs = [new InputController(), new InputController()] as const;
   const effects: [MatchEffect[], MatchEffect[]] = [[], []];
   const sessions = ([0, 1] as const).map((i) => {
-    const s = new OnlineSession({
-      connect: connectFor(i),
-      token: TOKENS[i],
-      handle: 'Brisk Heron 42',
-      input: inputs[i],
-    });
+    const s = new OnlineSession({ handle: 'Brisk Heron 42', input: inputs[i] });
     s.onEffect((e) => effects[i].push(e));
-    s.start();
+    s.start({ connect: connectFor(i), token: TOKENS[i] });
     return s;
   }) as [OnlineSession, OnlineSession];
   let now = 1000;
@@ -95,6 +93,20 @@ function court(seed = 0x0dd) {
       }
       if (msg.type === 'ready' || msg.type === 'settings') continue;
       const seat = seats.get(from);
+      if (msg.type === 'rematch') {
+        const seat = seats.get(from);
+        if (seat !== undefined) {
+          rematchWanted[seat] = true;
+          for (const s of [0, 1] as const)
+            if (s !== seat) toClient.push({ to: s, msg: { type: 'rematch' } });
+          if (rematchWanted[0] && rematchWanted[1]) {
+            rematchWanted = [false, false];
+            for (const s of [0, 1] as const) toClient.push({ to: s, msg: { type: 'agreed' } });
+            referee.start(T);
+          }
+        }
+        continue;
+      }
       if (seat !== undefined) referee.onMessage(seat, msg, T);
     }
     // The DO's auto-response answers each live socket's ping, which the referee hears as a heartbeat.
@@ -130,7 +142,19 @@ function court(seed = 0x0dd) {
       if (to === seat && msg.type === 'garbage') byId.set(msg.id, msg.rows);
     return byId;
   };
-  return { sessions, inputs, effects, referee, ticks, links, kill, routedTo, now: () => T };
+  return {
+    sessions,
+    inputs,
+    effects,
+    get referee() {
+      return referee;
+    },
+    ticks,
+    links,
+    kill,
+    routedTo,
+    now: () => T,
+  };
 }
 
 interface Wire {
@@ -184,6 +208,133 @@ describe('OnlineSession', () => {
     expect(c.sessions[1].getSnapshot().result).toMatchObject({ winner: 0, by: 1 });
     expect(c.sessions[1].getSnapshot().players[1].alive).toBe(false);
     for (const s of c.sessions) expect(s.getSnapshot().phase).toBe('over');
+  });
+});
+
+it('agrees to a rematch, renews the match, and plays again', async () => {
+  const c = court();
+  await c.ticks(200);
+  for (let i = 0; i < 60 * 40 && !c.referee.result; i++) {
+    if (i % 3 === 0) c.inputs[0].press('hard');
+    await c.ticks(1);
+  }
+  await c.ticks(5);
+  expect(c.referee.state).toBe('over');
+
+  // Rematch
+  c.sessions[0].rematch();
+  await c.ticks(1);
+  expect(c.sessions[0].getSnapshot().rematch?.mine).toBe(true);
+  expect(c.sessions[1].getSnapshot().rematch?.theirs).toBe(true);
+
+  c.sessions[1].rematch();
+  await c.ticks(1);
+
+  // Both agreed, so match is renewed and restarts
+  await c.ticks(5);
+  expect(c.sessions[0].getSnapshot().phase).toBe('countdown');
+  expect(c.sessions[1].getSnapshot().phase).toBe('countdown');
+});
+
+describe('OnlineSession: a bot rival (GD-TICKET-016)', () => {
+  it('passes on that the rival is a bot when the Match DO says so', async () => {
+    const link: { h?: LinkHandlers } = {};
+    const connect: Connect = (h) => {
+      link.h = h;
+      queueMicrotask(() => h.open());
+      return { send: () => undefined, close: () => undefined };
+    };
+    const marks: BotMark[] = [];
+    const s = new OnlineSession({
+      handle: 'Brisk Heron 42',
+      input: new InputController(),
+      onRivalBot: (bot) => marks.push(bot),
+    });
+    s.start({ connect, token: TOKENS[0] });
+    await Promise.resolve();
+    link.h?.message(encodeMatchToClient({ type: 'start', goAt: 180, holes: 1, you: 0 }));
+    expect(marks).toEqual([]);
+    link.h?.message(
+      encodeMatchToClient({
+        type: 'start',
+        goAt: 180,
+        holes: 1,
+        you: 0,
+        rivalBot: { skill: 8, speed: 3 },
+      }),
+    );
+    expect(marks).toEqual([{ skill: 8, speed: 3 }]);
+    s.close();
+  });
+});
+
+describe('OnlineSession: a private game’s lobby (GD-STORY-010)', () => {
+  it('keeps the lobby, says Ready and the settings, and starts on the game’s rules', async () => {
+    const link: { h?: LinkHandlers } = {};
+    const sent: string[] = [];
+    const connect: Connect = (h) => {
+      link.h = h;
+      queueMicrotask(() => h.open());
+      return { send: (text) => sent.push(text), close: () => undefined };
+    };
+    const starts: unknown[] = [];
+    const s = new OnlineSession({
+      handle: 'Brisk Heron 42',
+      input: new InputController(),
+      onStart: (lobby) => starts.push(lobby?.handles),
+    });
+    const changes = vi.fn();
+    s.subscribe(changes);
+    s.start({ connect, token: TOKENS[0] });
+    await Promise.resolve();
+    expect(s.getLobby()).toBeNull();
+    const lobby: MatchToClient = {
+      type: 'lobby',
+      handles: ['Brisk Heron 42', 'Rowdy Puffin 22'],
+      settings: { ...DEFAULT_SETTINGS, rampSec: 30 },
+      ready: [false, true],
+      you: 0,
+    };
+    link.h?.message(encodeMatchToClient(lobby));
+    expect(s.getLobby()).toEqual(lobby);
+    expect(changes).toHaveBeenCalled();
+    s.ready();
+    s.changeSettings({ ...DEFAULT_SETTINGS, mode: 'classic' });
+    const said = sent.map((t) => parseClientToMatch(t)).flatMap((r) => (r.ok ? [r.msg] : []));
+    expect(said.slice(-2)).toEqual([
+      { type: 'ready' },
+      { type: 'settings', settings: { ...DEFAULT_SETTINGS, mode: 'classic' } },
+    ]);
+    link.h?.message(
+      encodeMatchToClient({
+        type: 'start',
+        goAt: 180,
+        holes: 1,
+        you: 0,
+        settings: { ...DEFAULT_SETTINGS, rampSec: 30 },
+      }),
+    );
+    expect(starts).toEqual([['Brisk Heron 42', 'Rowdy Puffin 22']]);
+    expect(s.match.rules.rampSec).toBe(30);
+    s.close();
+  });
+
+  it('says why the Match DO turned the seat away', async () => {
+    const link: { h?: LinkHandlers } = {};
+    const connect: Connect = (h) => {
+      link.h = h;
+      queueMicrotask(() => h.open());
+      return { send: () => undefined, close: () => undefined };
+    };
+    const s = new OnlineSession({ handle: 'Brisk Heron 42', input: new InputController() });
+    s.start({ connect, token: TOKENS[0] });
+    await Promise.resolve();
+    expect(s.getRefusal()).toBeNull();
+    link.h?.message(encodeMatchToClient({ type: 'error', code: 'rate', message: 'Slow down' }));
+    expect(s.getRefusal()).toBeNull();
+    link.h?.message(encodeMatchToClient({ type: 'error', code: 'expired', message: 'Gone' }));
+    expect(s.getRefusal()).toBe('expired');
+    s.close();
   });
 });
 

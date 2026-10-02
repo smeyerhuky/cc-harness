@@ -113,16 +113,16 @@ weren't answered one by one, so each default holds).
   [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
 - [x] Lobby DO quick match, waiting count, bot offer after 20 s (US-01) —
   [`GD-STORY-009`](backlog/GD-STORY-009.md)
-- [ ] Private games: create, code and link, Copy and Share, ready lobby, full and expired states
+- [x] Private games: create, code and link, Copy and Share, ready lobby, full and expired states
   (US-02) — [`GD-STORY-010`](backlog/GD-STORY-010.md)
 - [x] Match DO: dealing bags with gems, relay at 15 Hz and per lock, hidden next pieces, garbage
   routing with the ledger and resend, showdown multiplier, power-up stamping, server-side message
   validation and attack limits (US-06, US-07, US-08, US-10, US-11) —
   [`GD-STORY-011`](backlog/GD-STORY-011.md), [`GD-STORY-012`](backlog/GD-STORY-012.md), and the
   checks in [`GD-TICKET-028`](backlog/GD-TICKET-028.md)
-- [ ] Clock sync and active-time speed levels across two clients (US-09) —
+- [x] Clock sync and active-time speed levels across two clients (US-09) —
   [`GD-STORY-013`](backlog/GD-STORY-013.md)
-- [ ] The bot as a second client in a Web Worker (US-03 online) —
+- [x] The bot as a second client in a Web Worker (US-03 online) —
   [`GD-STORY-015`](backlog/GD-STORY-015.md)
 - [ ] Results and rematch over the network (US-15) — [`GD-STORY-014`](backlog/GD-STORY-014.md)
 - [ ] Durable Object tests in the Workers pool; end-to-end quick match and private link with two
@@ -132,9 +132,9 @@ weren't answered one by one, so each default holds).
   [`GD-TICKET-030`](backlog/GD-TICKET-030.md)
 - [x] The app's tests wait long enough for a loaded CI runner —
   [`GD-TICKET-032`](backlog/GD-TICKET-032.md)
-- [ ] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
+- [x] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
 - [ ] Connection quality indicator, visible degradation above 150 ms — [`GD-TICKET-017`](backlog/GD-TICKET-017.md)
-- [ ] Match settings for a bot game — [`GD-TICKET-026`](backlog/GD-TICKET-026.md)
+- [x] Match settings for a bot game — [`GD-TICKET-026`](backlog/GD-TICKET-026.md)
 - [ ] The client architecture matches the code — [`GD-TICKET-027`](backlog/GD-TICKET-027.md)
 
 ## M4 — Pauses and presence
@@ -144,7 +144,8 @@ weren't answered one by one, so each default holds).
 - [ ] The waiting player's popover, wait bar, +1:00, Leave with the configurable result (US-13)
 - [ ] Heartbeats by auto-response, free reconnects, the 15 s grace, both-away session end, all as
   DO alarms
-- [ ] Rejoin after closing the tab, SQLite snapshots, restore after a deploy restart
+- [ ] Rejoin after closing the tab, SQLite snapshots, restore after a deploy restart; a fresh page
+  plays on in its running match — [`GD-TICKET-033`](backlog/GD-TICKET-033.md)
 - [ ] A reconnect loses nothing: client messages numbered and acknowledged, missed broadcasts
   caught up, bags asked for by number — [`GD-TICKET-031`](backlog/GD-TICKET-031.md)
 - [ ] Return notes with time away and pauses left (US-14)

@@ -116,10 +116,15 @@ describe('SearchingScreen', () => {
   });
 
   it('offers a bot after the wait, and either choice stays in the pool', () => {
+    usePrefs.getState().setBot({ skill: 8, speed: 4 });
     const r = renderWith(<SearchingScreen />, (app) => {
       app.send({ type: 'QUICK_MATCH' });
       app.send({ type: 'BOT_OFFER' });
     });
+    // The offer names the bot it is (GD-TICKET-016).
+    expect(screen.getByRole('region', { name: 'Nobody yet' }).textContent).toContain(
+      'Bot · Pro can play you meanwhile.',
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Keep waiting' }));
     expect(r.app().getSnapshot().value).toBe('searching');
     expect(screen.queryByRole('button', { name: 'Play a bot while you wait' })).toBeNull();
@@ -127,7 +132,7 @@ describe('SearchingScreen', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Play a bot while you wait' }));
     const s = r.app().getSnapshot();
     expect(s.value).toBe('countdown');
-    expect(s.context).toMatchObject({ mode: 'bot', queued: true });
+    expect(s.context).toMatchObject({ mode: 'bot', queued: true, opponent: 'Bot · Pro' });
   });
 
   it('cancels back home, out of the pool', () => {

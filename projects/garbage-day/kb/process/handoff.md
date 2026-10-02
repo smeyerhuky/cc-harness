@@ -22,9 +22,19 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-009`](backlog/GD-STORY-009.md): quick match, with the bot offer;
   - [`GD-TICKET-030`](backlog/GD-TICKET-030.md): CodeQL's alert found (the SARIF is now a run artifact) and fixed; online matches deal from a 128-bit secret seed;
   - [`GD-TICKET-013`](backlog/GD-TICKET-013.md): a dropped connection freezes the player, reconnects with backoff and rejoins without losing garbage;
-  - [`GD-STORY-012`](backlog/GD-STORY-012.md): garbage, power-ups and showdowns between two clients, each seen on both screens.
+  - [`GD-STORY-012`](backlog/GD-STORY-012.md): garbage, power-ups and showdowns between two clients, each seen on both screens;
+  - [`GD-STORY-013`](backlog/GD-STORY-013.md): both players' speed level and match clock follow the Match DO's clock;
+  - [`GD-TICKET-016`](backlog/GD-TICKET-016.md): a bot reads as a bot on every screen, and the protocol marks a bot client;
+  - [`GD-STORY-015`](backlog/GD-STORY-015.md): every bot match plays through the Match DO, with the bot as a second client in a Web Worker;
+  - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games;
+  - [`GD-TICKET-026`](backlog/GD-TICKET-026.md): a bot game on the player's Mode and Speed-up every.
+
+  `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` are in
+  pull request #15, not yet in production. CI is green to `37fac64`.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
+  A bot plays under the same server rules, from its own worker, and two friends can meet by a
+  link. A reload mid-match is [`GD-TICKET-033`](backlog/GD-TICKET-033.md), in M4.
   What a reconnect can still lose is [`GD-TICKET-031`](backlog/GD-TICKET-031.md), in M4.
   - **M2 closed at its owner check-in on 2026-10-01:** "Keep going". The four decisions weren't answered one by one, so each default holds ([the check-in](journal/2026-09-30-scaffold.md#next)). The defaults: bot-game settings come in M3 after private games; the design is rewritten to match the code for the three unused React APIs; M3 is built in the index's order.
   - **Every M2 item was done** except the owner's token rotation, [`GD-TICKET-022`](backlog/GD-TICKET-022.md), due by 2026-12-29 ([roadmap](roadmap.md)).
@@ -33,30 +43,24 @@ history lives in the [running journal](journal/index.md).
   - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
   - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
 - **Branch:** `ccr-a9d3b393-jvy3f5` (the session's designated branch).
-- **In production** (`https://garbage-day.smeyerhuky.workers.dev`), from pull request #13:
-  - [`GD-TICKET-021`](backlog/GD-TICKET-021.md), [`GD-TICKET-023`](backlog/GD-TICKET-023.md) (the `ui` commons, with a gallery at `/gallery`) and [`GD-TICKET-014`](backlog/GD-TICKET-014.md);
-  - [`GD-STORY-001`](backlog/GD-STORY-001.md), [`GD-STORY-007`](backlog/GD-STORY-007.md) and [`GD-STORY-003`](backlog/GD-STORY-003.md): a local match by keyboard, home and settings, and rebinding.
-- **In pull request #14** (open; its Worker Preview is `https://pr-14-garbage-day.smeyerhuky.workers.dev`):
-  - [`GD-TICKET-018`](backlog/GD-TICKET-018.md) (Quad) and [`GD-STORY-002`](backlog/GD-STORY-002.md) (the fight on screen);
-  - [`GD-STORY-004`](backlog/GD-STORY-004.md) with [`GD-TICKET-015`](backlog/GD-TICKET-015.md) (touch play);
-  - [`GD-STORY-005`](backlog/GD-STORY-005.md) (the layouts) and [`GD-STORY-006`](backlog/GD-STORY-006.md) (bot setup);
-  - [`GD-STORY-008`](backlog/GD-STORY-008.md) (accessibility) and [`GD-TICKET-024`](backlog/GD-TICKET-024.md) (the developer overlay: `?dev` or `);
-  - [`GD-TICKET-025`](backlog/GD-TICKET-025.md) (no literal colours).
-
-  CI is green on its head. The history is in the [journal entry](journal/2026-09-30-scaffold.md).
-- **Waiting on the owner:**
-  - playing pull request #14's preview on a real phone, then merging it;
-  - replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
+- **In production** (`https://garbage-day.smeyerhuky.workers.dev`): everything above. The owner
+  merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
+  has all of M2 and M3 so far: quick match against a stranger, with reconnects and the fight on
+  both screens.
+  **Pull request #15 is open** (the owner asked on 2026-10-01): `GD-STORY-013`, `GD-TICKET-016`,
+  `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026`. The session watches it for CI and reviews,
+  with an hourly check-in, and drives it to green; the owner merges. Work goes on in the same
+  branch, so later items join the pull request.
+- **Waiting on the owner:** replacing the Cloudflare token before 2026-12-29 ([`GD-TICKET-022`](backlog/GD-TICKET-022.md)).
 
   Settled earlier: the Cloudflare secrets, the Renovate app, and the `main-protect` ruleset requiring `garbage-day-ok` ([the pipeline](../design/stack-and-ci.md#the-pipeline)).
 - **Gates:** the KB gates and, from `projects/garbage-day/`, the [code gates](../design/stack-and-ci.md#code-gates) and `pnpm test:browser`. All pass, locally and in CI.
 
 ## Immediate next step
 
-[`GD-STORY-013`](backlog/GD-STORY-013.md): the speed-up on the Match DO's clock. Each client
-counts its own active ticks today, so after a pause or a reconnect the two can be a level apart;
-the levels should follow the DO's active time. Then the rest of M3 in the
-[backlog index](backlog/index.md)'s order. Work pushed before pull request #14 merges joins it.
+[`GD-STORY-014`](backlog/GD-STORY-014.md): the result and rematch over the network. Between
+people the result card offers only Home today (`ResultCard`); a bot rematch already asks for a
+new match. Then the rest of M3 in the [backlog index](backlog/index.md)'s order.
 
 ## Standing rules
 
@@ -76,13 +80,15 @@ the levels should follow the DO's active time. Then the rest of M3 in the
   that item's criteria must find nothing outside `tokens.css`.
 - **CodeQL's findings are in the run's `codeql-sarif` artifact** (`GD-TICKET-030`). The Security
   tab is out of an agent's reach; download the artifact through the Actions tools.
-- **To check online play with a real opponent** until `GD-STORY-015` builds one in: write a Node
-  script that queues on `/ws/lobby` with Node's `WebSocket`, says hello on the match socket,
-  drives a `ClientMatch` with the engine's `Bot` as its controller at 60 steps a second, and pings
-  every second. Import the engine and protocol by their `src/index.ts` paths and bundle it with
-  the workspace's esbuild (`node_modules/.pnpm/esbuild@*/node_modules/esbuild/bin/esbuild
-  --bundle --platform=node --format=esm`). Space scripted key presses a frame apart: taps inside
-  one frame count as one.
+- **To check online play with a real opponent,** play a bot: it plays through the Match DO from
+  its own worker (`GD-STORY-015`). Two browser contexts that both choose Quick match are paired
+  with each other. Space scripted key presses a frame apart: taps inside one frame count as one.
+- **The app's tests play bot matches and private games against `src/app/test/fakeServer.ts`**, a
+  stand-in for the Worker and a Match DO. A test that only checks the screen passes even when no
+  match starts, so a test of play must check the match itself.
+- **CI's browser jobs run in Playwright's image**, whose fonts and timing differ from this
+  container's. To reproduce one, start Docker (`dockerd &`) and run `vitest --config
+  vitest.browser.config.ts` in the pinned image with the repo mounted (see the journal's step 56).
 
 ## Verify the baseline
 

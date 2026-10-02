@@ -1,0 +1,32 @@
+.form {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.legend {
+  padding: 0;
+  margin-block-end: 4px;
+  font: 700 var(--fs-20) / 1.2 var(--font-display);
+  text-transform: uppercase;
+}
+.summary {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.row dt {
+  color: var(--muted);
+}
+.row dd {
+  margin: 0;
+  font-weight: 600;
+}
