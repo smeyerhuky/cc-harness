@@ -34,7 +34,7 @@ function court(seed = 0x0dd) {
   const links: [Wire[], Wire[]] = [[], []];
   const toClient: { to: PlayerIndex; msg: MatchToClient }[] = [];
   const sentTo: { to: PlayerIndex; msg: ServerMessage }[] = [];
-  const referee = new Referee(seed, DEFAULT_RULES, {
+  let referee = new Referee(seed, DEFAULT_RULES, {
     send: (to: PlayerIndex, msg: ServerMessage) => {
       sentTo.push({ to, msg });
       toClient.push({
@@ -46,6 +46,7 @@ function court(seed = 0x0dd) {
   });
   let T = 0;
   let started = false;
+  let rematchWanted: [boolean, boolean] = [false, false];
   const connectFor =
     (i: PlayerIndex): Connect =>
     (h) => {
@@ -127,7 +128,7 @@ function court(seed = 0x0dd) {
       if (to === seat && msg.type === 'garbage') byId.set(msg.id, msg.rows);
     return byId;
   };
-  return { sessions, inputs, effects, referee, ticks, links, kill, routedTo, now: () => T };
+  return { sessions, inputs, effects, get referee() { return referee; }, ticks, links, kill, routedTo, now: () => T };
 }
 
 interface Wire {
@@ -183,6 +184,32 @@ describe('OnlineSession', () => {
     for (const s of c.sessions) expect(s.getSnapshot().phase).toBe('over');
   });
 });
+
+
+  it('agrees to a rematch, renews the match, and plays again', async () => {
+    const c = court();
+    await c.ticks(200);
+    for (let i = 0; i < 60 * 40 && !c.referee.result; i++) {
+      if (i % 3 === 0) c.inputs[0].press('hard');
+      await c.ticks(1);
+    }
+    await c.ticks(5);
+    expect(c.referee.state).toBe('over');
+    
+    // Rematch
+    c.sessions[0].rematch();
+    await c.ticks(1);
+    expect(c.sessions[0].getSnapshot().rematch?.mine).toBe(true);
+    expect(c.sessions[1].getSnapshot().rematch?.theirs).toBe(true);
+
+    c.sessions[1].rematch();
+    await c.ticks(1);
+    
+    // Both agreed, so match is renewed and restarts
+    await c.ticks(5);
+    expect(c.sessions[0].getSnapshot().phase).toBe('countdown');
+    expect(c.sessions[1].getSnapshot().phase).toBe('countdown');
+  });
 
 describe('OnlineSession: a bot rival (GD-TICKET-016)', () => {
   it('passes on that the rival is a bot when the Match DO says so', async () => {

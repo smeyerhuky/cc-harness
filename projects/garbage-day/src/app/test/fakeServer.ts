@@ -48,6 +48,8 @@ class FakeMatch {
   expired = false;
   private guest = false;
   private t0 = 0;
+  private rematchWanted: [boolean, boolean] = [false, false];
+  private rematchTimer: ReturnType<typeof setTimeout> | null = null;
   private tick = 0;
   private timer: ReturnType<typeof setInterval> | null = null;
 
@@ -126,7 +128,39 @@ class FakeMatch {
       this.tellLobby();
       return;
     }
-    this.referee?.onMessage(seat as PlayerIndex, msg, this.catchUp());
+    if (msg.type === 'rematch') {
+      this.onRematch(seat as PlayerIndex);
+      return;
+    }
+    this.referee?.onMessage(seat as PlayerIndex, msg as any, this.catchUp());
+  }
+
+  private onRematch(seat: PlayerIndex): void {
+    if (!this.referee || this.referee.state !== 'over') return;
+    this.rematchWanted[seat] = true;
+    for (const s of [0, 1] as const) {
+      if (s !== seat && this.seats[s]) this.seats[s]?.deliver(encodeMatchToClient({ type: 'rematch' }));
+    }
+    if (this.rematchWanted[0] && this.rematchWanted[1]) {
+      if (this.rematchTimer) clearTimeout(this.rematchTimer);
+      this.rematchTimer = null;
+      this.rematchWanted = [false, false];
+      for (const s of [0, 1] as const) this.seats[s]?.deliver(encodeMatchToClient({ type: 'agreed' }));
+      this.start();
+    } else if (!this.rematchTimer) {
+      this.rematchTimer = setTimeout(() => {
+        this.rematchTimer = null;
+        this.rematchWanted = [false, false];
+      }, 30000);
+    }
+  }
+
+  closeRematch(): void {
+    if (this.rematchTimer) {
+      clearTimeout(this.rematchTimer);
+      this.rematchTimer = null;
+      this.rematchWanted = [false, false];
+    }
   }
 
   closed(ws: FakeSocket): void {
@@ -293,6 +327,7 @@ interface FakeServer {
   openGame(settings?: MatchSettings): FakeMatch;
   /** The newest match. */
   last(): FakeMatch;
+  closeRematch(): void;
   /** Stops every match's clock and every bot. */
   close(): void;
 }
@@ -329,6 +364,9 @@ export function fakeServer(): FakeServer {
       const m = [...matches.values()].at(-1);
       if (!m) throw new Error('no match made');
       return m;
+    },
+    closeRematch: () => {
+      for (const m of matches.values()) m.closeRematch();
     },
     close: () => {
       for (const m of matches.values()) m.end();

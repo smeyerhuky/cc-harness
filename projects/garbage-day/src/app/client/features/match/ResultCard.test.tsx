@@ -30,18 +30,8 @@ function viewWith(result: RefereeResult, totals: MatchView['players'][0]['totals
   };
 }
 
-/** Puts the app machine into a quick match against another person, as a pairing would. */
-function Paired() {
-  const app = AppActorContext.useActorRef();
-  useState(() => {
-    app.send({ type: 'QUICK_MATCH' });
-    app.send({ type: 'MATCHED', opponent: 'Quiet Wren 7', matchId: 'Q-1', token: 'token-x' });
-    return null;
-  });
-  return null;
-}
 
-function renderCard(view: MatchView, onSound = vi.fn(), online = false) {
+function renderCard(view: MatchView, onSound = vi.fn(), onRematch?: () => void) {
   const store = { subscribe: () => () => undefined, getSnapshot: () => view };
   const stage = { current: null };
   const router = createMemoryRouter(
@@ -50,9 +40,8 @@ function renderCard(view: MatchView, onSound = vi.fn(), online = false) {
         path: '/',
         element: (
           <AppActorContext.Provider>
-            {online && <Paired />}
             <MatchSessionContext.Provider store={store}>
-              <ResultCard opponent="Bot · Regular" stage={stage} onSound={onSound} />
+              <ResultCard opponent="Bot · Regular" stage={stage} onSound={onSound} onRematch={onRematch} />
             </MatchSessionContext.Provider>
           </AppActorContext.Provider>
         ),
@@ -67,17 +56,38 @@ function renderCard(view: MatchView, onSound = vi.fn(), online = false) {
 const TOTALS = { lines: 24, sent: 11, quads: 2, tspins: 1, powersUsed: 3, pieces: 108 };
 
 describe('ResultCard', () => {
-  it('offers only Home after a match against a person, until rematches need both (M3)', () => {
-    renderCard(
-      viewWith(
-        { winner: 1, reason: 'topout', by: 0, activeTicks: 30 * TPS, ticks: 31 * TPS },
-        TOTALS,
+  it('asks the session for a rematch, showing when the rival asks, and signals when accepted', async () => {
+    let view = viewWith({ winner: 1, reason: 'topout', by: 0, activeTicks: 30 * TPS, ticks: 31 * TPS }, TOTALS);
+    let l: () => void = () => {};
+    const store = { subscribe: (listener: () => void) => { l = listener; return () => {}; }, getSnapshot: () => view };
+    const onRematch = vi.fn();
+    const stage = { current: null };
+    const router = createMemoryRouter([{
+      path: '/',
+      element: (
+        <AppActorContext.Provider>
+          <MatchSessionContext.Provider store={store}>
+            <ResultCard opponent="Quiet Wren 7" stage={stage} onSound={vi.fn()} onRematch={onRematch} />
+          </MatchSessionContext.Provider>
+        </AppActorContext.Provider>
       ),
-      vi.fn(),
-      true,
-    );
-    expect(screen.queryByRole('button', { name: 'Rematch' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Home' })).toBeDefined();
+    }]);
+    render(<RouterProvider router={router} />);
+
+    // Click Rematch
+    const btn = screen.getByRole('button', { name: 'Rematch' });
+    btn.click();
+    expect(onRematch).toHaveBeenCalledOnce();
+
+    // Re-render as "Waiting for RIVAL…"
+    view = { ...view, rematch: { mine: true, theirs: false } };
+    act(() => l());
+    expect(await screen.findByRole('button', { name: 'Waiting for RIVAL…' })).toBeDefined();
+
+    // Re-render as "Rival wants a rematch"
+    view = { ...view, rematch: { mine: false, theirs: true } };
+    act(() => l());
+    expect(await screen.findByRole('button', { name: 'Rival wants a rematch' })).toBeDefined();
   });
 
   it('says who won and why, with both players’ stats', async () => {

@@ -141,6 +141,7 @@ export const clientToMatch = z.discriminatedUnion('t', [
   toServer('rejoin', { gack: count, awayMs: count.exactOptional() }),
   toServer('extend', {}),
   toServer('leave', {}),
+  toServer('rematch', {}),
 ]);
 
 // ---- Match DO → client ----
@@ -221,6 +222,8 @@ export const matchToClient = z.discriminatedUnion('t', [
     by: player.nullable(),
   }),
   toClient('error', { code: z.enum(errorCodes), message: z.string().max(200) }),
+  toClient('rematch', {}),
+  toClient('agreed', {}),
 ]);
 
 // ---- The Lobby DO ----

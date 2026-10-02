@@ -45,6 +45,7 @@ function PrivateGame({ code, token }: { code: string; token: string }) {
           const rival = lobby?.handles[lobby.you === 0 ? 1 : 0];
           app.send({ type: 'BOTH_READY', opponent: rival ?? 'Rival' });
         },
+        onRematch: () => app.send({ type: 'REMATCH_ACCEPTED' }),
       }),
   );
   useEffect(() => {

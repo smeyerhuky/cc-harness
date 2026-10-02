@@ -107,6 +107,7 @@ export const MESSAGE_TYPES = {
     'rejoin',
     'extend',
     'leave',
+    'rematch',
   ),
   matchToClient: set(
     'pong',
@@ -126,6 +127,8 @@ export const MESSAGE_TYPES = {
     'back',
     'result',
     'error',
+    'rematch',
+    'agreed',
   ),
   clientToLobby: set('ping', 'queue', 'cancel'),
   lobbyToClient: set('pong', 'waiting', 'matched', 'error'),

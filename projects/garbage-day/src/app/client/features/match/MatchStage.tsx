@@ -82,7 +82,7 @@ export function MatchStage({ session, input }: { session: OnlineSession; input: 
                 : {})}
             />
             <AttackLayer session={session} stage={stage} />
-            {over && <ResultCard opponent={opponent} stage={stage} onSound={sound} />}
+            {over && <ResultCard opponent={opponent} stage={stage} onSound={sound} onRematch={() => session.rematch?.()} />}
           </div>
         </ScreenFrame>
       </InputContext>

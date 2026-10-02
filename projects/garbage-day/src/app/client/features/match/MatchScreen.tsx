@@ -32,6 +32,7 @@ export function MatchScreen() {
         onEnd: (r: RefereeResult) =>
           app.send({ type: 'ENDED', result: { winner: r.winner, reason: r.reason } }),
         onRivalBot: (rival) => app.send({ type: 'RIVAL_BOT', bot: rival }),
+        onRematch: () => app.send({ type: 'REMATCH_ACCEPTED' }),
       }),
   );
   // How this screen's session takes its seat, and lets go of it when the screen goes: a bot

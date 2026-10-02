@@ -55,13 +55,15 @@ export interface OnlineSessionOptions {
    * comes with it as last told.
    */
   readonly onStart?: (lobby: LobbyMessage | null) => void;
+  /** Both players agreed to a rematch. */
+  readonly onRematch?: () => void;
 }
 
 /** An empty view of the other player before they have played. */
 const NO_TOTALS = { lines: 0, sent: 0, quads: 0, tspins: 0, powersUsed: 0, pieces: 0 };
 
 export class OnlineSession implements Session {
-  readonly match: ClientMatch;
+  match: ClientMatch;
   private readonly client: MatchClient;
   private readonly listeners = new Set<() => void>();
   private readonly effectListeners = new Set<(e: MatchEffect) => void>();
@@ -76,6 +78,7 @@ export class OnlineSession implements Session {
   /** A private game's lobby, as last told (GD-STORY-010). */
   private lobby: LobbyMessage | null = null;
   private refusal: Refusal | null = null;
+  private rematchWanted: { mine: boolean; theirs: boolean } | null = null;
 
   constructor(private readonly o: OnlineSessionOptions) {
     this.client = new MatchClient({
@@ -91,6 +94,19 @@ export class OnlineSession implements Session {
       onRefused: (why) => {
         this.refusal = why;
         this.listeners.forEach((l) => l());
+      },
+      onRematchRequest: () => {
+        if (!this.rematchWanted) this.rematchWanted = { mine: false, theirs: true };
+        else this.rematchWanted.theirs = true;
+        this.refresh();
+      },
+      onRenew: (match) => {
+        this.match = match;
+        this.match.controller = this.o.input;
+        this.rematchWanted = null;
+        this.view = this.computeView();
+        this.o.onRematch?.();
+        this.refresh();
       },
     });
     this.match = this.client.match;
@@ -124,6 +140,14 @@ export class OnlineSession implements Session {
 
   /** Why the Match DO turned this seat away, if it did. */
   readonly getRefusal = (): Refusal | null => this.refusal;
+
+  /** Asks for a rematch. */
+  rematch(): void {
+    if (!this.rematchWanted) this.rematchWanted = { mine: true, theirs: false };
+    else this.rematchWanted.mine = true;
+    this.client.rematch();
+    this.refresh();
+  }
 
   /** Says this player is ready, in a private game's lobby. */
   ready(): void {
@@ -388,6 +412,7 @@ export class OnlineSession implements Session {
       result,
       connection: this.client.link,
       powerUps: m.rules.gemChance > 0,
+      ...(this.rematchWanted ? { rematch: this.rematchWanted } : {}),
     };
   }
 }

@@ -125,6 +125,7 @@ export interface Session extends Store<MatchView> {
   board(i: PlayerIndex): BoardView;
   /** The tick and the referee's state as this side knows them, for the developer overlay. */
   inspect(): { readonly tick: number; readonly referee: string };
+  rematch?(): void;
 }
 
 export interface MatchView {
@@ -148,6 +149,8 @@ export interface MatchView {
   readonly connection: Connection;
   /** Whether the match deals power-ups: a Classic one has none (PRD, "Match settings"). */
   readonly powerUps: boolean;
+  /** Who wants a rematch. */
+  readonly rematch?: { mine: boolean; theirs: boolean };
 }
 
 type Connection = 'local' | 'online' | 'reconnecting' | 'lost';

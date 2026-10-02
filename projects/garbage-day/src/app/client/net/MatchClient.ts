@@ -55,13 +55,17 @@ export interface MatchClientOptions {
   readonly onLobby?: (msg: LobbyMessage) => void;
   /** The Match DO turned this seat away; it closes the socket after. */
   readonly onRefused?: (why: Refusal) => void;
+  /** The other player asked for a rematch. */
+  readonly onRematchRequest?: () => void;
+  /** Both agreed to a rematch; a new match begins. */
+  readonly onRenew?: (match: ClientMatch) => void;
 }
 
 /** The longest absence a `rejoin` can report (the protocol's bound on `awayMs`). */
 const MAX_AWAY_MS = 1_000_000;
 
 export class MatchClient {
-  readonly match: ClientMatch;
+  match: ClientMatch;
   link: LinkState = 'online';
   private socket: Socket | null = null;
   /** When the connection dropped, in ms, for the rejoin's `awayMs`. */
@@ -122,6 +126,23 @@ export class MatchClient {
     this.socket?.send(encodeClientToMatch(msg));
   }
 
+  /** Asks the Match DO for a rematch. */
+  rematch(): void {
+    this.socket?.send(encodeClientToMatch({ type: 'rematch' }));
+  }
+
+  /** Renews the match on player agreement. */
+  private renew(): void {
+    this.match = new ClientMatch({
+      send: (msg) => {
+        this.o.onSent?.(msg);
+        this.socket?.send(encodeClientToMatch(msg));
+      },
+      ...(this.o.onPlayerEvent ? { onPlayerEvent: this.o.onPlayerEvent } : {}),
+    });
+    this.o.onRenew?.(this.match);
+  }
+
   /** Leaves the match: tells the referee, then closes the socket. */
   leave(): void {
     if (!this.match.result) this.match.send({ type: 'leave' });
@@ -146,6 +167,14 @@ export class MatchClient {
     }
     if (msg.type === 'error') {
       if (msg.code === 'expired' || msg.code === 'bad-token') this.o.onRefused?.(msg.code);
+      return;
+    }
+    if (msg.type === 'rematch') {
+      this.o.onRematchRequest?.();
+      return;
+    }
+    if (msg.type === 'agreed') {
+      this.renew();
       return;
     }
     this.o.onHeard?.(msg);

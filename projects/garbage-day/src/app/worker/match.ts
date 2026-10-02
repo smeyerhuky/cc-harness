@@ -105,6 +105,8 @@ export class MatchDO extends SocketDO<ClientToMatch> {
   protected readonly limits = MATCH_LIMITS;
   private setup: MatchSetup | null = null;
   private running: Running | null = null;
+  private rematchWanted: [boolean, boolean] = [false, false];
+  private rematchTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected parse(text: string) {
     return parseClientToMatch(text);
@@ -181,11 +183,35 @@ export class MatchDO extends SocketDO<ClientToMatch> {
       await this.inLobby(seat.seat, msg);
       return;
     }
+    if (msg.type === 'rematch') {
+      this.onRematch(seat.seat);
+      return;
+    }
     const run = this.running;
     if (!run) return;
     const t = this.catchUp(run);
-    run.referee.onMessage(seat.seat, msg, t);
+    run.referee.onMessage(seat.seat, msg as any, t);
     this.settle(run);
+  }
+
+  private onRematch(seat: PlayerIndex): void {
+    if (!this.running || this.running.referee.state !== 'over') return;
+    this.rematchWanted[seat] = true;
+    for (const [s, ws] of this.sockets()) {
+      if (s !== seat) ws.send(encodeMatchToClient({ type: 'rematch' }));
+    }
+    if (this.rematchWanted[0] && this.rematchWanted[1]) {
+      if (this.rematchTimer) clearTimeout(this.rematchTimer);
+      this.rematchTimer = null;
+      this.rematchWanted = [false, false];
+      for (const [, ws] of this.sockets()) ws.send(encodeMatchToClient({ type: 'agreed' }));
+      this.start();
+    } else if (!this.rematchTimer) {
+      this.rematchTimer = setTimeout(() => {
+        this.rematchTimer = null;
+        this.rematchWanted = [false, false];
+      }, 30000);
+    }
   }
 
   override webSocketClose(ws: WebSocket): void {
