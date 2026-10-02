@@ -86,6 +86,9 @@ const randomSeed128 = (): Seed128 => {
  */
 const CLOCK_MS = 1000;
 
+/** How long a rematch asked for by one player waits for the other (PRD US-15). */
+const REMATCH_MS = 30_000;
+
 /** A running referee and the clock it runs on. */
 interface Running {
   readonly referee: Referee;
@@ -207,10 +210,12 @@ export class MatchDO extends SocketDO<ClientToMatch> {
       for (const [, ws] of this.sockets()) ws.send(encodeMatchToClient({ type: 'agreed' }));
       this.start();
     } else if (!this.rematchTimer) {
+      // Only one asked: after 30 s both are told, and each goes back to the start (US-15).
       this.rematchTimer = setTimeout(() => {
         this.rematchTimer = null;
         this.rematchWanted = [false, false];
-      }, 30000);
+        for (const [, ws] of this.sockets()) ws.send(encodeMatchToClient({ type: 'lapsed' }));
+      }, REMATCH_MS);
     }
   }
 

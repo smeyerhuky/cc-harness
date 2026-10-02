@@ -59,6 +59,8 @@ export interface MatchClientOptions {
   readonly onRematchRequest?: () => void;
   /** Both agreed to a rematch; a new match begins. */
   readonly onRenew?: (match: ClientMatch) => void;
+  /** The other player did not answer a rematch in time; the players return to the start. */
+  readonly onRematchLapsed?: () => void;
 }
 
 /** The longest absence a `rejoin` can report (the protocol's bound on `awayMs`). */
@@ -175,6 +177,10 @@ export class MatchClient {
     }
     if (msg.type === 'agreed') {
       this.renew();
+      return;
+    }
+    if (msg.type === 'lapsed') {
+      this.o.onRematchLapsed?.();
       return;
     }
     this.o.onHeard?.(msg);

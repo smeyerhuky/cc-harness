@@ -135,6 +135,7 @@ const matchToClient: MatchToClient[] = [
   { type: 'error', code: 'full', message: 'This game is full.' },
   { type: 'rematch' },
   { type: 'agreed' },
+  { type: 'lapsed' },
 ];
 
 const clientToLobby: ClientToLobby[] = [
@@ -208,7 +209,7 @@ describe('agreement with the engine', () => {
     >().toExtend<ClientMessage>();
     expectTypeOf<ServerMessage>().toExtend<MatchToClient>();
     expectTypeOf<
-      Exclude<MatchToClient, { type: 'lobby' | 'error' | 'pong' | 'rematch' | 'agreed' }>
+      Exclude<MatchToClient, { type: 'lobby' | 'error' | 'pong' | 'rematch' | 'agreed' | 'lapsed' }>
     >().toExtend<ServerMessage>();
   });
 });

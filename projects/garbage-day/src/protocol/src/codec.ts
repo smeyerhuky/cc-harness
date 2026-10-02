@@ -129,6 +129,7 @@ export const MESSAGE_TYPES = {
     'error',
     'rematch',
     'agreed',
+    'lapsed',
   ),
   clientToLobby: set('ping', 'queue', 'cancel'),
   lobbyToClient: set('pong', 'waiting', 'matched', 'error'),

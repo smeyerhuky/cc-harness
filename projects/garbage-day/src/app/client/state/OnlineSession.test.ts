@@ -27,6 +27,9 @@ const FRAME = 1000 / 60;
  * DO joins them: seated by their `hello`, started together, and stepped a tick at a time.
  */
 function court(seed = 0x0dd) {
+  /** How often each session said play started, and that the match ended. */
+  const go: [number, number] = [0, 0];
+  const end: [number, number] = [0, 0];
   const seats = new Map<LinkHandlers, PlayerIndex>();
   const handlers: (LinkHandlers | null)[] = [null, null];
   const toReferee: { from: LinkHandlers; text: string }[] = [];
@@ -68,7 +71,12 @@ function court(seed = 0x0dd) {
   const inputs = [new InputController(), new InputController()] as const;
   const effects: [MatchEffect[], MatchEffect[]] = [[], []];
   const sessions = ([0, 1] as const).map((i) => {
-    const s = new OnlineSession({ handle: 'Brisk Heron 42', input: inputs[i] });
+    const s = new OnlineSession({
+      handle: 'Brisk Heron 42',
+      input: inputs[i],
+      onGo: () => go[i]++,
+      onEnd: () => end[i]++,
+    });
     s.onEffect((e) => effects[i].push(e));
     s.start({ connect: connectFor(i), token: TOKENS[i] });
     return s;
@@ -145,6 +153,8 @@ function court(seed = 0x0dd) {
   return {
     sessions,
     inputs,
+    go,
+    end,
     effects,
     get referee() {
       return referee;
@@ -234,6 +244,41 @@ it('agrees to a rematch, renews the match, and plays again', async () => {
   await c.ticks(5);
   expect(c.sessions[0].getSnapshot().phase).toBe('countdown');
   expect(c.sessions[1].getSnapshot().phase).toBe('countdown');
+
+  // The new match is announced like the first: play starts, and its end is told again, so the
+  // app moves to the countdown, to play, and to the result (GD-STORY-014).
+  expect([c.go[0], c.go[1], c.end[0], c.end[1]]).toEqual([1, 1, 1, 1]);
+  await c.ticks(200);
+  expect([c.go[0], c.go[1]]).toEqual([2, 2]);
+  for (let i = 0; i < 60 * 40 && c.referee.state !== 'over'; i++) {
+    if (i % 3 === 0) c.inputs[0].press('hard');
+    await c.ticks(1);
+  }
+  await c.ticks(5);
+  expect([c.end[0], c.end[1]]).toEqual([2, 2]);
+});
+
+it('clears a rematch wanted, and says so, when the Match DO says it lapsed (GD-STORY-014)', async () => {
+  const link: { h?: LinkHandlers } = {};
+  const connect: Connect = (h) => {
+    link.h = h;
+    queueMicrotask(() => h.open());
+    return { send: () => undefined, close: () => undefined };
+  };
+  const lapsed = vi.fn();
+  const s = new OnlineSession({
+    handle: 'Brisk Heron 42',
+    input: new InputController(),
+    onRematchLapsed: lapsed,
+  });
+  s.start({ connect, token: TOKENS[0] });
+  await Promise.resolve();
+  // The rival asked, and this player never answered.
+  link.h?.message(encodeMatchToClient({ type: 'rematch' }));
+  expect(s.getSnapshot().rematch).toEqual({ mine: false, theirs: true });
+  link.h?.message(encodeMatchToClient({ type: 'lapsed' }));
+  expect(lapsed).toHaveBeenCalledOnce();
+  expect(s.getSnapshot().rematch).toBeUndefined();
 });
 
 describe('OnlineSession: a bot rival (GD-TICKET-016)', () => {

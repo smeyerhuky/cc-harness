@@ -76,7 +76,7 @@ export function ResultCard({
   onRematch?: () => void;
 }) {
   const app = AppActorContext.useActorRef();
-  // Against a person, a rematch needs both to agree (GD-STORY-014); until then, only Home.
+  // Online, a rematch needs both to agree; the Match DO tells both when the 30 s lapse (US-15).
   const rematch = useMatch((v) => v.rematch);
   const myRematch = rematch?.mine;
   const theirRematch = rematch?.theirs;
@@ -90,13 +90,6 @@ export function ResultCard({
     if (winner !== undefined) announce(winner === 0);
     card.current?.focus();
   }, [winner]);
-
-  useEffect(() => {
-    if (myRematch && !theirRematch) {
-      const t = setTimeout(() => app.send({ type: 'REMATCH_TIMEOUT' }), 30000);
-      return () => clearTimeout(t);
-    }
-  }, [myRematch, theirRematch, app]);
   if (!result) return null;
   const { title, why } = resultCopy(result, opponent);
   return (

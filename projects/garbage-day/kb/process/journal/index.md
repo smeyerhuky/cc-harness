@@ -5,6 +5,10 @@ What happened on this project, one entry per working session, **newest first**: 
 Entries are appended, never rewritten; the current state lives in [`handoff.md`](../handoff.md).
 Each entry follows the [running-journal entry template](../../../../../kb/pdlc/templates/running-journal-entry.md).
 
+* [2026-10-02 — Garbage Day: checking the rematch, and fixing what the check found](2026-10-02-rematch.md)
+  — pull request #15 merged; `GD-STORY-014`'s criteria checked against it; four faults in the
+  rematch found (an unpressed player stuck, a bot that never answers, a screen that closed its own
+  match, a second match never announced) and fixed; played in two browsers; `GD-STORY-014` done.
 * [2026-09-30 — Garbage Day M1: workspace, CI and the engine](2026-09-30-scaffold.md) — the
   owner's "Continue" closed M0 with every default kept; the pnpm workspace scaffolded
   (`GD-TICKET-006`); CI workflows green, with one required check (`GD-TICKET-007`); the engine

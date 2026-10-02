@@ -224,6 +224,7 @@ export const matchToClient = z.discriminatedUnion('t', [
   toClient('error', { code: z.enum(errorCodes), message: z.string().max(200) }),
   toClient('rematch', {}),
   toClient('agreed', {}),
+  toClient('lapsed', {}),
 ]);
 
 // ---- The Lobby DO ----

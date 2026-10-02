@@ -3,7 +3,8 @@ import { webSocketLink } from '../net/link';
 import { runBot } from './botClient';
 
 // The bot's Web Worker (GD-STORY-015): the page posts the bot's seat and settings once, and the
-// worker plays the match through its own socket, then closes. The page never steps the bot.
+// worker plays the match through its own socket, asks for a rematch at each result, and closes
+// when nobody answers. The page never steps the bot.
 
 /** What the page posts: the bot's socket URL and join token, and its settings. */
 export interface BotJob {
@@ -21,7 +22,7 @@ globalThis.addEventListener(
       bot,
       // The bot's choices need no secret, only variety from one match to the next.
       seed: Math.floor(Math.random() * 2 ** 32),
-      onEnd: () => globalThis.close(),
+      onStop: () => globalThis.close(),
     });
   },
   { once: true },
