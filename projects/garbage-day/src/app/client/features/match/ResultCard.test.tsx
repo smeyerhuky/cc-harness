@@ -1,7 +1,6 @@
 import { TPS, type RefereeResult } from '@garbage-day/engine';
 import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { InputController } from '../../input/InputController';
 import { AppActorContext } from '../../state/appActor';
@@ -30,7 +29,6 @@ function viewWith(result: RefereeResult, totals: MatchView['players'][0]['totals
   };
 }
 
-
 function renderCard(view: MatchView, onSound = vi.fn(), onRematch?: () => void) {
   const store = { subscribe: () => () => undefined, getSnapshot: () => view };
   const stage = { current: null };
@@ -41,7 +39,12 @@ function renderCard(view: MatchView, onSound = vi.fn(), onRematch?: () => void) 
         element: (
           <AppActorContext.Provider>
             <MatchSessionContext.Provider store={store}>
-              <ResultCard opponent="Bot · Regular" stage={stage} onSound={onSound} onRematch={onRematch} />
+              <ResultCard
+                opponent="Bot · Regular"
+                stage={stage}
+                onSound={onSound}
+                {...(onRematch ? { onRematch } : {})}
+              />
             </MatchSessionContext.Provider>
           </AppActorContext.Provider>
         ),
@@ -57,21 +60,37 @@ const TOTALS = { lines: 24, sent: 11, quads: 2, tspins: 1, powersUsed: 3, pieces
 
 describe('ResultCard', () => {
   it('asks the session for a rematch, showing when the rival asks, and signals when accepted', async () => {
-    let view = viewWith({ winner: 1, reason: 'topout', by: 0, activeTicks: 30 * TPS, ticks: 31 * TPS }, TOTALS);
-    let l: () => void = () => {};
-    const store = { subscribe: (listener: () => void) => { l = listener; return () => {}; }, getSnapshot: () => view };
+    let view = viewWith(
+      { winner: 1, reason: 'topout', by: 0, activeTicks: 30 * TPS, ticks: 31 * TPS },
+      TOTALS,
+    );
+    const ls = new Set<() => void>();
+    const store = {
+      subscribe: (listener: () => void) => {
+        ls.add(listener);
+        return () => ls.delete(listener);
+      },
+      getSnapshot: () => view,
+    };
     const onRematch = vi.fn();
     const stage = { current: null };
-    const router = createMemoryRouter([{
-      path: '/',
-      element: (
-        <AppActorContext.Provider>
-          <MatchSessionContext.Provider store={store}>
-            <ResultCard opponent="Quiet Wren 7" stage={stage} onSound={vi.fn()} onRematch={onRematch} />
-          </MatchSessionContext.Provider>
-        </AppActorContext.Provider>
-      ),
-    }]);
+    const router = createMemoryRouter([
+      {
+        path: '/',
+        element: (
+          <AppActorContext.Provider>
+            <MatchSessionContext.Provider store={store}>
+              <ResultCard
+                opponent="Quiet Wren 7"
+                stage={stage}
+                onSound={vi.fn()}
+                onRematch={onRematch}
+              />
+            </MatchSessionContext.Provider>
+          </AppActorContext.Provider>
+        ),
+      },
+    ]);
     render(<RouterProvider router={router} />);
 
     // Click Rematch
@@ -81,12 +100,12 @@ describe('ResultCard', () => {
 
     // Re-render as "Waiting for RIVAL…"
     view = { ...view, rematch: { mine: true, theirs: false } };
-    act(() => l());
+    act(() => ls.forEach((l) => l()));
     expect(await screen.findByRole('button', { name: 'Waiting for RIVAL…' })).toBeDefined();
 
     // Re-render as "Rival wants a rematch"
     view = { ...view, rematch: { mine: false, theirs: true } };
-    act(() => l());
+    act(() => ls.forEach((l) => l()));
     expect(await screen.findByRole('button', { name: 'Rival wants a rematch' })).toBeDefined();
   });
 

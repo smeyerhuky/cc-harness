@@ -34,7 +34,7 @@ function court(seed = 0x0dd) {
   const links: [Wire[], Wire[]] = [[], []];
   const toClient: { to: PlayerIndex; msg: MatchToClient }[] = [];
   const sentTo: { to: PlayerIndex; msg: ServerMessage }[] = [];
-  let referee = new Referee(seed, DEFAULT_RULES, {
+  const referee = new Referee(seed, DEFAULT_RULES, {
     send: (to: PlayerIndex, msg: ServerMessage) => {
       sentTo.push({ to, msg });
       toClient.push({
@@ -93,6 +93,20 @@ function court(seed = 0x0dd) {
       }
       if (msg.type === 'ready' || msg.type === 'settings') continue;
       const seat = seats.get(from);
+      if (msg.type === 'rematch') {
+        const seat = seats.get(from);
+        if (seat !== undefined) {
+          rematchWanted[seat] = true;
+          for (const s of [0, 1] as const)
+            if (s !== seat) toClient.push({ to: s, msg: { type: 'rematch' } });
+          if (rematchWanted[0] && rematchWanted[1]) {
+            rematchWanted = [false, false];
+            for (const s of [0, 1] as const) toClient.push({ to: s, msg: { type: 'agreed' } });
+            referee.start(T);
+          }
+        }
+        continue;
+      }
       if (seat !== undefined) referee.onMessage(seat, msg, T);
     }
     // The DO's auto-response answers each live socket's ping, which the referee hears as a heartbeat.
@@ -128,7 +142,19 @@ function court(seed = 0x0dd) {
       if (to === seat && msg.type === 'garbage') byId.set(msg.id, msg.rows);
     return byId;
   };
-  return { sessions, inputs, effects, get referee() { return referee; }, ticks, links, kill, routedTo, now: () => T };
+  return {
+    sessions,
+    inputs,
+    effects,
+    get referee() {
+      return referee;
+    },
+    ticks,
+    links,
+    kill,
+    routedTo,
+    now: () => T,
+  };
 }
 
 interface Wire {
@@ -185,31 +211,30 @@ describe('OnlineSession', () => {
   });
 });
 
-
-  it('agrees to a rematch, renews the match, and plays again', async () => {
-    const c = court();
-    await c.ticks(200);
-    for (let i = 0; i < 60 * 40 && !c.referee.result; i++) {
-      if (i % 3 === 0) c.inputs[0].press('hard');
-      await c.ticks(1);
-    }
-    await c.ticks(5);
-    expect(c.referee.state).toBe('over');
-    
-    // Rematch
-    c.sessions[0].rematch();
+it('agrees to a rematch, renews the match, and plays again', async () => {
+  const c = court();
+  await c.ticks(200);
+  for (let i = 0; i < 60 * 40 && !c.referee.result; i++) {
+    if (i % 3 === 0) c.inputs[0].press('hard');
     await c.ticks(1);
-    expect(c.sessions[0].getSnapshot().rematch?.mine).toBe(true);
-    expect(c.sessions[1].getSnapshot().rematch?.theirs).toBe(true);
+  }
+  await c.ticks(5);
+  expect(c.referee.state).toBe('over');
 
-    c.sessions[1].rematch();
-    await c.ticks(1);
-    
-    // Both agreed, so match is renewed and restarts
-    await c.ticks(5);
-    expect(c.sessions[0].getSnapshot().phase).toBe('countdown');
-    expect(c.sessions[1].getSnapshot().phase).toBe('countdown');
-  });
+  // Rematch
+  c.sessions[0].rematch();
+  await c.ticks(1);
+  expect(c.sessions[0].getSnapshot().rematch?.mine).toBe(true);
+  expect(c.sessions[1].getSnapshot().rematch?.theirs).toBe(true);
+
+  c.sessions[1].rematch();
+  await c.ticks(1);
+
+  // Both agreed, so match is renewed and restarts
+  await c.ticks(5);
+  expect(c.sessions[0].getSnapshot().phase).toBe('countdown');
+  expect(c.sessions[1].getSnapshot().phase).toBe('countdown');
+});
 
 describe('OnlineSession: a bot rival (GD-TICKET-016)', () => {
   it('passes on that the rival is a bot when the Match DO says so', async () => {

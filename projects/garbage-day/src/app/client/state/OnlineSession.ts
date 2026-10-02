@@ -3,6 +3,7 @@ import {
   TPS,
   type ClientMatch,
   type ClientMessage,
+  type ServerMessage,
   type PlayerEvent,
   type PlayerIndex,
   type RefereeResult,
@@ -260,7 +261,13 @@ export class OnlineSession implements Session {
 
   /** What the referee says, before the match takes it. */
   private onHeard(msg: RefereeMessage): void {
-    if (this.wireListeners.size) this.tap({ tick: this.match.t, dir: 'down', seat: 0, msg });
+    if (this.wireListeners.size)
+      this.tap({
+        tick: this.match.t,
+        dir: 'down' as const,
+        seat: 0 as const,
+        msg: msg as unknown as ServerMessage,
+      });
     if (msg.type === 'start' && msg.rivalBot) this.o.onRivalBot?.(msg.rivalBot);
     if (msg.type === 'start') this.o.onStart?.(this.lobby);
     this.onServer(msg);

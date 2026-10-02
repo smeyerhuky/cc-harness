@@ -190,7 +190,7 @@ export class MatchDO extends SocketDO<ClientToMatch> {
     const run = this.running;
     if (!run) return;
     const t = this.catchUp(run);
-    run.referee.onMessage(seat.seat, msg as any, t);
+    run.referee.onMessage(seat.seat, msg, t);
     this.settle(run);
   }
 

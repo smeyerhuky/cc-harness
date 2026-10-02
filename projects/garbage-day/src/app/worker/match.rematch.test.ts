@@ -1,12 +1,12 @@
-import { snapshot, type PlayerStats } from '@garbage-day/engine';
-import { CLOSE, encodeClientToMatch } from '@garbage-day/protocol';
+import {} from '@garbage-day/engine';
+import { encodeClientToMatch } from '@garbage-day/protocol';
 import { describe, expect, it } from 'vitest';
-import { connect, openMatch, read, seat, TOKENS, until } from './testkit';
+import { openMatch, seat, until } from './testkit';
 
-const stats: PlayerStats = {
-  pieces: 1, lines: 0, sent: 0, received: 0, cancelled: 0, fourLineClears: 0,
-  tspins: 0, perfectClears: 0, powersUsed: 0, powersGot: 0, maxCombo: 0, garbageRows: 0,
-};
+// const stats: PlayerStats = {
+//  pieces: 1, lines: 0, sent: 0, received: 0, cancelled: 0, fourLineClears: 0,
+//  tspins: 0, perfectClears: 0, powersUsed: 0, powersGot: 0, maxCombo: 0, garbageRows: 0,
+// };
 
 describe('Match DO rematch', () => {
   it('agrees to a rematch and starts a new game', async () => {
@@ -18,19 +18,21 @@ describe('Match DO rematch', () => {
     await until(b, 'start');
 
     // End the match
-    a.ws.send(encodeClientToMatch({
-      type: 'topout',
-      why: 'block out',
-    }));
+    a.ws.send(
+      encodeClientToMatch({
+        type: 'topout',
+        why: 'block out',
+      }),
+    );
     await until(a, 'result');
     await until(b, 'result');
 
     a.ws.send(encodeClientToMatch({ type: 'rematch' }));
-    let msgB = await until(b, 'rematch');
+    const msgB = await until(b, 'rematch');
     expect(msgB.msg.type).toBe('rematch');
 
     b.ws.send(encodeClientToMatch({ type: 'rematch' }));
-    
+
     // Both agreed
     const agreedA = await until(a, 'agreed');
     expect(agreedA.msg.type).toBe('agreed');

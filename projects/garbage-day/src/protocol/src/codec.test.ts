@@ -78,6 +78,7 @@ const clientToMatch: ClientToMatch[] = [
   { type: 'rejoin', gack: 9, awayMs: 1200 },
   { type: 'extend' },
   { type: 'leave' },
+  { type: 'rematch' },
 ];
 
 const matchToClient: MatchToClient[] = [
@@ -132,6 +133,8 @@ const matchToClient: MatchToClient[] = [
   { type: 'back', by: 0, away: 360, pausesLeft: 0 },
   { type: 'result', winner: null, reason: 'left-while-paused', by: 0 },
   { type: 'error', code: 'full', message: 'This game is full.' },
+  { type: 'rematch' },
+  { type: 'agreed' },
 ];
 
 const clientToLobby: ClientToLobby[] = [
@@ -201,11 +204,11 @@ describe('agreement with the engine', () => {
   it('covers the engine’s messages in both directions', () => {
     expectTypeOf<ClientMessage>().toExtend<ClientToMatch>();
     expectTypeOf<
-      Exclude<ClientToMatch, { type: 'hello' | 'ready' | 'settings' }>
+      Exclude<ClientToMatch, { type: 'hello' | 'ready' | 'settings' | 'rematch' }>
     >().toExtend<ClientMessage>();
     expectTypeOf<ServerMessage>().toExtend<MatchToClient>();
     expectTypeOf<
-      Exclude<MatchToClient, { type: 'lobby' | 'error' | 'pong' }>
+      Exclude<MatchToClient, { type: 'lobby' | 'error' | 'pong' | 'rematch' | 'agreed' }>
     >().toExtend<ServerMessage>();
   });
 });
