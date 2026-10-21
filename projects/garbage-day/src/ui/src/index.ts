@@ -54,6 +54,8 @@ export {
   ConnectionNotice,
   PresenceChip,
   presenceState,
+  QualityChip,
+  type ConnectionQuality,
   type ConnectionState,
   type PresenceState,
 } from './game/PresenceChip';

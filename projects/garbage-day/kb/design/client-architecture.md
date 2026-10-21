@@ -56,8 +56,9 @@ projects/garbage-day/src/
     │   ├── main.tsx, App.tsx, routes.tsx, AppShell.tsx (each screen's name)
     │   ├── state/         appMachine.ts (XState), prefs.ts (Zustand), OnlineSession.ts,
     │   │                  MatchSession.ts, dev.ts
-    │   ├── net/           link.ts (a socket that pings and gives up on silence), Socket.ts (reconnects
-    │   │                  with backoff, GD-TICKET-013); the clock is the engine ClientMatch's,
+    │   ├── net/           link.ts (a socket that pings, times the pongs and gives up on silence),
+    │   │                  quality.ts (good, fair or poor from those times, GD-TICKET-017),
+    │   │                  Socket.ts (reconnects with backoff, GD-TICKET-013); the clock is the engine ClientMatch's,
     │   │                  from the DO's `clock` (GD-STORY-013); MatchClient.ts (one seat over a
     │   │                  socket: hello, rejoin; the player's session and the bot each run one)
     │   ├── bot/           botMatch.ts (asks the Worker for a bot match, starts the bot's worker);

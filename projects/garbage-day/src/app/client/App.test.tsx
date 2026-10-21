@@ -420,6 +420,44 @@ describe('a bot always reads as a bot (GD-TICKET-016)', () => {
   });
 });
 
+describe('connection quality (GD-TICKET-017)', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    useDev.setState({ open: false, session: null });
+  });
+
+  it('reads 50, 150 and 250 ms one way as good, fair and poor, and says a slow rival lags', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    renderAt('/bot');
+    fireEvent.click(await screen.findByRole('button', { name: 'Regular' }));
+    await screen.findByRole('img', { name: 'Your board' });
+    await waitFor(() => expect(server.last().referee).not.toBeNull());
+    const match = server.last();
+    const quality = () =>
+      screen.getAllByRole('img', { name: /^Connection / })[0]?.getAttribute('aria-label');
+    const slow = () => screen.queryByText('Slow connection');
+    // Seven seconds of pings at each delay: the middle of the last three round trips must pass
+    // 150 ms one way, then stay past it for 3 s, before the rival's board is said to lag.
+    const at = async (oneWayMs: number) => {
+      match.oneWayMs = oneWayMs;
+      await act(() => vi.advanceTimersByTimeAsync(7000));
+    };
+    await at(50);
+    expect(quality()).toBe('Connection good');
+    expect(slow()).toBeNull();
+    await at(150);
+    expect(quality()).toBe('Connection fair');
+    expect(slow()).toBeNull();
+    await at(250);
+    expect(quality()).toBe('Connection poor');
+    expect(slow()?.getAttribute('role')).toBe('status');
+    // It clears when the delay recovers.
+    await at(50);
+    expect(quality()).toBe('Connection good');
+    expect(slow()).toBeNull();
+  });
+});
+
 describe('private games (GD-STORY-010)', () => {
   const initial = usePrefs.getState();
   afterEach(() => {

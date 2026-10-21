@@ -22,6 +22,8 @@ export interface SocketHandlers {
   /** A link opened: `again` when it replaces one that dropped. */
   open(again: boolean): void;
   message(text: string): void;
+  /** The open link's pong came back, `rttMs` after its ping. */
+  pong?(rttMs: number): void;
   /** The status changed; `code` is the close code that changed it, if one did. */
   status(status: SocketStatus, code?: number): void;
 }
@@ -82,6 +84,9 @@ export class Socket {
         // Heard from: this link works, so the next drop starts the waits from the shortest.
         this.attempt = 0;
         this.h.message(text);
+      },
+      pong: (rttMs) => {
+        if (this.link === link) this.h.pong?.(rttMs);
       },
       close: (code) => {
         if (this.link !== link) return;

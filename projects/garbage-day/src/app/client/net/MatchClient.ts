@@ -9,6 +9,7 @@ import {
   type MatchToClient,
 } from '@garbage-day/protocol';
 import type { Connect } from './link';
+import { QualityMeter, type LinkQuality } from './quality';
 import { Socket, type SocketStatus } from './Socket';
 
 // One seat of a match played through the Match DO (GD-STORY-011): the engine's `ClientMatch`,
@@ -51,6 +52,8 @@ export interface MatchClientOptions {
   readonly onSent?: (msg: ClientMessage) => void;
   /** The connection dropped, came back, or was lost. */
   readonly onLink?: (state: LinkState) => void;
+  /** The connection's quality changed (GD-TICKET-017). */
+  readonly onQuality?: (quality: LinkQuality) => void;
   /** A private game's lobby changed. */
   readonly onLobby?: (msg: LobbyMessage) => void;
   /** The Match DO turned this seat away; it closes the socket after. */
@@ -72,6 +75,8 @@ export class MatchClient {
   private socket: Socket | null = null;
   /** When the connection dropped, in ms, for the rejoin's `awayMs`. */
   private droppedAt: number | null = null;
+  /** How good the connection is, from its pings' round trips. */
+  private readonly meter = new QualityMeter();
 
   constructor(private readonly o: MatchClientOptions) {
     this.match = new ClientMatch({
@@ -109,6 +114,9 @@ export class MatchClient {
           this.droppedAt = null;
         },
         message: (text) => this.heard(text),
+        pong: (rttMs) => {
+          if (this.meter.sample(rttMs, Date.now())) this.o.onQuality?.(this.meter.quality);
+        },
         status: (status) => this.status(status),
       },
       // A close the server meant is final, and so is any once the match has a result.
@@ -201,6 +209,8 @@ export class MatchClient {
   private status(status: SocketStatus): void {
     if (status === 'reconnecting') {
       this.droppedAt ??= Date.now();
+      // The next link is measured afresh.
+      if (this.meter.reset()) this.o.onQuality?.(this.meter.quality);
       this.match.drop();
       this.setLink('reconnecting');
     } else if (status === 'closed') {
@@ -211,6 +221,11 @@ export class MatchClient {
     } else if (status === 'open') {
       this.setLink('online');
     }
+  }
+
+  /** How good the connection is: good, fair, or poor. */
+  get quality(): LinkQuality {
+    return this.meter.quality;
   }
 
   private setLink(state: LinkState): void {

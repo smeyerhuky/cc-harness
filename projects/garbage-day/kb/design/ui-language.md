@@ -130,6 +130,8 @@ From the demo's canvas renderer, kept:
 | Speed chip | `SPEED 7` with a thin progress bar to the next level; red while Rush or sudden death is on |
 | Presence chip | a dot and a word: online (green), away (yellow), reconnecting (blinking yellow), gone (red) |
 | Connection notice | the player's own connection, in the showdown banner's place and before it: a surface-coloured pill with the presence chip's dot, "Reconnecting…" (blinking yellow) or "Connection lost" (red) |
+| Quality chip | the player's own connection, beside the match clock in an online match: three rising bars, three lit green (good), two yellow (fair) or one red (poor); the bars and their label carry it, not the colour |
+| Slow connection | while the connection is poor, a surface-coloured pill over the top of the rival's board saying "Slow connection" |
 | Showdown banner | a pill across the top of the stage: yellow for Double garbage, red and pulsing for Sudden death |
 | Popover | surface card with the hazard stripe band on top, title in display type, a countdown ring, primary action filled in accent |
 | Board cover | a dark diagonal pattern with "Hidden while paused" and the reason and time left in hazard yellow |

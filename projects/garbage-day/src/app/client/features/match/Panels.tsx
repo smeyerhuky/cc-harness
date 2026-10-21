@@ -5,6 +5,7 @@ import {
   PowerSlot,
   BoardCanvas,
   ConnectionNotice,
+  QualityChip,
   SpeedChip,
   Countdown,
   QUAD,
@@ -136,12 +137,19 @@ export function OpponentPanel({
   const hold = useMatch((v) => v.players[1].hold);
   const power = useMatch((v) => v.players[1].power);
   const powerUps = useMatch((v) => v.powerUps);
+  // Past 150 ms one way for 3 s the rival's board lags: say so over it (GD-TICKET-017).
+  const slow = useMatch((v) => v.quality === 'poor' && v.connection === 'online');
   const compact = layout === 'portrait';
   return (
     <div
       className={[styles.panel, compact && styles.compact].filter(Boolean).join(' ')}
       data-layout={layout}
     >
+      {slow && (
+        <p className={styles.slow} role="status">
+          Slow connection
+        </p>
+      )}
       <div className={styles.row}>
         <PlayerMeter seat={1} />
         <Board session={session} seat={1} label={`${name}'s board`} layout={layout} />
@@ -167,12 +175,14 @@ export function HeaderClock() {
   const level = useMatch((v) => v.level);
   const progress = useMatch((v) => v.progress);
   const hot = useMatch((v) => v.hot);
+  const quality = useMatch((v) => v.quality);
   return (
     <span className={styles.headerClock} data-stage="">
       <SpeedChip level={level} progress={progress} hot={hot} />
       <span className={styles.clock} aria-label={`Match clock ${mmss(clock)}`}>
         {mmss(clock)}
       </span>
+      {quality && <QualityChip quality={quality} />}
     </span>
   );
 }
@@ -201,6 +211,7 @@ export function CentreColumn() {
   const level = useMatch((v) => v.level);
   const progress = useMatch((v) => v.progress);
   const hot = useMatch((v) => v.hot);
+  const quality = useMatch((v) => v.quality);
   return (
     <div className={styles.lane}>
       {(phase === 'countdown' || (phase === 'playing' && clock === 0)) && (
@@ -209,6 +220,7 @@ export function CentreColumn() {
       <span className={styles.clock} aria-label={`Match clock ${mmss(clock)}`}>
         {mmss(clock)}
       </span>
+      {quality && <QualityChip quality={quality} />}
       <SpeedChip level={level} progress={progress} hot={hot} />
       <span className={styles.referee} data-referee="">
         Referee
