@@ -31,22 +31,22 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | UI | React + React DOM | 19.3.0 | Latest; `<Activity>`, `useEffectEvent`, `useActionState`, `useOptimistic` |
 | Memoization | React Compiler (`babel-plugin-react-compiler`) | 1.0.0 | Stable; removes hand-written memoization |
 | Compiler route | `@rolldown/plugin-babel` + `@babel/core` | 0.2.4 · 8.0.6 | `@vitejs/plugin-react` 6 no longer runs Babel itself; its `reactCompilerPreset()` runs through this plugin. The native (oxc) compiler route is still experimental |
-| Build and dev server | Vite | 8.3.1 | Latest; Rolldown bundler |
+| Build and dev server | Vite | 8.3.4 | Latest; Rolldown bundler |
 | React plugin | `@vitejs/plugin-react` | 6.1.1 | Needs Vite 8; hosts the React Compiler |
-| Cloudflare in Vite | `@cloudflare/vite-plugin` | 1.62.1 | Runs the Worker and Durable Objects in workerd during `vite dev` and `vite preview`, and builds both |
-| Deploy tool | Wrangler | 4.143.1 | The version the Vite plugin 1.62.1 pins; has `wrangler preview` (Worker Previews need 4.135 or later) |
-| Worker types | `@cloudflare/workers-types` | 5.20260929.1 | Types for the Worker and `cloudflare:workers`; the bindings are declared in `worker/env.d.ts` |
+| Cloudflare in Vite | `@cloudflare/vite-plugin` | 1.64.0 | Runs the Worker and Durable Objects in workerd during `vite dev` and `vite preview`, and builds both |
+| Deploy tool | Wrangler | 4.151.0 | The version the Vite plugin 1.64.0 pins; has `wrangler preview` (Worker Previews need 4.135 or later) |
+| Worker types | `@cloudflare/workers-types` | 5.20261021.1 | Types for the Worker and `cloudflare:workers`; the bindings are declared in `worker/env.d.ts` |
 | Routing | React Router (data mode) | 8.4.0 | Loaders and actions for private-game lookups; lazy routes |
 | Screen-flow state | XState + `@xstate/react` | 5.33.2 · 6.1.0 | Real states and guards for the app flow ([client architecture](client-architecture.md)) |
 | Preferences state | Zustand (with `persist`) | 5.0.15 | Smallest correct tool for a persisted flat store |
 | Message schemas | Zod | 4.6.5 | Validates every incoming message on the server; types shared with the client |
 | Styling | CSS Modules + CSS custom properties | built in | Tokens from [UI language](ui-language.md); no runtime cost |
 | Fonts | `@fontsource` (Big Shoulders Display, Public Sans, IBM Plex Mono) | 5.3.0 each | Self-hosted, imported by the `ui` package's `fonts.css` (display 800–900, body 400–700, data 400–600) |
-| Unit and component tests | Vitest | **4.1.11** (exception) | See exceptions |
-| Durable Object tests | `@cloudflare/vitest-plugin` | 1.3.2 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
+| Unit and component tests | Vitest | **4.1.12** (exception) | See exceptions |
+| Durable Object tests | `@cloudflare/vitest-plugin` | 1.4.3 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
 | DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 20.14.5 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
 | End-to-end | Playwright | 1.63.0 (in since `GD-TICKET-019`) | Two browsers play a real match (M3) |
-| Browser tests | `@vitest/browser-playwright` | 4.1.11 (matches Vitest) | Runs the golden replays in Chromium, Firefox and WebKit, and the accessibility scan in Chromium |
+| Browser tests | `@vitest/browser-playwright` | 4.1.12 (matches Vitest) | Runs the golden replays in Chromium, Firefox and WebKit, and the accessibility scan in Chromium |
 | Accessibility scan | `axe-core` | 4.13.0 | WCAG 2.1 A and AA rules over every screen in both themes, inside the browser tests (`GD-STORY-008`). M3's end-to-end suite can add `@axe-core/playwright` for the screens that need a real server |
 | Lint | ESLint + `typescript-eslint` + `eslint-plugin-react-hooks` | 10.11.0 · 8.71.0 · 7.1.1 | Hooks rules including the React Compiler's; type-aware rules through the project service |
 | Lint support | `@eslint/js` · `globals` | 10.0.1 · 17.12.0 | ESLint's recommended rules; browser and Node globals |
@@ -60,7 +60,7 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | Held back | Latest | Blocked by | Lift when |
 |---|---|---|---|
 | TypeScript **6.0.3** | 7.0.2 (the native compiler) | `typescript-eslint` 8.71 supports TypeScript `<6.1` | `typescript-eslint` supports 7.x; Renovate's PR for TypeScript 7 goes green |
-| Vitest **4.1.11** | 5.0.2 | `@cloudflare/vitest-plugin` 1.3 requires Vitest `^4.1` | The plugin supports Vitest 5 |
+| Vitest **4.1.12** | 5.0.5 | Nothing now: `@cloudflare/vitest-plugin` 1.4 accepts Vitest 5 (`GD-TICKET-034`) | Renovate's PR for Vitest 5 goes green |
 
 The two hold-backs are checked by Renovate automatically: the upgrade PR stays open and fails
 until the blocker moves. There are no overrides: the one that forced `undici` 7.29.1 under
@@ -76,6 +76,9 @@ plugin 1.62.2 and 1.62.1, the Worker types of that day and `@cloudflare/vitest-p
 older: a matched set (the plugin 1.62.0 pins Wrangler 4.143.0, as does the test plugin 1.3.1).
 Later that day `GD-TICKET-021` moved to the next matched set once it was a day old: Wrangler
 4.143.1, the Vite plugin 1.62.1 and the test plugin 1.3.2, on the same workerd build.
+On 2026-10-22 [`GD-TICKET-034`](../process/backlog/GD-TICKET-034.md) took the next matched set to
+clear the audit's `sharp` advisory: Wrangler 4.151.0, the Vite plugin 1.64.0 and the test plugin
+1.4.3. Wrangler 4.151.3 was a day old, but no Vite plugin pinned it.
 
 ## Workspace layout
 

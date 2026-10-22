@@ -12,7 +12,7 @@ Each item's own frontmatter is the source of truth — its `state:`, `milestone:
 | `GD-EPIC` | 002 |
 | `GD-STORY` | 016 |
 | `GD-SPIKE` | 002 |
-| `GD-TICKET` | 034 |
+| `GD-TICKET` | 035 |
 
 Update this table in the same change that mints a new item. Numbers are never reused.
 
@@ -76,6 +76,7 @@ Update this table in the same change that mints a new item. Numbers are never re
 - [GD-STORY-010](GD-STORY-010.md) — Create a game and share a link · done
 - [GD-TICKET-026](GD-TICKET-026.md) — Let a bot game change the match settings · done (from the M2 audit)
 - [GD-STORY-014](GD-STORY-014.md) — Result and rematch over the network · done
+- [GD-TICKET-034](GD-TICKET-034.md) — Clear the dependency audit's new advisories · done (found while opening pull request #18)
 - [GD-TICKET-017](GD-TICKET-017.md) — Show connection quality and degrade visibly above 150 ms · open (from the M0 audit)
 - [GD-TICKET-029](GD-TICKET-029.md) — Test the Durable Objects, and two browsers end to end · open
 - [GD-TICKET-027](GD-TICKET-027.md) — Bring the client architecture in line with what M2 built · open (from the M2 audit)
