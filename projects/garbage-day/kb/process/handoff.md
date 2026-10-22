@@ -29,7 +29,7 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games;
   - [`GD-TICKET-026`](backlog/GD-TICKET-026.md): a bot game on the player's Mode and Speed-up every;
   - [`GD-STORY-014`](backlog/GD-STORY-014.md): the result and rematch between two clients, or against a bot: both ask within 30 s, or both return to the start.
-  - [`GD-TICKET-034`](backlog/GD-TICKET-034.md): the dependency audit clean again (Vite 8.3.4, Wrangler 4.151.0 with its matched plugins, Vitest 4.1.12), in its own pull request, #20, not yet merged.
+  - [`GD-TICKET-034`](backlog/GD-TICKET-034.md): the dependency audit clean again (Vite 8.3.4, Wrangler 4.151.0 with its matched plugins, Vitest 4.1.12), merged in pull request #20 on 2026-10-22 (`d9d607b`).
   - [`GD-TICKET-017`](backlog/GD-TICKET-017.md): good, fair or poor beside the clock, from the pings' round trips; past 150 ms one way for 3 s, "Slow connection" over the rival's board.
 
   `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` were merged
@@ -39,7 +39,7 @@ history lives in the [running journal](journal/index.md).
   start or end. Pull request #16 fixed them and closed the story (`ecfc5f7`, merged 2026-10-02).
   Both are in production.
   `GD-TICKET-017` is on branch `ccr-a9d3b393-jvy3f5` (pull request #18), rebased on
-  `GD-TICKET-034`'s pull request #20; neither is merged yet.
+  `main` after `GD-TICKET-034`'s pull request #20 merged; #18 is not merged yet.
 
   Two strangers can now play each other through Cloudflare, and survive a dropped connection.
   A bot plays under the same server rules, from its own worker, and two friends can meet by a
@@ -51,7 +51,7 @@ history lives in the [running journal](journal/index.md).
   - **The coverage audit** ([sweep of the M2 exit](coverage-audit.md)) filed 2 gaps, [`GD-TICKET-026`](backlog/GD-TICKET-026.md) and [`027`](backlog/GD-TICKET-027.md).
   - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
   - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
-- **Branches:** `gd-ticket-034-audit-deps` (pull request #20), off `main` at `54e2ff9`, with `GD-TICKET-034`; `ccr-a9d3b393-jvy3f5` (pull request #18), rebased on it, with `GD-TICKET-017`. Merge #20 first, then #18. The earlier session branches were merged with #15, #16 and #17.
+- **Branch:** `ccr-a9d3b393-jvy3f5` (pull request #18), on `main` at `d9d607b`, with `GD-TICKET-017`. The earlier session branches were merged with #15, #16, #17 and #20.
 - **In production** (`https://garbage-day.smeyerhuky.workers.dev`): everything above. The owner
   merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
   has all of M2 and M3 so far through #16: quick match, private games, bots through the Match DO,
@@ -65,7 +65,7 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-Merge #20 (`GD-TICKET-034`), then #18 (`GD-TICKET-017`). Then the rest of M3, in the
+Merge #18 (`GD-TICKET-017`). Then the rest of M3, in the
 [backlog index](backlog/index.md)'s order: [`GD-TICKET-029`](backlog/GD-TICKET-029.md), the Durable Object tests and
 two browsers end to end (start from the throwaway check in `GD-STORY-014`'s Resolution); and
 [`GD-TICKET-027`](backlog/GD-TICKET-027.md), the client design. M3's exit follows them.
