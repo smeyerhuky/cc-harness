@@ -8,6 +8,10 @@ Each entry follows the [running-journal entry template](../../../../../kb/pdlc/t
 * [2026-10-22 — Garbage Day: a clean dependency audit again](2026-10-22-audit-deps.md) — new
   advisories turned `audit` red on every pull request; Vite 8.3.4, Wrangler 4.151.0 with its
   matched plugins, Vitest 4.1.12 and `source-map-js` 1.2.2 cleared them; `GD-TICKET-034` done.
+* [2026-10-21 — Garbage Day: the connection-quality indicator](2026-10-21-connection-quality.md)
+  — the branch restarted from `main` after #16 and #17 closed `GD-STORY-014`; pongs timed against
+  their pings; good, fair or poor beside the clock and "Slow connection" over the rival past 150 ms
+  one way, checked in Chromium through a delaying proxy; `GD-TICKET-017` done.
 * [2026-10-02 — Garbage Day: checking the rematch, and fixing what the check found](2026-10-02-rematch.md)
   — pull request #15 merged; `GD-STORY-014`'s criteria checked against it; four faults in the
   rematch found (an unpressed player stuck, a bot that never answers, a screen that closed its own

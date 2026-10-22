@@ -23,11 +23,29 @@
   font: 600 var(--fs-14) / 1 var(--font-data);
 }
 .panel {
+  position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   gap: 6px;
   height: 100%;
   min-height: 0;
+}
+/* "Slow connection", over the top of the rival's board, which lags while it shows
+   (GD-TICKET-017): a surface-coloured pill, as the connection notice is. */
+.slow {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 var(--fs-14) / 1.2 var(--font-body);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px var(--shadow-deep);
 }
 /* The side panel, the board and the meter hug each other, centred in the panel: the board's box
    takes the board's own shape, so nothing sits a gap away from it. */

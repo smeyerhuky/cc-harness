@@ -19,6 +19,7 @@ import {
 } from '@garbage-day/engine';
 import { clearLabel, type BoardView, type ClearLabel } from '@garbage-day/ui';
 import type { InputController } from '../input/InputController';
+import type { LinkQuality } from '../net/quality';
 import type { BotChoice } from './appMachine';
 import type { Store } from './storeContext';
 
@@ -147,6 +148,8 @@ export interface MatchView {
    * (the player stands frozen meanwhile) or lost for good (GD-TICKET-013).
    */
   readonly connection: Connection;
+  /** How good an online match's connection is (GD-TICKET-017); a local match has none. */
+  readonly quality?: LinkQuality;
   /** Whether the match deals power-ups: a Classic one has none (PRD, "Match settings"). */
   readonly powerUps: boolean;
   /** Who wants a rematch. */

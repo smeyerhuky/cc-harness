@@ -8,7 +8,7 @@ import { Meter } from './Meter';
 import { AttackFlight, BoardCover, Countdown, Popup, ShowdownBanner } from './Overlays';
 import { PieceGlyph } from './PieceGlyph';
 import { PowerIcon } from './PowerIcon';
-import { ConnectionNotice, PresenceChip, presenceState } from './PresenceChip';
+import { ConnectionNotice, PresenceChip, presenceState, QualityChip } from './PresenceChip';
 import { HoldSlot, NextQueue, PowerSlot } from './Slots';
 import { SpeedChip } from './SpeedChip';
 
@@ -134,6 +134,19 @@ describe('overlays', () => {
     expect(screen.getByRole('status').textContent).toBe('Reconnecting…');
     rerender(<ConnectionNotice state="lost" />);
     expect(screen.getByRole('status').textContent).toBe('Connection lost');
+  });
+
+  it('QualityChip lights a bar for each step of quality, and says it in words (GD-TICKET-017)', () => {
+    const { container, rerender } = render(<QualityChip quality="good" />);
+    const lit = () => container.querySelectorAll('i[class]').length;
+    expect(screen.getByRole('img', { name: 'Connection good' })).toBeTruthy();
+    expect(lit()).toBe(3);
+    rerender(<QualityChip quality="fair" />);
+    expect(screen.getByRole('img', { name: 'Connection fair' })).toBeTruthy();
+    expect(lit()).toBe(2);
+    rerender(<QualityChip quality="poor" />);
+    expect(screen.getByRole('img', { name: 'Connection poor' })).toBeTruthy();
+    expect(lit()).toBe(1);
   });
 
   it('Popup finishes after 1.3 s, or 1 s with reduced motion', () => {

@@ -1,4 +1,4 @@
-import { PING } from '@garbage-day/protocol';
+import { PING, PONG } from '@garbage-day/protocol';
 
 // A connection to a Durable Object, as a session sees it: text out, text in, and its end. The
 // browser's WebSocket is one; tests pass another (GD-STORY-011). `Socket` (Socket.ts) reconnects
@@ -13,6 +13,8 @@ export interface LinkHandlers {
   open(): void;
   message(text: string): void;
   close(code: number): void;
+  /** A pong came back, `rttMs` after its ping (GD-TICKET-017). */
+  pong?(rttMs: number): void;
 }
 
 /** Opens a link and wires its handlers. */
@@ -32,9 +34,9 @@ export const SILENT_MS = 3000;
 export const CLOSE_SILENT = 4100;
 
 /**
- * A WebSocket link to `url`: it pings on opening and every second after, and reports a close as
- * soon as the connection goes silent or the browser goes offline, not when the socket gets round
- * to closing.
+ * A WebSocket link to `url`: it pings on opening and every second after, times each pong against
+ * its ping, and reports a close as soon as the connection goes silent or the browser goes
+ * offline, not when the socket gets round to closing.
  */
 export function webSocketLink(url: string): Connect {
   return (h) => {
@@ -42,6 +44,12 @@ export function webSocketLink(url: string): Connect {
     let ping: ReturnType<typeof setInterval> | null = null;
     let heard = 0;
     let ended = false;
+    // When each unanswered ping went: pongs come back in order, one for each.
+    const pinged: number[] = [];
+    const sendPing = () => {
+      pinged.push(Date.now());
+      ws.send(PING);
+    };
     const stop = () => {
       if (ping !== null) clearInterval(ping);
       ping = null;
@@ -59,10 +67,10 @@ export function webSocketLink(url: string): Connect {
     }
     ws.addEventListener('open', () => {
       heard = Date.now();
-      ws.send(PING);
+      sendPing();
       ping = setInterval(() => {
         if (Date.now() - heard > SILENT_MS) giveUp();
-        else ws.send(PING);
+        else sendPing();
       }, PING_MS);
       globalThis.addEventListener('offline', giveUp);
       h.open();
@@ -70,7 +78,10 @@ export function webSocketLink(url: string): Connect {
     ws.addEventListener('message', (e: MessageEvent) => {
       if (ended) return;
       heard = Date.now();
-      h.message(String(e.data));
+      const text = String(e.data);
+      const sentAt = text === PONG ? pinged.shift() : undefined;
+      if (sentAt !== undefined) h.pong?.(heard - sentAt);
+      h.message(text);
     });
     ws.addEventListener('close', (e: CloseEvent) => end(e.code));
     return {

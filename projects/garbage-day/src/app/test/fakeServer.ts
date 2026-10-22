@@ -46,6 +46,8 @@ class FakeMatch {
   readonly heard: { seat: PlayerIndex; msg: ClientToMatch }[] = [];
   referee: Referee | null = null;
   expired = false;
+  /** The network's delay each way, in ms, as the pongs see it (GD-TICKET-017). */
+  oneWayMs = 0;
   private guest = false;
   private t0 = 0;
   private rematchWanted: [boolean, boolean] = [false, false];
@@ -92,7 +94,7 @@ class FakeMatch {
     const seat = this.seats.indexOf(ws);
     // The auto-response: a pong, and a heartbeat the referee hears.
     if (text === PING) {
-      ws.deliver(PONG);
+      setTimeout(() => ws.deliver(PONG), 2 * this.oneWayMs);
       if (seat >= 0) this.referee?.onMessage(seat as PlayerIndex, { type: 'hb' }, this.catchUp());
       return;
     }

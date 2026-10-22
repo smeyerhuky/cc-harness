@@ -82,6 +82,40 @@
 .reconnecting {
   animation: blink 1s steps(2, jump-none) infinite;
 }
+.quality {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+.quality > i {
+  display: block;
+  width: 3px;
+  border-radius: 1px;
+  background: var(--well-ink);
+  opacity: 0.3;
+}
+.quality > i:nth-child(1) {
+  height: 5px;
+}
+.quality > i:nth-child(2) {
+  height: 8px;
+}
+.quality > i:nth-child(3) {
+  height: 12px;
+}
+.quality > i.lit {
+  opacity: 1;
+}
+.good > i.lit {
+  background: var(--ok);
+}
+.fair > i.lit {
+  background: var(--warn);
+}
+.poor > i.lit {
+  background: var(--bad);
+}
 @keyframes blink {
   50% {
     opacity: 0.2;

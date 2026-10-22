@@ -90,6 +90,7 @@ export class OnlineSession implements Session {
       onHeard: (msg) => this.onHeard(msg),
       onSent: (msg) => this.onSent(msg),
       onLink: (state) => this.onLink(state),
+      onQuality: () => this.refresh(),
       onLobby: (msg) => {
         this.lobby = msg;
         this.listeners.forEach((l) => l());
@@ -429,6 +430,7 @@ export class OnlineSession implements Session {
       players: [mine, theirs],
       result,
       connection: this.client.link,
+      quality: this.client.quality,
       powerUps: m.rules.gemChance > 0,
       ...(this.rematchWanted ? { rematch: this.rematchWanted } : {}),
     };
