@@ -42,6 +42,7 @@ timestamp: "2026-10-21"
 | Commit | Work item | What |
 |---|---|---|
 | this session's commit | `GD-TICKET-017` | the pong timing, `QualityMeter`, the quality chip, "Slow connection", their tests; the Resolution, design, index, roadmap, handoff, version and this entry |
+| the commit after the rebase | `GD-TICKET-017` | the developer-overlay app test waits for the shell's effects before pressing the key (it failed one CI run of two on the rebased commit) |
 
 ## Surprises and what they changed
 

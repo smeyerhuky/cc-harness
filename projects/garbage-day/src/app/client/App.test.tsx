@@ -87,8 +87,13 @@ describe('routes', () => {
     // The overlay is a lazy chunk. Loaded here first, it opens as soon as the key is pressed,
     // however busy the machine is: on a loaded CI runner its first import outlasted findBy's 1 s.
     await import('./features/dev');
+    // The key is heard from an effect the shell runs after it paints, the same one that names the
+    // tab. Cleared first, the tab's name says the effect has run, so the key isn't pressed before
+    // anything listens for it (on a loaded CI runner it once was).
+    document.title = '';
     renderAt('/');
     await screen.findByRole('heading', { level: 1, name: 'Garbage Day' });
+    await titled('Garbage Day');
     expect(screen.queryByRole('complementary', { name: 'Developer overlay' })).toBeNull();
     fireEvent.keyDown(window, { code: 'Backquote' });
     const overlay = await screen.findByRole('complementary', { name: 'Developer overlay' });

@@ -71,3 +71,10 @@ Done in [the connection-quality session](../journal/2026-10-21-connection-qualit
   each way. On a desktop window, 50 ms read good, 150 ms fair, and 250 ms poor with "Slow
   connection", then good again at 50 ms. On a Pixel 7 profile, 250 ms read poor, with the
   notice showing and no sideways overflow. The proxy and script are not in the repo.
+- **A flaky app test fixed on the way.** After the rebase onto `GD-TICKET-034`, one of the two CI
+  `test` runs on the same commit failed. The test was "the \` key opens the developer overlay".
+  It pressed the key as soon as the home heading showed. The shell attaches its key listener in
+  an effect after paint, so on a loaded runner the press could come first. The test now clears
+  the tab's name and waits for the shell's effect to set it again before pressing. With the
+  shell's effects delayed 50 ms on purpose, the old test failed the same way and the new one
+  passed.
