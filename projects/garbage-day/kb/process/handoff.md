@@ -4,7 +4,7 @@ title: "Garbage Day Handoff"
 description: "Where Garbage Day stands right now and exactly what to do next — the cold-start brief a fresh session reads first."
 resource: "roadmap.md"
 tags: ["handoff", "roadmap", "backlog"]
-timestamp: "2026-10-02"
+timestamp: "2026-10-22"
 ---
 
 # Garbage Day Handoff
@@ -29,6 +29,7 @@ history lives in the [running journal](journal/index.md).
   - [`GD-STORY-010`](backlog/GD-STORY-010.md): private games: a game made on the host's settings, a link and code to send, a lobby with Ready from each, full and expired games;
   - [`GD-TICKET-026`](backlog/GD-TICKET-026.md): a bot game on the player's Mode and Speed-up every;
   - [`GD-STORY-014`](backlog/GD-STORY-014.md): the result and rematch between two clients, or against a bot: both ask within 30 s, or both return to the start.
+  - [`GD-TICKET-034`](backlog/GD-TICKET-034.md): the dependency audit clean again (Vite 8.3.4, Wrangler 4.151.0 with its matched plugins, Vitest 4.1.12), on branch `gd-ticket-034-audit-deps` in its own pull request, not yet merged.
 
   `GD-STORY-013`, `GD-TICKET-016`, `GD-STORY-015`, `GD-STORY-010` and `GD-TICKET-026` were merged
   in pull request #15 on 2026-10-02 (`d277aa0`), with the first part of `GD-STORY-014`. That part
@@ -47,7 +48,7 @@ history lives in the [running journal](journal/index.md).
   - **The coverage audit** ([sweep of the M2 exit](coverage-audit.md)) filed 2 gaps, [`GD-TICKET-026`](backlog/GD-TICKET-026.md) and [`027`](backlog/GD-TICKET-027.md).
   - **M3 is minted:** 7 stories and 7 tickets, in a proposed build order in the [backlog index](backlog/index.md).
   - **Earlier check-ins:** M1 closed on 2026-09-30 ("let's go", every default approved). M0 closed with "Continue".
-- **Branch:** none open. The next session branches off `main` (at `ecfc5f7` or later); the earlier session branches were merged with #15 and #16.
+- **Branches:** `gd-ticket-034-audit-deps`, off `main` at `54e2ff9`, with `GD-TICKET-034`; `ccr-a9d3b393-jvy3f5`, rebased on it, with `GD-TICKET-017` (pull request #18). Merge them in that order. The earlier session branches were merged with #15, #16 and #17.
 - **In production** (`https://garbage-day.smeyerhuky.workers.dev`): everything above. The owner
   merged pull request #14 on 2026-10-01 (`b2a2ff8`), after #13, and it is deployed. Production
   has all of M2 and M3 so far through #16: quick match, private games, bots through the Match DO,
@@ -61,7 +62,8 @@ history lives in the [running journal](journal/index.md).
 
 ## Immediate next step
 
-The rest of M3, in the [backlog index](backlog/index.md)'s order: [`GD-TICKET-017`](backlog/GD-TICKET-017.md), the
+Merge `GD-TICKET-034`'s pull request, then #18 (`GD-TICKET-017`). Then the rest of M3, in the
+[backlog index](backlog/index.md)'s order: [`GD-TICKET-017`](backlog/GD-TICKET-017.md), the
 connection indicator; [`GD-TICKET-029`](backlog/GD-TICKET-029.md), the Durable Object tests and
 two browsers end to end (start from the throwaway check in `GD-STORY-014`'s Resolution); and
 [`GD-TICKET-027`](backlog/GD-TICKET-027.md), the client design. M3's exit follows them.
@@ -95,6 +97,9 @@ two browsers end to end (start from the throwaway check in `GD-STORY-014`'s Reso
 - **The app's tests play bot matches and private games against `src/app/test/fakeServer.ts`**, a
   stand-in for the Worker and a Match DO. A test that only checks the screen passes even when no
   match starts, so a test of play must check the match itself.
+- **A red `audit` may not be the pull request's.** Advisories published after `main`'s last run
+  fail every pull request. Run `pnpm audit` on `main` before blaming the change
+  (`GD-TICKET-034`).
 - **CI's browser jobs run in Playwright's image**, whose fonts and timing differ from this
   container's. To reproduce one, start Docker (`dockerd &`) and run `vitest --config
   vitest.browser.config.ts` in the pinned image with the repo mounted (see the journal's step 56).
