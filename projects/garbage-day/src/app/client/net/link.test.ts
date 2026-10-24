@@ -1,4 +1,4 @@
-import { PING } from '@garbage-day/protocol';
+import { PING, PONG } from '@garbage-day/protocol';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CLOSE_SILENT, PING_MS, SILENT_MS, socketUrl, webSocketLink } from './link';
 
@@ -51,6 +51,24 @@ afterEach(() => {
 const handlers = () => ({ open: vi.fn(), message: vi.fn(), close: vi.fn() });
 
 describe('webSocketLink', () => {
+  it('times each pong against its ping, in order (GD-TICKET-017)', () => {
+    const h = { ...handlers(), pong: vi.fn() };
+    webSocketLink('wss://example/ws/match/GD-7KQ4')(h);
+    const ws = FakeSocket.last;
+    if (!ws) throw new Error('no socket');
+    ws.open();
+    vi.advanceTimersByTime(PING_MS);
+    vi.advanceTimersByTime(120);
+    ws.receive(PONG);
+    expect(h.pong).toHaveBeenLastCalledWith(PING_MS + 120);
+    vi.advanceTimersByTime(80);
+    ws.receive(PONG);
+    expect(h.pong).toHaveBeenLastCalledWith(200);
+    ws.receive('{"v":1,"t":"clock"}');
+    expect(h.pong).toHaveBeenCalledTimes(2);
+    expect(h.message).toHaveBeenCalledTimes(3);
+  });
+
   it('sends only once open, and pings at once and every second until it closes', () => {
     const h = handlers();
     const link = webSocketLink('wss://example/ws/match/GD-7KQ4')(h);

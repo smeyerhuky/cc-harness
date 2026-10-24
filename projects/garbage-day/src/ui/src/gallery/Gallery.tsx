@@ -17,7 +17,7 @@ import { Meter } from '../game/Meter';
 import { AttackFlight, BoardCover, Countdown, Popup, ShowdownBanner } from '../game/Overlays';
 import { PieceGlyph } from '../game/PieceGlyph';
 import { PowerIcon } from '../game/PowerIcon';
-import { PresenceChip } from '../game/PresenceChip';
+import { PresenceChip, QualityChip } from '../game/PresenceChip';
 import { HoldSlot, NextQueue, PowerSlot } from '../game/Slots';
 import { SpeedChip } from '../game/SpeedChip';
 import { useInterval } from '../hooks/useInterval';
@@ -245,6 +245,9 @@ export function Gallery() {
               <Countdown value={count} />
               <PresenceChip state="online" />
               <PresenceChip state="reconnecting" />
+              <QualityChip quality="good" />
+              <QualityChip quality="fair" />
+              <QualityChip quality="poor" />
             </div>
           }
           right={

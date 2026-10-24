@@ -40,3 +40,28 @@ export function ConnectionNotice({ state }: { state: ConnectionState }) {
     </div>
   );
 }
+
+export type ConnectionQuality = 'good' | 'fair' | 'poor';
+
+const BARS: Record<ConnectionQuality, number> = { good: 3, fair: 2, poor: 1 };
+
+/**
+ * How good the player's own connection is, beside the match clock (GD-TICKET-017): three bars,
+ * as many lit as it is good, green, yellow or red. The count, not the colour, carries the
+ * meaning, and its label says it in words.
+ */
+export function QualityChip({ quality }: { quality: ConnectionQuality }) {
+  const lit = BARS[quality];
+  return (
+    <span
+      className={`${styles.quality} ${styles[quality]}`}
+      role="img"
+      aria-label={`Connection ${quality}`}
+      title={`Connection ${quality}`}
+    >
+      {[1, 2, 3].map((n) => (
+        <i key={n} className={n <= lit ? styles.lit : undefined} />
+      ))}
+    </span>
+  );
+}

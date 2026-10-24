@@ -217,7 +217,12 @@ more than half a second behind the referee's tick has stalled (a busy main threa
 tab), and jumps there without simulating the gap.
 
 Pings can't measure the offset instead: the auto-response answers them with a fixed `pong`,
-without waking the DO, so they carry no server time. Power-ups and resumes are stamped with a
+without waking the DO, so they carry no server time. They do measure the connection
+([`GD-TICKET-017`](../process/backlog/GD-TICKET-017.md)). The link times each pong against its
+ping. The client halves the middle of the last three round trips, less 10 ms for answering, for
+the delay one way. Up to 100 ms is good and up to 150 ms is fair. Past the PRD's 150 ms for 3 s
+it is poor, and the rival's panel says "Slow connection", since their board lags behind the
+truth. It clears at the first reading back under. Power-ups and resumes are stamped with a
 future tick (0.2 s and 3 s ahead) so both clients apply them on the same tick. A client simulates only its own player, so it lands a
 stamped power-up twice over: on its own simulation, and on its view of the rival when the
 power-up lands on them, Bomb rows and all, so both boards show it on both screens
