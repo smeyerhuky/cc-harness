@@ -133,6 +133,8 @@ weren't answered one by one, so each default holds).
 - [x] The app's tests wait long enough for a loaded CI runner —
   [`GD-TICKET-032`](backlog/GD-TICKET-032.md)
 - [x] Label bots as bots everywhere — [`GD-TICKET-016`](backlog/GD-TICKET-016.md)
+- [x] The audit clean once more, so `main` deploys: zod, happy-dom, and two overrides under Cloudflare's tooling —
+  [`GD-TICKET-035`](backlog/GD-TICKET-035.md)
 - [x] The dependency audit is clean again: Vite, the Cloudflare tooling and Vitest on fixed releases —
   [`GD-TICKET-034`](backlog/GD-TICKET-034.md)
 - [x] Connection quality indicator, visible degradation above 150 ms — [`GD-TICKET-017`](backlog/GD-TICKET-017.md)

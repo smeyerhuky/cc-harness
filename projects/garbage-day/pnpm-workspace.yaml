@@ -8,3 +8,11 @@ minimumReleaseAge: 1440
 allowBuilds:
   esbuild: true
   workerd: true
+
+# Security overrides (GD-TICKET-035), each under a Cloudflare test or dev tool that pins the
+# vulnerable version exactly. Delete each once a Cloudflare matched set brings the fix itself.
+overrides:
+  # miniflare pins undici 7.29.1 (one high, two moderate advisories).
+  undici: 7.30.1
+  # @cloudflare/vitest-plugin pins zod 4.6.5 (one high advisory).
+  zod: 4.6.7
