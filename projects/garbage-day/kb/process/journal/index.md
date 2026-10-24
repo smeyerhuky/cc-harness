@@ -5,6 +5,10 @@ What happened on this project, one entry per working session, **newest first**: 
 Entries are appended, never rewritten; the current state lives in [`handoff.md`](../handoff.md).
 Each entry follows the [running-journal entry template](../../../../../kb/pdlc/templates/running-journal-entry.md).
 
+* [2026-10-24 — Garbage Day: the audit cleared again, so `main` deploys](2026-10-24-audit-overrides.md)
+  — #18 merged, but `audit` had failed on #20's and #18's merges and skipped both deploys; zod
+  4.6.7, happy-dom 21.0.4, and overrides for the `undici` and `zod` Cloudflare's tooling pins;
+  `GD-TICKET-035` done.
 * [2026-10-22 — Garbage Day: a clean dependency audit again](2026-10-22-audit-deps.md) — new
   advisories turned `audit` red on every pull request; Vite 8.3.4, Wrangler 4.151.0 with its
   matched plugins, Vitest 4.1.12 and `source-map-js` 1.2.2 cleared them; `GD-TICKET-034` done.

@@ -39,12 +39,12 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 | Routing | React Router (data mode) | 8.4.0 | Loaders and actions for private-game lookups; lazy routes |
 | Screen-flow state | XState + `@xstate/react` | 5.33.2 · 6.1.0 | Real states and guards for the app flow ([client architecture](client-architecture.md)) |
 | Preferences state | Zustand (with `persist`) | 5.0.15 | Smallest correct tool for a persisted flat store |
-| Message schemas | Zod | 4.6.5 | Validates every incoming message on the server; types shared with the client |
+| Message schemas | Zod | 4.6.7 | Validates every incoming message on the server; types shared with the client |
 | Styling | CSS Modules + CSS custom properties | built in | Tokens from [UI language](ui-language.md); no runtime cost |
 | Fonts | `@fontsource` (Big Shoulders Display, Public Sans, IBM Plex Mono) | 5.3.0 each | Self-hosted, imported by the `ui` package's `fonts.css` (display 800–900, body 400–700, data 400–600) |
 | Unit and component tests | Vitest | **4.1.12** (exception) | See exceptions |
 | Durable Object tests | `@cloudflare/vitest-plugin` | 1.4.3 | Runs Worker and DO tests inside workerd. It replaced `@cloudflare/vitest-pool-workers`, whose last release (0.22.0, August) bundles a runtime too old for the compatibility date |
-| DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 20.14.5 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
+| DOM for tests | happy-dom + Testing Library (`@testing-library/react`, `/dom`) | 21.0.4 · 16.3.3 · 10.4.2 | Fast DOM; tests by role and label |
 | End-to-end | Playwright | 1.63.0 (in since `GD-TICKET-019`) | Two browsers play a real match (M3) |
 | Browser tests | `@vitest/browser-playwright` | 4.1.12 (matches Vitest) | Runs the golden replays in Chromium, Firefox and WebKit, and the accessibility scan in Chromium |
 | Accessibility scan | `axe-core` | 4.13.0 | WCAG 2.1 A and AA rules over every screen in both themes, inside the browser tests (`GD-STORY-008`). M3's end-to-end suite can add `@axe-core/playwright` for the screens that need a real server |
@@ -61,12 +61,16 @@ lifting them. Exact versions are pinned in `package.json` files and the committe
 |---|---|---|---|
 | TypeScript **6.0.3** | 7.0.2 (the native compiler) | `typescript-eslint` 8.71 supports TypeScript `<6.1` | `typescript-eslint` supports 7.x; Renovate's PR for TypeScript 7 goes green |
 | Vitest **4.1.12** | 5.0.5 | Nothing now: `@cloudflare/vitest-plugin` 1.4 accepts Vitest 5 (`GD-TICKET-034`) | Renovate's PR for Vitest 5 goes green |
+| Override: `undici` **7.30.1** | — | miniflare pins 7.29.1 (one high, two moderate advisories), up to the Vite plugin 1.65.0 (`GD-TICKET-035`) | A Cloudflare matched set whose miniflare pins 7.30.1 or later: delete the override |
+| Override: `zod` **4.6.7** | — | `@cloudflare/vitest-plugin` pins zod 4.6.5 (one high advisory), up to 1.4.7 (`GD-TICKET-035`) | The test plugin pins 4.6.6 or later: delete the override |
 
 The two hold-backs are checked by Renovate automatically: the upgrade PR stays open and fails
-until the blocker moves. There are no overrides: the one that forced `undici` 7.29.1 under
-Wrangler 4.143.0's miniflare (ten advisories in 7.29.0) was deleted when
-[`GD-TICKET-021`](../process/backlog/GD-TICKET-021.md) took Wrangler 4.143.1, whose miniflare pins
-7.29.1 itself. The TypeScript 7 compiler (`@typescript/native-preview`) may be added later as
+until the blocker moves. The two overrides, in `pnpm-workspace.yaml`, are not: Renovate never
+deletes one, so whoever moves the Cloudflare tooling checks them by hand. An override replaces
+a version Cloudflare's tooling pins exactly when it has an advisory and no Cloudflare release
+fixes it yet ([`GD-TICKET-035`](../process/backlog/GD-TICKET-035.md)). An earlier one forced
+`undici` 7.29.1 under Wrangler 4.143.0's miniflare, and was deleted when
+[`GD-TICKET-021`](../process/backlog/GD-TICKET-021.md) took Wrangler 4.143.1. The TypeScript 7 compiler (`@typescript/native-preview`) may be added later as
 a faster second typecheck without touching lint.
 
 **Waiting a day is not an exception.** On 2026-09-30 Wrangler 4.144.0 and 4.143.1, the Vite
